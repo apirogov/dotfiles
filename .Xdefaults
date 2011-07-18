@@ -1,0 +1,113 @@
+!Save this file as ~/.Xdefaults and start a term without any options to
+!see what it does.
+!Use ! for comments (if you dont like a certain setting)
+!The `Xterm´settings work for most terms like aterm, xterm, wterm and rxvt.
+!If changing things in this file doesnt result in changes in your term
+!you should run `xrdb -load ~/.Xdefaults´
+
+! Color section
+*background:  #000000
+*foreground:  #cfcfcf
+*cursorColor: #cdc092
+
+!black
+*color0:      #000000
+!red
+*color1:      #e01010
+!green
+*color2:      #20ad20
+!yellow
+*color3:      #d4c24f
+!blue
+*color4:      #231bb8
+!purple
+*color5:      #9c3885
+!cyan
+*color6:      #1dbdb8
+!white
+*color7:      #fefefe
+!bright-black
+*color8:      #6a6a6a
+!bright-red
+*color9:      #e83a3d
+!bright-green
+*color10:     #35e956
+!bright-yellow
+*color11:     #ffff2f
+!bright-blue
+*color12:     #3a53f0
+!bright-purple
+*color13:     #e628ba
+!bright-cyan
+*color14:     #1cf5f5
+!bright-white
+*color15:     #ffffff
+
+!----XTERM SPECIFIC----
+!                           Nice for manpages
+!
+!XTerm*underLine:           on
+!XTerm*colorMode:           on
+XTerm*colorBD:              lightyellow
+!XTerm*colorBDMode:         off
+XTerm*colorUL:              blue
+!XTerm*colorULMode:         on
+
+XTerm*dynamicColors:        on
+XTerm*highlightSelection:   true
+
+XTerm*eightBitInput:        false
+XTerm*metaSendsEscape:      true
+!XTerm*oldXtermFKeys:        true
+XTerm*charClass:            33:48,35-38:48,39:43,42-47:48,58-59:48,61:48,63-64:48,126:48
+!XTerm*charClass:            46-47:48,58:48,64:48,63:48,95:48,126:48,61:48,37:48,35:48,43:48,36:48
+
+! Other settings
+
+!XTerm*VT100.Translations: #override \
+!	<Key>BackSpace:	string(0x7F)\n\
+!	<Key>Delete:	string("\033[3~")\n\
+!	<Key>Home:		string("\033[1~")\n\
+!	<Key>End:		string("\033[4~")
+!XTerm*ttyModes: erase ^?
+
+! Suggested by denek
+! *VT100*backarrowKey: false
+
+!XTerm*backarrowKeyIsErase:  true
+!XTerm*backarrowKey:         true
+!XTerm*borderWidth:         0 doesnt do anything
+XTerm*internalBorder:       0
+!XTerm*modifier:             alt
+XTerm*saveLines:            2048
+XTerm*scrollBar:            false
+!XTerm*titeInhibit:         true
+
+XTerm*faceName:             Monaco
+XTerm*faceSize:             10
+XTerm*termName:             xterm-xfree86
+
+!------------------------------------------------------------------------------
+! u r x v t
+
+!URxvt*termName:			rxvt-unicode
+URxvt*geometry:			80x24
+URxvt*font:				xft:Monaco:size=10
+URxvt*urlLauncher:		chromium
+URxvt*scrollBar:		true
+URxvt*scrollBar_right:	true
+URxvt*scrollColor:		#000080
+
+URxvt*depth:			32
+URxvt*transparent:		true
+URxvt*tintColor:		blue
+URxvt*shading:			40
+
+URxvt.perl-ext-common: default,matcher
+URxvt*saveLines:		5000
+URxvt.matcher.button:	1
+URxvt*BorderLess:		1
+
+Xft*dpi:				96
+Xft*antialias:			true
+Xft*hinting:			full
