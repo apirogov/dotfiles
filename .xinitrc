@@ -19,7 +19,7 @@ xset m 1 0 & #set mouse sensitivity
 #xmodmap -e "pointer = 3 2 1" & #invert mouse for left hand
 setxkbmap de nodeadkeys &
 nitrogen --restore &
-xsetroot -cursorname left_ptr
+xsetroot -cursor_name left_ptr
 
 #Start WM (last thing to be done)
 case $1 in

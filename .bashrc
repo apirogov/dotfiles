@@ -116,7 +116,6 @@ export SHELL="bash"
 #export TERM="xterm"
 export OOO_FORCE_DESKTOP=gnome
 export DISPLAY=":0.0"
-export PATH+=":/home/admin/.gem/ruby/1.9.1/bin"
 
 #ALIASES
 #navigation
@@ -169,9 +168,7 @@ alias cdc='eject -t sr0' 	#CD Close
 alias showswap='cat /proc/swaps'
 alias wakemompc='wol 00:0a:e6:fa:72:54'	#Wake-on-LAN mamas pc
 
-#Wine Games
-alias tmnf='cd ~/.wine/drive_c/Programme/TmNationsForever; WINEDEBUG="-all" wine TmForever.exe > /dev/null 2>&1 && cd -'	#Trackmania starter
-alias cnctw="cd ~/.wine/drive_c/Programme/Electronic\ Arts/Command\ \&\ Conquer\ 3; WINEDEBUG='-all' wine CNC3.exe > /dev/null 2>&1 && (cd - ; xrandr -s 0)"
+alias mc="LD_LIBRARY_PATH='/opt/java/jre/lib/i386' java -jar Minecraft/minecraft.jar"
 
 #FUNCTIONS
 up() { for updirs in $(seq ${1:-1}); do cd ..; done; } #Move x dirs up
