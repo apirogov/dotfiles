@@ -20,11 +20,14 @@ xset m 1 0 & #set mouse sensitivity
 setxkbmap de nodeadkeys &
 nitrogen --restore &
 xsetroot -cursor_name left_ptr
+~/.autorun
 
 #Start WM (last thing to be done)
 case $1 in
   openbox)
 	  exec ck-launch-session openbox-session ;;
+  xmonad)
+    exec ck-launch-session xmonad ;;
 esac
 
 #Run parallel xservers with: xinit [parameter] -- :[N]

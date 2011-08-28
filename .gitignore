@@ -1,0 +1,6 @@
+*.hi
+*.o
+xmonad-i386-linux
+xmonad.errors
+.vim/temp
+.vim/.*

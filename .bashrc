@@ -12,6 +12,9 @@ fi
 if [ -d ~/bin ] ; then
  PATH=~/bin:$PATH
 fi
+if [ -d ~/.cabal/bin ] ; then
+ PATH=~/.cabal/bin:$PATH
+fi
 
 # X Terminal titles
 export PROMPT_COMMAND=""
@@ -116,6 +119,7 @@ export SHELL="bash"
 #export TERM="xterm"
 export OOO_FORCE_DESKTOP=gnome
 export DISPLAY=":0.0"
+export JAVA_HOME=/usr #OpenJDK
 
 #ALIASES
 #navigation
@@ -155,6 +159,7 @@ alias yup='yaourt -Syu --aur'		#Dist upgrade
 
 #Misc. Programs
 alias gcc='LANG="C" gcc -ansi -std=c89 -pedantic -Wall -Wextra -Wshadow -Wcast-qual -Wformat=2 -Wmissing-include-dirs -Wfloat-equal -Wswitch-enum -Wundef -Wwrite-strings -Wredundant-decls -fverbose-asm -pg -g '	#High standard level, many debugging opts
+alias hc='rm -rf /tmp/*.o; ghc -fwarn-name-shadowing -hidir=/tmp -odir=/tmp -O' #"script compile" shortie
 alias ping='ping -c 5'	#Limit ping number
 alias ps='ps -e -o pid,comm,args,vsize,pcpu' #Tweaked process list
 alias mkisofs='mkisofs -v -r -J -o'	#Usage: mkisofs target.img /src/path
@@ -185,7 +190,7 @@ reload() { for arg in $*; do sudo /etc/rc.d/$arg reload; done }
 #OWN FUNCTIONS
 #Make sure ssh-agent is running with keychain before using git push
 git() {
-  if [ "push" == "$1" ]
+  if [ "push" == "$1" ] || [ "pull" == "$1" ]
   then
     eval `keychain --eval --nogui -Q -q id_rsa`
   fi

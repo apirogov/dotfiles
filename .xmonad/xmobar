@@ -1,0 +1,25 @@
+
+-- xmobar config used by Vic Fryzel
+-- Author: Vic Fryzel
+-- http://github.com/vicfryzel/xmonad-config
+
+Config { font = "xft:Fixed-8"
+      , bgColor = "#000000"
+      , fgColor = "#ffffff"
+      , position = Static { xpos = 1024, ypos = 0, width = 1440, height = 16 }
+      , lowerOnStart = True
+      , commands = [ Run MultiCpu ["-t","Cpu:<total0>%<total1>%","-L","3","-H","50","--normal","#CEFFAC","--high","#FFB6B0","-w","3"] 10
+                   , Run Memory ["-t","R:<usedratio>%"] 10
+                   , Run Swap ["-t","S:<usedratio>%"] 10
+                   , Run MPD ["-t", "<volume>% <statei> <artist> - <title> (<lapsed>/<length>)","-M","30"] 10
+                   , Run DiskU [("/", "/:<used>/<size>"),("/media/DATA","DATA:<used>/<size>")] [] 20
+                   , Run Network "eth0" ["-t","Net: <rx>, <tx>","-H","200","-L","10","-h","#FFB6B0","-l","#CEFFAC","-n","#FFFFCC","-S","True"] 5
+                   , Run Date "%a %_d %b %Y %H:%M:%S" "date" 10
+                   , Run StdinReader
+                   , Run Com "~/.xmonad/cputemp.sh" [] "cputemp" 10
+                   ]
+      , sepChar = "%"
+      , alignSep = "}{"
+      , template = "%StdinReader% }{ <fc=#8080FF>%mpd%</fc>  %multicpu% %cputemp% %memory% %swap% %disku%  %eth0%  <fc=#FFFFCC>%date%</fc>"
+      }
+

@@ -1,2 +1,1 @@
 #Openbox startup
-sh ~/.autorun

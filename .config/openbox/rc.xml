@@ -21,6 +21,7 @@
     <raiseOnFocus>yes</raiseOnFocus>
     <!-- when followMouse is enabled, and a window is given focus by moving the
        mouse into it, also raise the window -->
+    <monitorFollowMouse>yes</monitorFollowMouse>
   </focus>
   <placement>
     <policy>Smart</policy>
@@ -31,7 +32,14 @@
     <monitor>Any</monitor>
     <!-- with Smart placement on a multi-monitor system, try to place new windows
        on: 'Any' - any monitor, 'Mouse' - where the mouse is, 'Active' - where
-       the active window is -->
+       the active window is, 'Primary' - only on the primary monitor -->
+    <primaryMonitor>2</primaryMonitor>
+    <!-- The monitor where Openbox should place popup dialogs such as the
+         focus cycling popup, or the desktop switch popup.  It can be an index
+         from 1, specifying a particular monitor.  Or it can be one of the
+         following: 'Mouse' - where the mouse is, or
+                    'Active' - where the active window is -->
+    <scaleWindows>no</scaleWindows>
   </placement>
   <theme>
     <name>Onyx</name>
@@ -84,7 +92,16 @@
       <slant>normal</slant>
       <!-- 'italic' or 'normal' -->
     </font>
-    <font place="OnScreenDisplay">
+    <font place="ActiveOnScreenDisplay">
+      <name>sans</name>
+      <size>9</size>
+      <!-- font size in points -->
+      <weight>bold</weight>
+      <!-- 'bold' or 'normal' -->
+      <slant>normal</slant>
+      <!-- 'italic' or 'normal' -->
+    </font>
+    <font place="InactiveOnScreenDisplay">
       <name>sans</name>
       <size>9</size>
       <!-- font size in points -->
@@ -95,6 +112,7 @@
     </font>
   </theme>
   <desktops>
+     <greedy>true</greedy>
     <!-- this stuff is only used at startup, pagers allow you to change them
        during a session
 
@@ -106,10 +124,10 @@
     <number>4</number>
     <firstdesk>1</firstdesk>
     <names>
-      <name>Multimedia</name>
-      <name>Secondary</name>
-      <name>Development</name>
-      <name>VirtualBox</name>
+      <name>1</name>
+      <name>2</name>
+      <name>3</name>
+      <name>4</name>
     </names>
     <popupTime>875</popupTime>
     <!-- The number of milliseconds to show the popup for when switching
@@ -161,7 +179,30 @@
   </dock>
   <keyboard>
     <chainQuitKey>C-g</chainQuitKey>
+    <keybind key="A-w">
+      <action name="FocusRoot">
+        <monitor>1</monitor>
+        <pointer><x>0</x><y>0</y></pointer>
+      </action>
+    </keybind>
+    <keybind key="A-e">
+      <action name="FocusRoot">
+        <monitor>2</monitor>
+        <pointer><x>0</x><y>0</y></pointer>
+      </action>
+    </keybind>
+    <keybind key="C-Left">
+      <action name="MoveResizeTo">
+          <monitor>prev</monitor>
+      </action>
+    </keybind>
+    <keybind key="C-Right">
+      <action name="MoveResizeTo">
+          <monitor>next</monitor>
+      </action>
+    </keybind>
     <!-- Keybindings for desktop switching -->
+    <!--
     <keybind key="C-A-Left">
       <action name="DesktopLeft">
         <dialog>no</dialog>
@@ -233,6 +274,7 @@
     <keybind key="W-d">
       <action name="ToggleShowDesktop"/>
     </keybind>
+    -->
     <!-- Keybindings for windows -->
     <keybind key="A-F4">
       <action name="Close"/>
@@ -261,15 +303,6 @@
       </action>
     </keybind>
     <!-- Keybindings for running applications -->
-    <keybind key="W-e">
-      <action name="Execute">
-        <startupnotify>
-          <enabled>true</enabled>
-          <name>Konqueror</name>
-        </startupnotify>
-        <command>kfmclient openProfile filemanagement</command>
-      </action>
-    </keybind>
     <keybind key="A-F1">
       <action name="Execute">
         <execute>xterm</execute>
@@ -323,11 +356,6 @@
     <keybind key="C-W-b">
       <action name="Execute">
         <execute>mpc prev</execute>
-      </action>
-    </keybind>
-    <keybind key="C-W-x">
-      <action name="Execute">
-        <execute>/media/DATA/home/xcompmgr.sh</execute>
       </action>
     </keybind>
   </keyboard>
@@ -765,34 +793,29 @@
 -->
     <application class="Pidgin" role="buddy_list">
       <skip_taskbar>yes</skip_taskbar>
-      <skip_pager>yes</skip_pager>
+      <skip_pager>no</skip_pager>
       <layer>below</layer>
+      <position>
+          <monitor>2</monitor>
+          <x>-1</x>
+          <y>0</y>
+      </position>
       <desktop>all</desktop>
       <focus>no</focus>
-      <decor>no</decor>
-      <position>
-        <x>1192</x>
-        <y>529</y>
-      </position>
+      <decor>yes</decor>
+    </application>
+    <application class="Pidgin" role="conversation">
+        <position force="yes">
+            <monitor>2</monitor>
+            <x>center</x>
+            <y>center</y>
+        </position>
     </application>
     <application class="Gmrun">
       <layer>above</layer>
       <position>
         <x>center</x>
         <y>center</y>
-      </position>
-    </application>
-    <application class="Firefox">
-      <position>
-        <x>0</x>
-        <y>0</y>
-      </position>
-    </application>
-    <application name="sun-awt-X11-XDialogPeer">
-      <desktop>3</desktop>
-      <position>
-        <x>0</x>
-        <y>0</y>
       </position>
     </application>
   </applications>
