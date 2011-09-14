@@ -135,6 +135,9 @@ if has("autocmd")
   " Save and compile without make file and run small C program (not useful on multifile project)
   au BufRead,BufNewFile  *.c,*.h  map <F8>	:w<cr>:!cc % && ./a.out<cr>
 
+  " Save and compile with ant
+  au BufRead,BufNewFile  *.java   map <F8>	:w<cr>:!ant<cr>
+
   " Save and run ruby interpreter
   au BufRead,BufNewFile  *.rb     map <F8>  :w<cr>:!ruby %<cr>
   " Load into IRB
@@ -143,14 +146,14 @@ if has("autocmd")
   " Compile a standalone haskell script
   au BufRead,BufNewFile *.hs      map <F8>  :w<cr>:!rm -rf /tmp/*.o; ghc -fwarn-name-shadowing -hidir=/tmp -odir=/tmp -O -o a.out % && ./a.out<cr>
   " Load into GHCI
-  au BufRead,BufNewFile  *.hs     map <F7>  :w<cr>:!ghci %<cr>
-  
+  au BufRead,BufNewFile *.hs      map <F7>  :w<cr>:!ghci %<cr>
+
 endif
 
 " ------- Plugin config -------
 
 " Load plugins from bundle folders with pathogen
-" pathogen#pathogen_disabled[] "list of disabled bundles (additionaly to bundles ending with ~
+let g:pathogen_disabled=["SuperTab"] "list of disabled bundles (additionaly to bundles ending with ~
 call pathogen#infect() 
 " add current git branch to statusline
 set statusline+=%{fugitive#statusline()}
@@ -166,6 +169,8 @@ map <F10> :NERDTreeToggle<cr>
 map <F11> :TlistToggle<cr>
 " Toggle both
 map <F12> :NERDTreeToggle<cr>:TlistToggle<cr>
+"toggle bracket autoclose
+map <leader>c :AutoCloseToggle<cr>
 
 "Write to file without previous write access (asks password)
 cmap w!! %!sudo tee > /dev/null %
@@ -183,6 +188,7 @@ cmap cwd lcd %:p:h
 "set showtabline=2    " always show tab bar
 set tabpagemax=20    " maximum number of tabs to create
 map <C-t>	:tabnew<cr>
+map <C-w>	:tabclose<cr>
 " map <C-j>	:tabprevious<cr>
 " map <C-k>	:tabnext<cr>
 

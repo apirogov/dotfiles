@@ -1,27 +1,36 @@
-
--- xmonad config used by Vic Fryzel
--- Author: Vic Fryzel
--- http://github.com/vicfryzel/xmonad-config
+-- xmonad config used by Anton Pirogov
 
 import System.IO
 import System.Exit
 import XMonad hiding (Tall)
+
+import XMonad.Actions.PhysicalScreens
+import XMonad.Actions.CycleWS
+
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.ManageDocks
 import XMonad.Hooks.SetWMName
 import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.RestoreMinimized
+
+import XMonad.Layout.ComboP
+import XMonad.Layout.Reflect
+import XMonad.Layout.TwoPane
 import XMonad.Layout.HintedTile
+import XMonad.Layout.Tabbed
 import XMonad.Layout.Grid
 import XMonad.Layout.Spiral
-import XMonad.Layout.Tabbed
 import XMonad.Layout.Circle
+
 import XMonad.Layout.Named
 import XMonad.Layout.Minimize
 import XMonad.Layout.NoBorders
 import XMonad.Layout.PerWorkspace
+import XMonad.Layout.WindowNavigation
+
 import XMonad.Util.Run (spawnPipe)
-import XMonad.Util.EZConfig (additionalKeys)
+import XMonad.Util.Scratchpad
+import XMonad.Util.WorkspaceCompare
 
 import qualified XMonad.StackSet as W
 import qualified Data.Map        as M
@@ -66,7 +75,8 @@ myNumlockMask   = mod2Mask
 --
 -- > workspaces = ["web", "irc", "code" ] ++ map show [4..9]
 --
-myWorkspaces    = ["1:msg","2:web","3:code","4:media","5:vm","6:misc"]
+
+myWorkspaces    = ["1:msg","2:web","3:code","4:media","5:misc"]
 
 -- Border colors for unfocused and focused windows, respectively.
 --
@@ -144,8 +154,20 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
     -- Restart xmonad
     , ((modMask              , xK_q     ), restart "xmonad" True)
 
+
     -- Minimize window
     , ((modMask .|. shiftMask, xK_m     ), withFocused (\f -> sendMessage (MinimizeWin f)))
+
+    -- improved WindowNavigation keybindings
+    , ((modMask,               xK_Right), sendMessage $ Go R)
+    , ((modMask,               xK_Left ), sendMessage $ Go L)
+    , ((modMask,               xK_Up   ), sendMessage $ Go U)
+    , ((modMask,               xK_Down ), sendMessage $ Go D)
+    , ((modMask .|. shiftMask, xK_Right), sendMessage $ Swap R)
+    , ((modMask .|. shiftMask, xK_Left ), sendMessage $ Swap L)
+    , ((modMask .|. shiftMask, xK_Up   ), sendMessage $ Swap U)
+    , ((modMask .|. shiftMask, xK_Down ), sendMessage $ Swap D)
+    , ((modMask .|. shiftMask, xK_s    ), sendMessage $ SwapWindow)  --Swap between panes in ComboP TwoPane
 
     -- Screenshot
     , ((0, xK_Print), spawn "scrot -q 95 %Y-%m-%d_%H%M%S.jpg")
@@ -157,6 +179,9 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
     , ((modMask .|. controlMask, xK_r), spawn "mpc repeat")
     , ((modMask .|. controlMask, xK_f), spawn "mpc next")
     , ((modMask .|. controlMask, xK_b), spawn "mpc prev")
+
+    -- Scratchpad terminal
+    , ((modMask .|. controlMask, xK_Return),  scratchpadSpawnAction defaultConfig)
 
     ]
     ++
@@ -174,10 +199,9 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
     -- mod-{w,e,r}, Switch to physical/Xinerama screens 1, 2, or 3
     -- mod-shift-{w,e,r}, Move client to screen 1, 2, or 3
     --
-    [((m .|. modMask, key), screenWorkspace sc >>= flip whenJust (windows . f))
+    [((m .|. modMask, key), f sc)
         | (key, sc) <- zip [xK_w, xK_e, xK_r] [0..]
-        , (f, m) <- [(W.view, 0), (W.shift, shiftMask)]]
-
+        , (f, m) <- [(viewScreen, 0), (sendToScreen, shiftMask)]]
 
 ------------------------------------------------------------------------
 -- Mouse bindings: default actions bound to mouse events
@@ -206,38 +230,45 @@ myMouseBindings (XConfig {XMonad.modMask = modMask}) = M.fromList $
 --
 -- The available layouts.  Note that each layout is separated by |||,
 -- which denotes layout choice.
---
-myTabConfig = defaultTheme {   activeBorderColor = "#7C7C7C"
+
+
+
+myLayout = windowNavigation $ avoidStruts $ nameTail $ minimize
+           ( defaultPerWorkspace ||| hintedTile Tall ||| hintedTile Wide ||| tabbedLayout ||| Full ||| spiral (6/7) ||| Circle ||| Grid )
+  where
+     defaultPerWorkspace = named "Workspace Default"
+                         $ onWorkspace "1:msg"   pidginLayout
+                         $ onWorkspace "2:web"   tabbedLayout
+                         $ onWorkspace "3:code"  codingLayout
+                         $ onWorkspace "4:media" Full
+                         $ hintedTile Tall       -- for all the others
+
+     -- default for hinted Tall/Mirror Tall (HintedTile is better that layoutHints $ Tall)
+     hintedTile = HintedTile nmaster delta ratio floatPos
+     nmaster  = 1      -- The default number of windows in the master pane
+     ratio    = 1/2    -- Default proportion of screen occupied by master pane
+     delta    = 3/100  -- Percent of screen to increment by when resizing panes
+     floatPos = Center -- Where floating windows spawn (TopLeft, BottomRight or Center)
+
+     -- tabbed layout
+     tabbedLayout = tabbed shrinkText myTabConfig
+     -- decoration color settings for tabbed layout
+     myTabConfig = defaultTheme {   activeBorderColor = "#7C7C7C"
                              , activeTextColor = "#CEFFAC"
                              , activeColor = "#000000"
                              , inactiveBorderColor = "#7C7C7C"
                              , inactiveTextColor = "#EEEEEE"
                              , inactiveColor = "#000000" }
-myLayout = avoidStruts $ nameTail $ minimize
-           ( defaultPerWorkspace ||| hintedTile Tall ||| hintedTile Wide ||| tabbed shrinkText myTabConfig ||| Full ||| spiral (6/7) ||| Circle ||| Grid )
-  where
-     defaultPerWorkspace = named "Workspace Default"
-                         $ onWorkspace "1:msg"   pidginTiled
-                         $ onWorkspace "2:web"   ( tabbed shrinkText myTabConfig )
-                         $ onWorkspace "3:code"  ( HintedTile 1 (3/100) (3/4) TopLeft Wide )
-                         $ onWorkspace "4:media" Full
-                         $ hintedTile Tall
 
-     -- default tiling algorithm partitions the screen into two panes
-     -- defTall   = Tall nmaster delta ratio
-     -- defWide   = Mirror defTall
+     -- combined workspace layout for usage with instant messenger (keeping the Pidgin buddy list always on the right)
+     pidginLayout = reflectHoriz $ combineTwoP (TwoPane (3/100) (1/5))
+                                               (hintedTile Tall) (hintedTile Wide)
+                                               (ClassName "Pidgin" `And` Role "buddy_list")
 
-     -- Improved Tall/Mirror Tall
-     hintedTile = HintedTile nmaster delta ratio TopLeft
-     -- The default number of windows in the master pane
-     nmaster = 1
-     -- Default proportion of screen occupied by master pane
-     ratio   = 1/2
-     -- Percent of screen to increment by when resizing panes
-     delta   = 3/100
-
-     -- workspace layout for usage with Pidgin
-     pidginTiled = HintedTile 2 (3/100) (3/4) TopLeft Tall
+     -- default coding layout
+     codingLayout = combineTwoP (Mirror $ TwoPane (3/100) (2/3))
+                                (tabbedLayout) (hintedTile Tall)
+                                (ClassName "Gvim")
 
 ------------------------------------------------------------------------
 -- Window rules:
@@ -259,7 +290,7 @@ myManageHook = composeAll [
     , className =? "Vlc"            --> doFloat
     , className =? "Pidgin"         --> doShift "1:msg"
     , className =? "Firefox"        --> doShift "2:web"
-    , className =? "GVim"           --> doShift "3:code"
+    , className =? "net-minecraft-MinecraftLauncher" --> doShift "4:media"
     , className =? "VirtualBox"     --> doShift "4:media"
     ]
 
@@ -288,8 +319,10 @@ myFocusFollowsMouse = True
 --
 -- By default, do nothing.
 myStartupHook = do
---    spawn "tint2"
---    spawn "xterm"
+    --temporary, needed as long as the monitors are swapped
+    viewScreen 0
+    swapNextScreen
+    ---
 --    spawn "firefox"
     return ()
 
@@ -308,10 +341,14 @@ main = do
                                 ppOutput = hPutStrLn xmproc
                                 , ppTitle = xmobarColor "#FFB6B0" "" . shorten 100
                                 , ppCurrent = xmobarColor "#CEFFAC" ""
+                                , ppSort = fmap (.scratchpadFilterOutWorkspace) getSortByIndex
                                 , ppSep = "   "
                                 }
-    , manageHook         = manageDocks <+> myManageHook
-    , handleEventHook    = ewmhDesktopsEventHook >> restoreMinimizedEventHook
+    , manageHook         = scratchpadManageHook (W.RationalRect 0 0 1 (1/2))
+                          <+> manageDocks
+                          <+> myManageHook
+    , handleEventHook    = do ewmhDesktopsEventHook
+                              restoreMinimizedEventHook
     , startupHook        = myStartupHook
 	}
 

@@ -23,10 +23,12 @@ xsetroot -cursor_name left_ptr
 ~/.autorun
 
 #Start WM (last thing to be done)
-case $1 in
+case "$1" in
   openbox)
 	  exec ck-launch-session openbox-session ;;
   xmonad)
+    exec ck-launch-session xmonad ;;
+  *)  #default
     exec ck-launch-session xmonad ;;
 esac
 
