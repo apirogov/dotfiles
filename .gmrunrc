@@ -24,16 +24,17 @@ ShowLast = 1
 ShowDotFiles = 0
 
 # Timeout (in milliseconds) after which gmrun will simulate a TAB press
-# Set this to NULL if don't like this feature.
-TabTimeout = 100
+# Set this to 0 if don't like this feature.
+TabTimeout = 0
 
 # URL handlers
 # If the entered text is "http://www.google.com" then:
 #   - %u gets replaced with the whole URL ("http://www.google.com")
 #   - %s gets replaced with "//www.google.com".  This is useful for URL-s
 #     like "man:printf" --> %s will get replaced with "printf"
-URL_http = mozilla -remote "openURL(%u, new-window)"
-URL_mailto = mozilla -remote "mailto(%s)"
+URL_http = firefox -new-tab "%u"
+URL_www = firefox -new-tab "%s"
+URL_mailto = firefox -new-tab "mailto:%s"
 URL_man = ${TermExec} 'man %s'
 URL_info = ${TermExec} 'info %s'
 URL_pd = ${TermExec} 'perldoc %s'
@@ -41,9 +42,10 @@ URL_file = nautilus %s
 URL_readme = ${TermExec} 'less /usr/doc/%s/README'
 URL_info = ${TermExec} 'info %s'
 URL_sh = sh -c '%s'
+URL_g = firefox 'http://www.google.com/search?q=%s'
 
 # extension handlers
-EXT:doc,rtf = AbiWord %s
-EXT:txt,cc,cpp,h,java,html,htm,epl,tex,latex,js,css,xml,xsl,am = emacs %s
-EXT:ps = gv %s
-EXT:pdf = xpdf %s
+EXT:doc,rtf = libreoffice %s
+EXT:txt,cc,cpp,h,java,html,htm,epl,tex,latex,js,css,xml,xsl,am = gvim %s
+EXT:ps,pdf,djvu = evince %s
+EXT:jpg,png,bmp,gif = gpicview %s

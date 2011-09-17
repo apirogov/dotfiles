@@ -4,4 +4,4 @@ dropboxd &
 /usr/lib/notification-daemon-1.0/notification-daemon &
 firefox &
 ck-launch-session pcmanfm -d &
-pidgin &
+#pidgin &
