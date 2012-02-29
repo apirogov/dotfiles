@@ -1,0 +1,7 @@
+pcm.copy {
+type plug
+slave {
+pcm hw
+}
+route_policy copy
+}

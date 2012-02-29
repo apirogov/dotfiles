@@ -1,7 +1,4 @@
-
--- xmobar config used by Vic Fryzel
--- Author: Vic Fryzel
--- http://github.com/vicfryzel/xmonad-config
+-- XMobar Configuration
 
 Config { font = "xft:Fixed-8"
       , bgColor = "#000000"

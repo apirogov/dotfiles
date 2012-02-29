@@ -237,3 +237,12 @@ $(Set256Color 33)    /##,-,##\     \__,_|_|  \___|_| |_|_|_|_| |_|\__,_/_/\_\\
 
 [[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
 #setxkbmap de neo -option	#set neo keyboard layout
+#set Scroll-lock key to switch QWERTZ (default) and NEO
+setxkbmap -layout de,de -variant nodeadkeys,neo -option -option grp:sclk_toggle -option grp_led:scroll
+#set Scroll-lock key to switch NEO (default) and QUERTZ
+#setxkbmap -layout de,de -variant neo,nodeadkeys -option -option grp:sclk_toggle -option grp_led:scroll
+
+#activate wake-on-lan
+sudo ethtool -s eth0 wol g  #enable wake on lan
+#activate webcam mic
+sudo modprobe snd-usb-audio 1>&2 2>/dev/null

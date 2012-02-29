@@ -215,6 +215,8 @@ main = do
     , ((myModMask .|. shiftMask, xK_s    ), sendMessage $ SwapWindow)  --Swap between panes in ComboP TwoPane
     -- Screenshot
     , ((0, xK_Print), spawn "scrot -q 95 %Y-%m-%d_%H%M%S.jpg")
+    -- Home key - shutdown
+    , ((0, 0x1008ff18), spawn "sudo shutdown -h now")
     -- MPD multimedia keys
     , ((0, 0x1008ff13), spawn "mpc volume +10")
     , ((0, 0x1008ff11), spawn "mpc volume -10")

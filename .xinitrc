@@ -16,8 +16,9 @@
 
 #Apps before WM
 xset m 1 0 & #set mouse sensitivity
-#xmodmap -e "pointer = 3 2 1" & #invert mouse for left hand
-setxkbmap de nodeadkeys &
+#xmodmap -e "pointer = 3 2 1" #invert mouse for left hand
+setxkbmap de nodeadkeys      #set default layout
+
 nitrogen --restore &
 xsetroot -cursor_name left_ptr
 ~/.autorun
@@ -27,9 +28,9 @@ case "$1" in
   openbox)
 	  exec ck-launch-session openbox-session ;;
   xmonad)
-    exec ck-launch-session xmonad ;;
+    exec ck-launch-session ~/.cabal/bin/xmonad ;;
   *)  #default
-    exec ck-launch-session xmonad ;;
+    exec ck-launch-session ~/.cabal/bin/xmonad ;;
 esac
 
 #Run parallel xservers with: xinit [parameter] -- :[N]
