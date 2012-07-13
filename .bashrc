@@ -171,6 +171,7 @@ alias showswap='cat /proc/swaps'
 alias wakemompc='wol 00:0a:e6:fa:72:54'	#Wake-on-LAN mamas pc
 
 alias mc="LD_LIBRARY_PATH='/opt/java/jre/lib/i386' java -jar Minecraft/minecraft.jar"
+alias togglepad="synclient TouchpadOff=$(synclient -l | grep -c 'TouchpadOff.*=.*0')"
 
 #FUNCTIONS
 up() { for updirs in $(seq ${1:-1}); do cd ..; done; } #Move x dirs up
@@ -222,6 +223,7 @@ unixtime(){ date +"%s"; }	#Just for fun
 #set 256 color color
 Set256Color(){ if [ "$TERM" != "linux" ];then echo -e "\e[38;5;$1m";fi;}
 
+
 #GREETING (Distribution, Kernel Version, Date+Time, Uptime, Todo-List)
 echo -e "\e[1;36m$(Set256Color 51)        ,                        _     _ _                  
        /#\         __ _ _ __ ___| |__ | (_)_ __  _   ___  __
@@ -232,14 +234,10 @@ $(Set256Color 33)    /##,-,##\     \__,_|_|  \___|_| |_|_|_|_| |_|\__,_/_/\_\\
 \e[0;36m$(Set256Color 27)  /#.--   --.#\  \e[0;32m$(date "+%a, %e. %B %Y %H:%M:%S"), uptime:$(uptime|head -c 18|tail -c 5)
 \e[0;36m$(Set256Color 27) /\`           \`\ "
 
-[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
+#[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
 #setxkbmap de neo -option	#set neo keyboard layout
 #set Scroll-lock key to switch QWERTZ (default) and NEO
 setxkbmap -layout de,de -variant nodeadkeys,neo -option -option grp:sclk_toggle -option grp_led:scroll
 #set Scroll-lock key to switch NEO (default) and QUERTZ
 #setxkbmap -layout de,de -variant neo,nodeadkeys -option -option grp:sclk_toggle -option grp_led:scroll
 
-#activate wake-on-lan
-sudo ethtool -s eth0 wol g  #enable wake on lan
-#activate webcam mic
-sudo modprobe snd-usb-audio 1>&2 2>/dev/null

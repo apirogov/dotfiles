@@ -2,5 +2,3 @@
 *.o
 xmonad-i386-linux
 xmonad.errors
-.vim/tmp
-.vim/.*

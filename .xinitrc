@@ -15,12 +15,13 @@
 #exec twm
 
 #Apps before WM
-xset m 1 0 & #set mouse sensitivity
+#xset m 1 0 & #set mouse sensitivity
 #xmodmap -e "pointer = 3 2 1" #invert mouse for left hand
 setxkbmap de nodeadkeys      #set default layout
 
 nitrogen --restore &
 xsetroot -cursor_name left_ptr
+syndaemon -k -i 2 -d &
 ~/.autorun
 
 #Start WM (last thing to be done)
@@ -28,9 +29,9 @@ case "$1" in
   openbox)
 	  exec openbox-session ;;
   xmonad)
-    exec ~/.cabal/bin/xmonad ;;
+    exec ck-launch-session dbus-launch xmonad ;;
   *)  #default
-    exec ~/.cabal/bin/xmonad ;;
+    exec ck-launch-session dbus-launch xmonad ;;
 esac
 
 #Run parallel xservers with: xinit [parameter] -- :[N]

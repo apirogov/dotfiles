@@ -216,11 +216,14 @@ main = do
     -- MPD multimedia keys
     , ((0, 0x1008ff13), spawn "mpc volume +10")
     , ((0, 0x1008ff11), spawn "mpc volume -10")
-    , ((myModMask .|. controlMask, xK_p), spawn "mpc toggle")
+    -- , ((myModMask .|. controlMask, xK_p), spawn "mpc toggle")
+    -- , ((myModMask .|. controlMask, xK_f), spawn "mpc next")
+    -- , ((myModMask .|. controlMask, xK_b), spawn "mpc prev")
+    , ((0, 0x1008ff14), spawn "mpc toggle")
+    , ((0, 0x1008ff17), spawn "mpc next")
+    , ((0, 0x1008ff16), spawn "mpc prev")
     , ((myModMask .|. controlMask, xK_s), spawn "mpc random")
     , ((myModMask .|. controlMask, xK_r), spawn "mpc repeat")
-    , ((myModMask .|. controlMask, xK_f), spawn "mpc next")
-    , ((myModMask .|. controlMask, xK_b), spawn "mpc prev")
     -- Scratchpad terminal
     , ((myModMask .|. controlMask, xK_Return), scratchpadSpawnActionTerminal "urxvt")
     -- per workspace keys
