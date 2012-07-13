@@ -26,11 +26,11 @@ xsetroot -cursor_name left_ptr
 #Start WM (last thing to be done)
 case "$1" in
   openbox)
-	  exec ck-launch-session openbox-session ;;
+	  exec openbox-session ;;
   xmonad)
-    exec ck-launch-session ~/.cabal/bin/xmonad ;;
+    exec ~/.cabal/bin/xmonad ;;
   *)  #default
-    exec ck-launch-session ~/.cabal/bin/xmonad ;;
+    exec ~/.cabal/bin/xmonad ;;
 esac
 
 #Run parallel xservers with: xinit [parameter] -- :[N]

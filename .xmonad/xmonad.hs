@@ -95,9 +95,8 @@ myLayout = windowNavigation $ avoidStruts $ nameTail $ minimize
      defaultPerWorkspace = named "Workspace Default"
                          $ onWorkspace "1:msg"   pidginLayout
                          $ onWorkspace "2:web"   tabbedLayout
-                         $ onWorkspace "3:code"  codingLayout
+                         $ onWorkspace "3:code"  tabbedLayout
                          $ onWorkspace "4:media" Full
-                         $ onWorkspace "5:misc"  gimp
                          $ hintedTile Tall       -- for all the others
 
      -- default for hinted Tall/Mirror Tall (HintedTile is better that layoutHints $ Tall)
@@ -121,14 +120,10 @@ myLayout = windowNavigation $ avoidStruts $ nameTail $ minimize
      -- combined workspace layout for usage with instant messenger (keeping the Pidgin buddy list always on the right)
      pidginLayout = reflectHoriz $ withIM (1/5) (ClassName "Pidgin" `And` Role "buddy_list") (hintedTile Wide)
 
-     -- default coding layout
+     -- console coding layout
      codingLayout = combineTwoP (Mirror $ TwoPane (3/100) (2/3))
                                 (tabbedLayout) (hintedTile Tall)
                                 (ClassName "Gvim")
-
-     gimp = withIM (0.11) (Role "gimp-toolbox") $
-             reflectHoriz $
-             withIM (0.15) (Role "gimp-dock") Full
 
 ------------------------------------------------------------------------
 -- Execute arbitrary actions and WindowSet manipulations when managing
@@ -139,6 +134,7 @@ myManageHook = composeAll [
       className =? "Vlc"            --> doFloat
     , className =? "Pidgin"         --> doShift "1:msg"
     , className =? "Firefox"        --> doShift "2:web"
+    , className =? "Eclipse"        --> doShift "3:code"
     , className =? "VirtualBox"     --> doShift "4:media"
     , className =? "Gimp"           --> doShift "5:misc"
     , className =? "net-minecraft-MinecraftLauncher" --> doShift "4:media"
@@ -169,7 +165,7 @@ defaults = defaultConfig {
         normalBorderColor  = myNormalBorderColor,
         focusedBorderColor = myFocusedBorderColor,
         modMask            = myModMask,
-        numlockMask        = myNumlockMask,
+--        numlockMask        = myNumlockMask,
         workspaces         = myWorkspaces,
 
       -- hooks, layouts
@@ -202,7 +198,7 @@ main = do
 
 	} `additionalKeys` ( [  -- Key bindings --
     -- Minimize window
-      ((myModMask .|. shiftMask, xK_m     ), withFocused (\f -> sendMessage (MinimizeWin f)))
+      ((myModMask .|. shiftMask, xK_m    ), withFocused minimizeWindow)
     -- improved WindowNavigation keybindings
     , ((myModMask,               xK_Right), sendMessage $ Go R)
     , ((myModMask,               xK_Left ), sendMessage $ Go L)

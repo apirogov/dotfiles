@@ -3,11 +3,6 @@
 # If not running interactively, don't do anything
 [ -z "$PS1" ] && return
 
-#Completion
-if [ -f /etc/bash_completion ]; then
-      . /etc/bash_completion # Source completion code if available
-fi
-
 # If exists, add ~/bin to $PATH.
 if [ -d ~/bin ] ; then
  PATH=~/bin:$PATH
@@ -93,6 +88,7 @@ bind 'set show-all-if-ambiguous on'
 DEFAULT="\[\e[0m\]"
 RED="\[\e[1;31m\]"
 GREEN="\[\e[32m\]"
+GGREEN="\[\e[1;32m\]"
 BLUE="\[\e[1;34m\]"
 CYAN="\[\e[1;36m\]"
 WHITE="\[\e[1;37m\]"
@@ -165,6 +161,7 @@ alias ps='ps -e -o pid,comm,args,vsize,pcpu' #Tweaked process list
 alias mkisofs='mkisofs -v -r -J -o'	#Usage: mkisofs target.img /src/path
 alias xp='xprop | grep "WM_WINDOW_ROLE\|WM_CLASS" && echo "WM_CLASS(STRING) = \"NAME\", \"CLASS\"";xwininfo'
 alias setmp3chmod='find -name "*.mp3" -print0 | xargs -0 chmod 644'
+alias m4a2mp3='for a in *.m4a; do faad -f 2 -w "$a"  | lame -r - "$a.mp3"; done'
 alias normalizevolume='find /media/DATA/myfiles/music/ -type f -iname "*.mp3" -print0 | xargs -0 mp3gain -r -k -s i -d 4'
 
 #Hardware control
