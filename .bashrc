@@ -43,7 +43,7 @@ shopt -s dotglob	# files beginning with . to be returned in the results of path-
 
 ## SET OPTIONS
 #set -o vi		# Vi-like command entry mode
-set -o noclobber	# prevent overwriting files with cat
+#set -o noclobber	# prevent overwriting files with cat
 set -o ignoreeof	# stops ctrl+d from logging me out
 bind 'set completion-ignore-case on'
 bind 'set show-all-if-ambiguous on'
@@ -139,11 +139,6 @@ alias sym='ln -s'		#Symlink
 alias top10size='find . -printf "%s %p\n"|sort -nr|head'
 alias resizescreen='xrandr -s 1 && xrandr -s 0'
 
-#Mounting my Player with mtpfs
-alias mountplayer='mkdir player; sudo mtpfs -o allow_other player'
-alias umountplayer='sudo umount player; rmdir player'
-
-
 #Package Management - Pacman
 alias ygl="pacman -Qe | less"	#Get List w. names of all inst. pkgs.
 alias ysi='pacman -Si'				#Search Info about packages
@@ -163,17 +158,39 @@ alias xp='xprop | grep "WM_WINDOW_ROLE\|WM_CLASS" && echo "WM_CLASS(STRING) = \"
 alias setmp3chmod='find -name "*.mp3" -print0 | xargs -0 chmod 644'
 alias m4a2mp3='for a in *.m4a; do faad -f 2 -w "$a"  | lame -r - "$a.mp3"; done'
 alias normalizevolume='find /media/DATA/myfiles/music/ -type f -iname "*.mp3" -print0 | xargs -0 mp3gain -r -k -s i -d 4'
+alias mirror="rsync -auv --delete"
+
+#mediacenter - using ssh/sshfs/rsync/mpd/ncmpcpp
+#use to: backup folders, mount remote data, control music
+#requires to have MPD default port, MEDIAPORT and port 8000 for mpd streaming open on media server
+export MEDIAHOST=192.168.1.1
+MEDIAPORT=2200
+MEDIAUSER=admin
+MEDIALOGIN=$MEDIAUSER@$MEDIAHOST
+MEDIAMAC='00:1b:fc:fc:c3:29'
+alias center.ssh="ssh -p $MEDIAPORT $MEDIALOGIN"
+alias center.wake="wol $MEDIAMAC"
+alias center.ping="ping -c 5 $MEDIAHOST"
+alias center.shutdown="ssh -p $MEDIAPORT $MEDIALOGIN 'sudo shutdown -h now'"
+alias center.mount="mkdir ~/media; sshfs -p $MEDIAPORT $MEDIALOGIN:/media/DATA ~/media"
+alias center.umount="fusermount -u ~/media; rmdir ~/media"
+alias center.updatebackup="rsync --delete -avue 'ssh -p $MEDIAPORT' ~/myfiles $MEDIALOGIN:/media/DATA" #mirror local -> remote external
+alias center.updatebackup2="ssh -p $MEDIAPORT $MEDIALOGIN 'rsync -auv --delete /media/DATA/myfiles /media/HD'" #mirror rem. external -> rem. internal
+alias center.mpc="ncmpcpp -h $MEDIAHOST"
+alias center.stream="mplayer -nocache http://$MEDIAHOST:8000"
+
+#Mounting my Player with mtpfs
+alias mount.player='mkdir player; sudo mtpfs -o allow_other player'
+alias umount.player='sudo umount player; rmdir player'
 
 #Hardware control
 alias cdo='eject sr0'	#CD Open
 alias cdc='eject -t sr0' 	#CD Close
 alias showswap='cat /proc/swaps'
 alias wakemompc='wol 00:0a:e6:fa:72:54'	#Wake-on-LAN mamas pc
+alias togglepad='killall syndaemon; synclient TouchpadOff=$(synclient -l | grep -c "TouchpadOff.*=.*0")'
 
-alias mc="LD_LIBRARY_PATH='/opt/java/jre/lib/i386' java -jar Minecraft/minecraft.jar"
-alias togglepad="synclient TouchpadOff=$(synclient -l | grep -c 'TouchpadOff.*=.*0')"
-
-#FUNCTIONS
+#MISC FUNCTIONS
 up() { for updirs in $(seq ${1:-1}); do cd ..; done; } #Move x dirs up
 
 # Cool History Summerizer - most used commands
@@ -234,10 +251,12 @@ $(Set256Color 33)    /##,-,##\     \__,_|_|  \___|_| |_|_|_|_| |_|\__,_/_/\_\\
 \e[0;36m$(Set256Color 27)  /#.--   --.#\  \e[0;32m$(date "+%a, %e. %B %Y %H:%M:%S"), uptime:$(uptime|head -c 18|tail -c 5)
 \e[0;36m$(Set256Color 27) /\`           \`\ "
 
-#[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
+[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
+PATH=$PATH:$HOME/.rvm/bin # Add RVM to PATH for scripting
+
 #setxkbmap de neo -option	#set neo keyboard layout
 #set Scroll-lock key to switch QWERTZ (default) and NEO
-setxkbmap -layout de,de -variant nodeadkeys,neo -option -option grp:sclk_toggle -option grp_led:scroll
+#setxkbmap -layout de,de -variant nodeadkeys,neo -option -option grp:sclk_toggle -option grp_led:scroll
 #set Scroll-lock key to switch NEO (default) and QUERTZ
 #setxkbmap -layout de,de -variant neo,nodeadkeys -option -option grp:sclk_toggle -option grp_led:scroll
 

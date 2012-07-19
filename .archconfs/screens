@@ -1,0 +1,56 @@
+#!/bin/bash
+#
+# This script toggles the extended monitor outputs if something is connected
+# no parameters: toggle
+# -d: dual screen if possible
+# anything else: single screen
+#
+# for brightness requires script /usr/bin/brightness (which does echo $1 > /sys/class/.../brightness without password)!
+
+# your notebook monitor
+DEFAULT_OUTPUT='LVDS1'
+
+# outputs to toggle if connected
+OUTPUTS='VGA1 HDMI1'
+
+# save current brightness
+BRIGHT=$(cat /sys/class/backlight/acpi_video0/brightness)
+
+# get info from xrandr
+XRANDR=`xrandr`
+
+EXECUTE=""
+
+for CURRENT in $OUTPUTS
+do
+        if [[ $XRANDR == *$CURRENT\ connected*  ]] # is connected
+        then
+                if [[ "$1" == "" ]] # no parameters given -> toggle
+                then
+                        echo "Toggling screen mode!"
+                        if [[ $XRANDR == *$CURRENT\ connected\ \(* ]] # is disabled
+                        then
+                                EXECUTE+="--output $CURRENT --auto --above $DEFAULT_OUTPUT "
+                        else
+                                EXECUTE+="--output $CURRENT --off "
+                        fi
+                else
+                        if [[ "$1" == "-d" ]]
+                        then
+                                echo "Setting dual screen!"
+                                EXECUTE+="--output $CURRENT --auto --above $DEFAULT_OUTPUT "
+                        else
+                                echo "Setting internal screen!"
+                                EXECUTE+="--output $CURRENT --off "
+                        fi
+                fi
+        else # make sure disconnected outputs are off 
+                EXECUTE+="--output $CURRENT --off "
+        fi
+done
+
+xrandr --output $DEFAULT_OUTPUT --auto $EXECUTE
+if [[ "$BRIGHT" != "$(cat /sys/class/backlight/acpi_video0/brightness)" ]]
+then
+    sudo brightness $BRIGHT
+fi

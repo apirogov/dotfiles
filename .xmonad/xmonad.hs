@@ -3,6 +3,7 @@
 ---------------------------------------------------------------
 
 import System.IO
+import System.Environment (getEnv)
 import System.Exit
 import XMonad hiding (Tall)
 
@@ -38,7 +39,7 @@ import XMonad.Layout.ComboP
 import XMonad.Layout.TwoPane
 
 -- other stuff
-import XMonad.Util.Run (spawnPipe)
+import XMonad.Util.Run (spawnPipe, runProcessWithInput)
 import XMonad.Util.EZConfig (additionalKeys)
 
 import XMonad.Util.Scratchpad
@@ -118,7 +119,7 @@ myLayout = windowNavigation $ avoidStruts $ nameTail $ minimize
                                 }
 
      -- combined workspace layout for usage with instant messenger (keeping the Pidgin buddy list always on the right)
-     pidginLayout = reflectHoriz $ withIM (1/5) (ClassName "Pidgin" `And` Role "buddy_list") (hintedTile Wide)
+     pidginLayout = reflectHoriz $ withIM (1/8) (ClassName "Pidgin" `And` Role "buddy_list") (hintedTile Tall)
 
      -- console coding layout
      codingLayout = combineTwoP (Mirror $ TwoPane (3/100) (2/3))
@@ -135,8 +136,7 @@ myManageHook = composeAll [
     , className =? "Pidgin"         --> doShift "1:msg"
     , className =? "Firefox"        --> doShift "2:web"
     , className =? "Eclipse"        --> doShift "3:code"
-    , className =? "VirtualBox"     --> doShift "4:media"
-    , className =? "Gimp"           --> doShift "5:misc"
+    , className =? "Gimp-2.8"       --> doShift "5:misc"
     , className =? "net-minecraft-MinecraftLauncher" --> doShift "4:media"
     ]
 
@@ -165,7 +165,6 @@ defaults = defaultConfig {
         normalBorderColor  = myNormalBorderColor,
         focusedBorderColor = myFocusedBorderColor,
         modMask            = myModMask,
---        numlockMask        = myNumlockMask,
         workspaces         = myWorkspaces,
 
       -- hooks, layouts
@@ -174,11 +173,14 @@ defaults = defaultConfig {
         startupHook        = myStartupHook
     }
 
+
 ------------------------------------------------------------------------
 -- Now run xmonad with all the defaults we set up.
 --
 main = do
-  xmproc <- spawnPipe "~/.cabal/bin/xmobar ~/.xmonad/xmobar"
+  mediahost <- getEnv "MEDIAHOST" `catch` (\e -> return "127.0.0.1") -- for some keybindings
+
+  xmproc <- spawnPipe $ "MPD_HOST="++ mediahost ++" ~/.cabal/bin/xmobar ~/.xmonad/xmobar"
   xmonad $ ewmh $ defaults {
       logHook            = do
                             setWMName "LG3D"
@@ -211,19 +213,31 @@ main = do
     , ((myModMask .|. shiftMask, xK_s    ), sendMessage $ SwapWindow)  --Swap between panes in ComboP TwoPane
     -- Screenshot
     , ((0, xK_Print), spawn "scrot -q 95 %Y-%m-%d_%H%M%S.jpg")
-    -- Home key - shutdown
-    , ((0, 0x1008ff18), spawn "sudo shutdown -h now")
-    -- MPD multimedia keys
-    , ((0, 0x1008ff13), spawn "mpc volume +10")
-    , ((0, 0x1008ff11), spawn "mpc volume -10")
-    -- , ((myModMask .|. controlMask, xK_p), spawn "mpc toggle")
-    -- , ((myModMask .|. controlMask, xK_f), spawn "mpc next")
-    -- , ((myModMask .|. controlMask, xK_b), spawn "mpc prev")
+    -- Home key
+    -- , ((0, 0x1008ff18), spawn "echo not set")
+    -- Audio keys
+    , ((0, 0x1008ff12), spawn "amixer set Master toggle")
+    , ((0, 0x1008ff11), spawn "amixer set Master 4%-")
+    , ((0, 0x1008ff13), spawn "amixer set Master 4%+")
+    , ((0, 0x1008ff41), spawn "firefox") --black launch key
+    --, ((0, ???), spawn "amixer set Capture toggle") --mute key
+    -- , ((0, keycode 114), spawn "mkdir test")
+    -- Fn Media keys
+    , ((0, 0x1008ff2d), spawn "xscreensaver-command -lock")
+    , ((0, 0x1008ff8f), spawn "skype")
+    , ((0, 0x1008ff59), spawn "screens")
     , ((0, 0x1008ff14), spawn "mpc toggle")
     , ((0, 0x1008ff17), spawn "mpc next")
     , ((0, 0x1008ff16), spawn "mpc prev")
-    , ((myModMask .|. controlMask, xK_s), spawn "mpc random")
-    , ((myModMask .|. controlMask, xK_r), spawn "mpc repeat")
+    -- MPD specific hotkeys
+    , ((myModMask .|. controlMask, xK_plus), spawn "mpc volume +10")
+    , ((myModMask .|. controlMask, xK_minus), spawn "mpc volume -10")
+    -- For media center music control
+    , ((controlMask, 0x1008ff14), spawn $ "mpc -h " ++ mediahost ++ " toggle")
+    , ((controlMask, 0x1008ff17), spawn $ "mpc -h " ++ mediahost ++ " next")
+    , ((controlMask, 0x1008ff16), spawn $ "mpc -h " ++ mediahost ++ " prev")
+    , ((myModMask .|. controlMask, xK_Prior), spawn $ "mpc -h " ++ mediahost ++  " volume +10")
+    , ((myModMask .|. controlMask, xK_Next), spawn $ "mpc -h " ++ mediahost ++  " volume -10")
     -- Scratchpad terminal
     , ((myModMask .|. controlMask, xK_Return), scratchpadSpawnActionTerminal "urxvt")
     -- per workspace keys

@@ -3,7 +3,7 @@
 Config { font = "xft:Fixed-8"
       , bgColor = "#000000"
       , fgColor = "#ffffff"
-      , position = Top
+      , position = TopW L 100
       , lowerOnStart = True
       , commands = [ Run MultiCpu ["-t","Cpu:<total0>%<total1>%","-L","3","-H","50","--normal","#CEFFAC","--high","#FFB6B0","-w","3"] 10
                    , Run Memory ["-t","R:<usedratio>%"] 10
