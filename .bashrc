@@ -132,15 +132,18 @@ alias cp='cp -iv'
 alias mv='mv -iv'
 alias c='clear'			#Shorties
 alias q='exit'
-alias cleanhistory='tac ~/.bash_history | awk '!seen[$0]++' | tac > newhist'
-alias rmbackup='rm -f *~'
 alias mkdir='mkdir -p -v'	#Allow multiple levels at once
 alias sym='ln -s'		#Symlink
+alias ps='ps -e -o pid,comm,args,vsize,pcpu' #Tweaked process list
+alias findfile='find . -name'
+alias findtext="grep -ri"
+alias cleanhistory="tac ~/.bash_history | awk '!seen[$0]++' | tac > newhist"
 alias top10size='find . -printf "%s %p\n"|sort -nr|head'
-alias resizescreen='xrandr -s 1 && xrandr -s 0'
+alias showswap='cat /proc/swaps'
+#alias resizescreen='xrandr -s 1 && xrandr -s 0'
 
 #Package Management - Pacman
-alias ygl="pacman -Qe | less"	#Get List w. names of all inst. pkgs.
+alias ygl='pacman -Qe | less'	#Get List w. names of all inst. pkgs.
 alias ygf='pacman -Qm'        #List foreign/AUR packages
 alias ysi='pacman -Si'				#Search Info about packages
 alias yss='yaourt -Ss'				#Search for packages
@@ -153,7 +156,6 @@ alias yup='yaourt -Syu --aur'		#Dist upgrade
 alias gcc='LANG="C" gcc -ansi -std=c89 -pedantic -Wall -Wextra -Wshadow -Wcast-qual -Wformat=2 -Wmissing-include-dirs -Wfloat-equal -Wswitch-enum -Wundef -Wwrite-strings -Wredundant-decls -fverbose-asm -pg -g '	#High standard level, many debugging opts
 alias hc='rm -rf /tmp/*.o; ghc -fwarn-name-shadowing -hidir=/tmp -odir=/tmp -O' #"script compile" shortie
 alias ping='ping -c 5'	#Limit ping number
-alias ps='ps -e -o pid,comm,args,vsize,pcpu' #Tweaked process list
 alias mkisofs='mkisofs -v -r -J -o'	#Usage: mkisofs target.img /src/path
 alias xp='xprop | grep "WM_WINDOW_ROLE\|WM_CLASS" && echo "WM_CLASS(STRING) = \"NAME\", \"CLASS\"";xwininfo'
 alias setmp3chmod='find -name "*.mp3" -print0 | xargs -0 chmod 644'
@@ -188,12 +190,9 @@ alias umount.player='sudo umount player; rmdir player'
 #Hardware control
 alias cdo='eject sr0'	#CD Open
 alias cdc='eject -t sr0' 	#CD Close
-alias showswap='cat /proc/swaps'
-alias wakemompc='wol 00:0a:e6:fa:72:54'	#Wake-on-LAN mamas pc
 alias togglepad='killall syndaemon; synclient TouchpadOff=$(synclient -l | grep -c "TouchpadOff.*=.*0")'
 
 #MISC FUNCTIONS
-
 up() { for updirs in $(seq ${1:-1}); do cd ..; done; } #Move x dirs up
 
 # Cool History Summerizer - most used commands

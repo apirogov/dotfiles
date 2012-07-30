@@ -16,7 +16,6 @@ import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.ManageDocks
 import XMonad.Hooks.SetWMName
 import XMonad.Hooks.EwmhDesktops
-import XMonad.Hooks.RestoreMinimized
 
 -- base layouts
 import XMonad.Layout.HintedTile
@@ -29,7 +28,6 @@ import XMonad.Layout.Circle
 import XMonad.Layout.PerWorkspace
 import XMonad.Layout.WindowNavigation
 import XMonad.Layout.Named
-import XMonad.Layout.Minimize
 import XMonad.Layout.NoBorders
 import XMonad.Layout.Reflect
 
@@ -81,7 +79,7 @@ myNumlockMask   = mod2Mask
 
 -- The default number of workspaces (virtual screens) and their names.
 -- The number of workspaces is determined by the length of this list.
-myWorkspaces    = ["1:msg","2:web","3:code","4:media","5:misc"]
+myWorkspaces    = ["1:main","2:web","3:code","4:media","5:misc"]
 
 ------------------------------------------------------------------------
 -- Layouts:
@@ -90,11 +88,11 @@ myWorkspaces    = ["1:msg","2:web","3:code","4:media","5:misc"]
 -- If you change layout bindings be sure to use 'mod-shift-space' after
 -- restarting (with 'mod-q') to reset your layout state.
 
-myLayout = windowNavigation $ avoidStruts $ nameTail $ minimize
+myLayout = windowNavigation $ avoidStruts $ nameTail
            ( defaultPerWorkspace ||| hintedTile Tall ||| hintedTile Wide ||| tabbedLayout ||| Full ||| spiral (6/7) ||| Circle ||| Grid )
   where
      defaultPerWorkspace = named "Workspace Default"
-                         $ onWorkspace "1:msg"   pidginLayout
+                         $ onWorkspace "1:main"  pidginLayout
                          $ onWorkspace "2:web"   tabbedLayout
                          $ onWorkspace "3:code"  tabbedLayout
                          $ onWorkspace "4:media" Full
@@ -133,7 +131,7 @@ myLayout = windowNavigation $ avoidStruts $ nameTail $ minimize
 -- workspace. (use the xprop utility to get window attributes)
 myManageHook = composeAll [
       className =? "Vlc"            --> doFloat
-    , className =? "Pidgin"         --> doShift "1:msg"
+    , className =? "Pidgin"         --> doShift "1:main"
     , className =? "Firefox"        --> doShift "2:web"
     , className =? "Eclipse"        --> doShift "3:code"
     , className =? "Gimp-2.8"       --> doShift "5:misc"
@@ -196,13 +194,9 @@ main = do
                           <+> manageDocks
                           <+> myManageHook
     , handleEventHook    = do ewmhDesktopsEventHook
-                              restoreMinimizedEventHook
-
 	} `additionalKeys` ( [  -- Key bindings --
-    -- Minimize window
-      ((myModMask .|. shiftMask, xK_m    ), withFocused minimizeWindow)
     -- improved WindowNavigation keybindings
-    , ((myModMask,               xK_Right), sendMessage $ Go R)
+      ((myModMask,               xK_Right), sendMessage $ Go R)
     , ((myModMask,               xK_Left ), sendMessage $ Go L)
     , ((myModMask,               xK_Up   ), sendMessage $ Go U)
     , ((myModMask,               xK_Down ), sendMessage $ Go D)

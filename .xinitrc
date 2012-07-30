@@ -24,7 +24,8 @@ nitrogen --restore &
 xsetroot -cursor_name left_ptr
 #synclient PalmDetect=1
 #synclient PalmMinWidth=2
-syndaemon -K -i 1 -d &
+#syndaemon -K -i 1 -d &
+synclient TouchpadOff=1
 ~/.autorun
 
 #Start WM (last thing to be done)
