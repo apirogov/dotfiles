@@ -22,8 +22,8 @@ screens -d  #use my custom screen toggle script to set dualscreen
 
 nitrogen --restore &
 xsetroot -cursor_name left_ptr
-synclient PalmDetect=1
-synclient PalmMinWidth=2
+#synclient PalmDetect=1
+#synclient PalmMinWidth=2
 syndaemon -K -i 1 -d &
 ~/.autorun
 

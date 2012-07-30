@@ -10,7 +10,7 @@ Config { font = "xft:Fixed-8"
                    , Run Swap ["-t","S:<usedratio>%"] 10
                    , Run MPD ["-t", "<volume>% <statei> <artist> - <title> (<lapsed>/<length>)","-M","30"] 10
                    , Run DiskU [("/", "/:<used>/<size>"),("/media/DATA","DATA:<used>/<size>")] [] 20
-                   , Run Network "eth0" ["-t","Net: <rx>, <tx>","-H","200","-L","10","-h","#FFB6B0","-l","#CEFFAC","-n","#FFFFCC","-S","True"] 5
+                   , Run Network "wlan0" ["-t","Net: <rx>, <tx>","-H","200","-L","10","-h","#FFB6B0","-l","#CEFFAC","-n","#FFFFCC","-S","True"] 5
                    , Run Date "%a %_d %b %Y %H:%M:%S" "date" 10
                    , Run StdinReader
                    , Run Battery ["-L","50","-H","75","--high","green","--normal","yellow","--low","red"] 10
@@ -18,6 +18,6 @@ Config { font = "xft:Fixed-8"
                    ]
       , sepChar = "%"
       , alignSep = "}{"
-      , template = "%StdinReader% }{ <fc=#8080FF>%mpd%</fc>  %multicpu% %cputemp% %memory% %swap% %disku%  %eth0% %battery% <fc=#FFFFCC>%date%</fc>"
+      , template = "%StdinReader% }{ <fc=#8080FF>%mpd%</fc>  %multicpu% %cputemp% %memory% %swap% %disku%  %wlan0% %battery% <fc=#FFFFCC>%date%</fc>"
       }
 

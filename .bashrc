@@ -141,6 +141,7 @@ alias resizescreen='xrandr -s 1 && xrandr -s 0'
 
 #Package Management - Pacman
 alias ygl="pacman -Qe | less"	#Get List w. names of all inst. pkgs.
+alias ygf='pacman -Qm'        #List foreign/AUR packages
 alias ysi='pacman -Si'				#Search Info about packages
 alias yss='yaourt -Ss'				#Search for packages
 alias yip='sudo pacman -U'		#Install local Package
@@ -159,6 +160,7 @@ alias setmp3chmod='find -name "*.mp3" -print0 | xargs -0 chmod 644'
 alias m4a2mp3='for a in *.m4a; do faad -f 2 -w "$a"  | lame -r - "$a.mp3"; done'
 alias normalizevolume='find /media/DATA/myfiles/music/ -type f -iname "*.mp3" -print0 | xargs -0 mp3gain -r -k -s i -d 4'
 alias mirror="rsync -auv --delete"
+alias systemdaemons="systemctl list-unit-files --type=service"
 
 #mediacenter - using ssh/sshfs/rsync/mpd/ncmpcpp
 #use to: backup folders, mount remote data, control music
@@ -191,16 +193,11 @@ alias wakemompc='wol 00:0a:e6:fa:72:54'	#Wake-on-LAN mamas pc
 alias togglepad='killall syndaemon; synclient TouchpadOff=$(synclient -l | grep -c "TouchpadOff.*=.*0")'
 
 #MISC FUNCTIONS
+
 up() { for updirs in $(seq ${1:-1}); do cd ..; done; } #Move x dirs up
 
 # Cool History Summerizer - most used commands
 top10cmds(){ history|awk '{a[$2]++}END{for(i in a){printf"%5d\t%s\n",a[i],i}}'|sort -nr|head;}
-
-#Handy Daemons Commands
-start() { for arg in $*; do sudo /etc/rc.d/$arg start; done }
-stop() { for arg in $*; do sudo /etc/rc.d/$arg stop; done }
-restart() { for arg in $*; do sudo /etc/rc.d/$arg restart; done }
-reload() { for arg in $*; do sudo /etc/rc.d/$arg reload; done }
 
 #OWN FUNCTIONS
 #Make sure ssh-agent is running with keychain before using git push
@@ -210,6 +207,13 @@ git() {
     eval `keychain --eval --nogui -Q -q id_rsa`
   fi
   $(which git) "$@"
+}
+
+#Handy batch imagemagick foto modification shortcut
+#example: imageconvert -resize 33%
+imageconvert() {
+  mkdir modified
+  find . -iname "*.jpg" | xargs -l -i convert "$@" {} ./modified/{}
 }
 
 #My vnc shortie: vnc host password other_options
