@@ -153,6 +153,7 @@ alias yrm='sudo pacman -Ruscn'		#Recursive remove
 alias yup='yaourt -Syu --aur'		#Dist upgrade
 
 #Misc. Programs
+alias fontlist='fc-list'
 alias gcc='LANG="C" gcc -ansi -std=c89 -pedantic -Wall -Wextra -Wshadow -Wcast-qual -Wformat=2 -Wmissing-include-dirs -Wfloat-equal -Wswitch-enum -Wundef -Wwrite-strings -Wredundant-decls -fverbose-asm -pg -g '	#High standard level, many debugging opts
 alias hc='rm -rf /tmp/*.o; ghc -fwarn-name-shadowing -hidir=/tmp -odir=/tmp -O' #"script compile" shortie
 alias ping='ping -c 5'	#Limit ping number
@@ -167,7 +168,8 @@ alias systemdaemons="systemctl list-unit-files --type=service"
 #mediacenter - using ssh/sshfs/rsync/mpd/ncmpcpp
 #use to: backup folders, mount remote data, control music
 #requires to have MPD default port, MEDIAPORT and port 8000 for mpd streaming open on media server
-export MEDIAHOST=192.168.1.1
+#MEDIAHOST "mediacenter" must be declared correctly in /etc/hosts
+MEDIAHOST=mediacenter
 MEDIAPORT=2200
 MEDIAUSER=admin
 MEDIALOGIN=$MEDIAUSER@$MEDIAHOST

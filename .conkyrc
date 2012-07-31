@@ -1,0 +1,16 @@
+#conky config for usage with dzen2
+background no
+out_to_console yes
+out_to_x no
+update_interval 1.0
+total_run_times 0
+use_spacer none
+mpd_host mediacenter
+
+TEXT
+$if_mpd_playing^fg(\#0080ff)$mpd_vol% [$mpd_status] ${mpd_smart 30} ($mpd_elapsed/$mpd_length)$endif \
+^fg(\#ffffff)C:${cpu cpu0}% R:$memperc% S:$swapperc% \
+/:${fs_used_perc /}% /home:${fs_used_perc /home}% \
+^fg(\#ffb0b0)Bat:${exec acpi -b | awk '{print$5}'}(${exec acpi -b | awk '{print $4}'|cut -b -3}) \
+^fg(\#a0ffa0)Net:${downspeedf wlan0}KB/s ${upspeedf wlan0}KB/s \
+^fg(\#ffffb0)${time %a %d.%m %R}

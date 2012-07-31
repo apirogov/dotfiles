@@ -1,7 +1,7 @@
 #!/bin/sh
 /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
 xscreensaver -nosplash &
-trayer --monitor primary --edge top --align right --SetDockType true --expand true --transparent true --tint 0x000000 --alpha 0 --height 16 --widthtype request
+trayer --monitor primary --edge top --align right --SetDockType true --expand true --transparent true --tint 0x000000 --alpha 0 --height 16 --widthtype request &
 /usr/lib/notification-daemon-1.0/notification-daemon &
 nm-applet &
 blueman-applet &

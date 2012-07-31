@@ -1,15 +1,15 @@
 -- xmonad config used by Anton Pirogov
--- Copyright © 2011 Anton Pirogov
+-- Copyright © 2012 Anton Pirogov
+-- requires fully enabled dzen2 or MPD enabled xmobar + conky + acpi + xmonad-contrib
 ---------------------------------------------------------------
 
 import System.IO
-import System.Environment (getEnv)
 import System.Exit
 import XMonad hiding (Tall)
 
 -- actions
-import XMonad.Actions.PhysicalScreens
 import XMonad.Actions.PerWorkspaceKeys
+import XMonad.Actions.GridSelect
 
 -- hooks
 import XMonad.Hooks.DynamicLog
@@ -37,15 +37,9 @@ import XMonad.Layout.ComboP
 import XMonad.Layout.TwoPane
 
 -- other stuff
-import XMonad.Util.Run (spawnPipe, runProcessWithInput)
+import XMonad.Util.Run (spawnPipe)
 import XMonad.Util.EZConfig (additionalKeys)
-
-import XMonad.Util.Scratchpad
-import XMonad.Util.WorkspaceCompare
-
--- essentials
-import qualified XMonad.StackSet as W
-import qualified Data.Map        as M
+-- import XMonad.Util.WorkspaceCompare
 
 ---------------------------------------------------------------
 
@@ -54,7 +48,7 @@ import qualified Data.Map        as M
 myTerminal      = "lxterminal"
 
 -- Width of the window border in pixels.
-myBorderWidth   = 1
+myBorderWidth   = 2
 
 -- Border colors for unfocused and focused windows, respectively.
 myNormalBorderColor  = "#7c7c7c"
@@ -63,23 +57,9 @@ myFocusedBorderColor = "#ffb6b0"
 -- Modifier key used for keybindings. Default is usually mod4Mask (windows key).
 myModMask       = mod4Mask
 
--- The mask for the numlock key. Numlock status is "masked" from the
--- current modifier status, so the keybindings will work with numlock on or
--- off. You may need to change this on some systems.
---
--- You can find the numlock modifier by running "xmodmap" and looking for a
--- modifier with Num_Lock bound to it:
---
--- > $ xmodmap | grep Num
--- > mod2        Num_Lock (0x4d)
---
--- Set numlockMask = 0 if you don't have a numlock key, or want to treat
--- numlock status separately.
-myNumlockMask   = mod2Mask
-
 -- The default number of workspaces (virtual screens) and their names.
 -- The number of workspaces is determined by the length of this list.
-myWorkspaces    = ["1:main","2:web","3:code","4:media","5:misc"]
+myWorkspaces    = ["1:main","2:web","3:dev","4:media","5:misc"]
 
 ------------------------------------------------------------------------
 -- Layouts:
@@ -88,14 +68,15 @@ myWorkspaces    = ["1:main","2:web","3:code","4:media","5:misc"]
 -- If you change layout bindings be sure to use 'mod-shift-space' after
 -- restarting (with 'mod-q') to reset your layout state.
 
-myLayout = windowNavigation $ avoidStruts $ nameTail
-           ( defaultPerWorkspace ||| hintedTile Tall ||| hintedTile Wide ||| tabbedLayout ||| Full ||| spiral (6/7) ||| Circle ||| Grid )
+myLayout = windowNavigation $ avoidStruts
+           ( defaultPerWorkspace ||| hintedTile Tall ||| hintedTile Wide ||| tabbedLayout ||| Full ||| Grid ||| spiral (6/7) ||| Circle )
   where
-     defaultPerWorkspace = named "Workspace Default"
+     defaultPerWorkspace = named "Default"
                          $ onWorkspace "1:main"  pidginLayout
                          $ onWorkspace "2:web"   tabbedLayout
-                         $ onWorkspace "3:code"  tabbedLayout
+                         $ onWorkspace "3:dev"   codingLayout
                          $ onWorkspace "4:media" Full
+                         $ onWorkspace "5:misc"  Grid
                          $ hintedTile Tall       -- for all the others
 
      -- default for hinted Tall/Mirror Tall (HintedTile is better that layoutHints $ Tall)
@@ -116,13 +97,15 @@ myLayout = windowNavigation $ avoidStruts $ nameTail
                                 , inactiveColor = "#000000"
                                 }
 
-     -- combined workspace layout for usage with instant messenger (keeping the Pidgin buddy list always on the right)
-     pidginLayout = reflectHoriz $ withIM (1/8) (ClassName "Pidgin" `And` Role "buddy_list") (hintedTile Tall)
+     -- combined workspace layout for usage with instant messenger
+     -- (keeping the Pidgin buddy list always on the right and reserving some space for the conversation window)
+     pidginLayout = reflectHoriz $ withIM (1/8) (ClassName "Pidgin" `And` Role "buddy_list")
+                                 $ withIM (1/3) (ClassName "Pidgin" `And` Role "conversation") (hintedTile Wide)
 
      -- console coding layout
      codingLayout = combineTwoP (Mirror $ TwoPane (3/100) (2/3))
                                 (tabbedLayout) (hintedTile Tall)
-                                (ClassName "Gvim")
+                                (ClassName "Gvim" `Or` ClassName "Eclipse")
 
 ------------------------------------------------------------------------
 -- Execute arbitrary actions and WindowSet manipulations when managing
@@ -133,9 +116,9 @@ myManageHook = composeAll [
       className =? "Vlc"            --> doFloat
     , className =? "Pidgin"         --> doShift "1:main"
     , className =? "Firefox"        --> doShift "2:web"
-    , className =? "Eclipse"        --> doShift "3:code"
-    , className =? "Gimp-2.8"       --> doShift "5:misc"
-    , className =? "net-minecraft-MinecraftLauncher" --> doShift "4:media"
+    , className =? "Eclipse"        --> doShift "3:dev"
+    , className =? "net-minecraft-LauncherFrame" --> doShift "4:media"
+    , className =? "Gimp"           --> doShift "5:misc"
     ]
 
 -- Whether focus follows the mouse pointer.
@@ -146,6 +129,23 @@ myFocusFollowsMouse = True
 myStartupHook = do
 --    spawn "firefox"
     return ()
+
+-- the handle event hook to be used with xmonad
+myHandleEventHook = ewmhDesktopsEventHook <+> docksEventHook
+
+-- log hook for usage with dzen2
+myDzenLogHook h = dynamicLogWithPP $ dzenPP { ppOutput = hPutStrLn h }
+
+-- log hook to be used with XMobar (pass a pipe to a running xmobar)
+myXmobarLogHook h =  do
+                      setWMName "LG3D"
+                      ewmhDesktopsLogHook
+                      dynamicLogWithPP $ xmobarPP {
+                            ppOutput = hPutStrLn h
+                          , ppTitle = xmobarColor "#FFB6B0" "" . shorten 100
+                          , ppCurrent = xmobarColor "#CEFFAC" ""
+                          , ppSep = "   "
+                      }
 
 ---------------------------------------------------------------
 
@@ -167,33 +167,35 @@ defaults = defaultConfig {
 
       -- hooks, layouts
         layoutHook         = smartBorders $ myLayout,
-        manageHook         = myManageHook,
-        startupHook        = myStartupHook
+        manageHook         = myManageHook <+> manageDocks,
+        startupHook        = myStartupHook,
+        handleEventHook    = myHandleEventHook
     }
 
+-- which status bar to use - True=Dzen2 False=XMobar
+useDZen = True
 
 ------------------------------------------------------------------------
 -- Now run xmonad with all the defaults we set up.
 --
+-- command line calls to my dzen2 instances:
+-- when using DZen2, use version with Xinerama, XFT and XPM (Option 7 in config.mk)
+myDZenXMBar = "dzen2 -xs 1 -h 16 -w 550 -fn 'Monaco:size=8' -ta l"
+myDZenSTBar = "conky | dzen2 -fn 'Monaco:size=8' -xs 1 -ta r -x 550 -h 15 -w 950"
+mediahost = "mediacenter"
 main = do
-  mediahost <- getEnv "MEDIAHOST" `catch` (\e -> return "127.0.0.1") -- for some keybindings
+  rightBar <- if useDZen
+                then spawnPipe myDZenSTBar
+                else spawnPipe ""
+  bar <- if useDZen
+            then spawnPipe myDZenXMBar
+            else spawnPipe $ "MPD_HOST="++ mediahost ++" ~/.cabal/bin/xmobar ~/.xmonad/xmobar"
 
-  xmproc <- spawnPipe $ "MPD_HOST="++ mediahost ++" ~/.cabal/bin/xmobar ~/.xmonad/xmobar"
   xmonad $ ewmh $ defaults {
-      logHook            = do
-                            setWMName "LG3D"
-                            ewmhDesktopsLogHook
-                            dynamicLogWithPP $ xmobarPP {
-                                ppOutput = hPutStrLn xmproc
-                                , ppTitle = xmobarColor "#FFB6B0" "" . shorten 100
-                                , ppCurrent = xmobarColor "#CEFFAC" ""
-                                , ppSort = fmap (.scratchpadFilterOutWorkspace) getSortByIndex
-                                , ppSep = "   "
-                            }
-    , manageHook         = scratchpadManageHook (W.RationalRect 0 0 1 (1/2))
-                          <+> manageDocks
-                          <+> myManageHook
-    , handleEventHook    = do ewmhDesktopsEventHook
+    --logHook = myDzenLogHook dzenBar
+    logHook = if useDZen
+                 then myDzenLogHook bar
+                 else myXmobarLogHook bar
 	} `additionalKeys` ( [  -- Key bindings --
     -- improved WindowNavigation keybindings
       ((myModMask,               xK_Right), sendMessage $ Go R)
@@ -232,17 +234,17 @@ main = do
     , ((controlMask, 0x1008ff16), spawn $ "mpc -h " ++ mediahost ++ " prev")
     , ((myModMask .|. controlMask, xK_Prior), spawn $ "mpc -h " ++ mediahost ++  " volume +10")
     , ((myModMask .|. controlMask, xK_Next), spawn $ "mpc -h " ++ mediahost ++  " volume -10")
-    -- Scratchpad terminal
-    , ((myModMask .|. controlMask, xK_Return), scratchpadSpawnActionTerminal "urxvt")
     -- per workspace keys
     , ((myModMask .|. controlMask, xK_r), bindOn [
-         ("3:code", spawn "pcmanfm" >> spawn myTerminal >> spawn "gvim")
+         ("3:dev", do spawn "pcmanfm"
+                      spawn myTerminal
+                      spawn $ myTerminal ++ " -t repl -e 'tmux new-session -s repl -n repl'"
+                      spawn "gvim")
         ,("",       spawn "notify-send \"not specified\"")
         ])
-    ]
-    ++  -- Override monitor focus keys with PhysicalScreens functions
-    [((m .|. myModMask, key), f sc)
-        | (key, sc) <- zip [xK_w, xK_e, xK_r] [0..]
-        , (f, m) <- [(viewScreen, 0), (sendToScreen, shiftMask)]]
-    )
+    -- grid selector
+    , ((myModMask, xK_g), goToSelected defaultGSConfig)
+    -- override default xmonad restart binding (to kill dzen2)
+    , ((myModMask, xK_q), spawn "killall conky dzen2 && xmonad --recompile && xmonad --restart")
+    ])
 

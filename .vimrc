@@ -163,6 +163,12 @@ let g:snips_author = "Anton Pirogov"
 " VimClojure
 let vimclojure#HighlightBuiltins=1      " Highlight Clojure's builtins
 let vimclojure#ParenRainbow=1           " Rainbow parentheses'!
+" TSlime
+" Automatically connected to: tmux new-session -s repl -n repl
+let b:tmux_sessionname = "repl"
+let b:tmux_windowname  = "repl"
+let b:tmux_panenumber  = 0
+
 " ---------------------------------------------------------------------------
 " Automagic Clojure folding on defn's and defmacro's
 "
