@@ -74,7 +74,7 @@ myLayout = windowNavigation $ avoidStruts
      defaultPerWorkspace = named "Default"
                          $ onWorkspace "1:main"  pidginLayout
                          $ onWorkspace "2:web"   tabbedLayout
-                         $ onWorkspace "3:dev"   codingLayout
+                         $ onWorkspace "3:dev"   tabbedLayout
                          $ onWorkspace "4:media" Full
                          $ onWorkspace "5:misc"  Grid
                          $ hintedTile Tall       -- for all the others

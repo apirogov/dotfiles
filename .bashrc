@@ -185,9 +185,13 @@ alias center.updatebackup2="ssh -p $MEDIAPORT $MEDIALOGIN 'rsync -auv --delete /
 alias center.mpc="ncmpcpp -h $MEDIAHOST"
 alias center.stream="mplayer -nocache http://$MEDIAHOST:8000"
 
+#alias to access best accessible mpd -> mediaserver or fallback localhost
+SMARTMPD='$(if ping -c 1 -w 1 $MEDIAHOST > /dev/null; then echo $MEDIAHOST; else echo localhost; fi)'
+alias music="ncmpcpp -h $SMARTMPD"
+
 #Mounting my Player with mtpfs
-alias mount.player='mkdir player; sudo mtpfs -o allow_other player'
-alias umount.player='sudo umount player; rmdir player'
+alias player.mount='mkdir player; sudo mtpfs -o allow_other player'
+alias player.umount='sudo umount player; rmdir player'
 
 #Hardware control
 alias cdo='eject sr0'	#CD Open
