@@ -6,6 +6,7 @@
 import System.IO
 import System.Exit
 import XMonad hiding (Tall)
+import qualified XMonad.StackSet as W
 
 -- actions
 import XMonad.Actions.PerWorkspaceKeys
@@ -39,6 +40,7 @@ import XMonad.Layout.TwoPane
 -- other stuff
 import XMonad.Util.Run (spawnPipe)
 import XMonad.Util.EZConfig (additionalKeys)
+import XMonad.Util.Scratchpad
 -- import XMonad.Util.WorkspaceCompare
 
 ---------------------------------------------------------------
@@ -59,7 +61,7 @@ myModMask       = mod4Mask
 
 -- The default number of workspaces (virtual screens) and their names.
 -- The number of workspaces is determined by the length of this list.
-myWorkspaces    = ["1:main","2:web","3:dev","4:media","5:misc"]
+myWorkspaces    = ["1:msg","2:web","3:dev","4:media","5:misc"]
 
 ------------------------------------------------------------------------
 -- Layouts:
@@ -72,7 +74,7 @@ myLayout = windowNavigation $ avoidStruts
            ( defaultPerWorkspace ||| hintedTile Tall ||| hintedTile Wide ||| tabbedLayout ||| Full ||| Grid ||| spiral (6/7) ||| Circle )
   where
      defaultPerWorkspace = named "Default"
-                         $ onWorkspace "1:main"  pidginLayout
+                         $ onWorkspace "1:msg"  (pidginWide ||| pidginTall)
                          $ onWorkspace "2:web"   tabbedLayout
                          $ onWorkspace "3:dev"   tabbedLayout
                          $ onWorkspace "4:media" Full
@@ -99,8 +101,10 @@ myLayout = windowNavigation $ avoidStruts
 
      -- combined workspace layout for usage with instant messenger
      -- (keeping the Pidgin buddy list always on the right and reserving some space for the conversation window)
-     pidginLayout = reflectHoriz $ withIM (1/8) (ClassName "Pidgin" `And` Role "buddy_list")
-                                 $ withIM (1/3) (ClassName "Pidgin" `And` Role "conversation") (hintedTile Wide)
+     pidginLayout n = reflectHoriz $ withIM (1/8) (ClassName "Pidgin" `And` Role "buddy_list")
+                                 $ withIM (1/3) (ClassName "Pidgin" `And` Role "conversation") (hintedTile n)
+     pidginWide = pidginLayout Wide
+     pidginTall = pidginLayout Tall
 
      -- console coding layout
      codingLayout = combineTwoP (Mirror $ TwoPane (3/100) (2/3))
@@ -114,12 +118,13 @@ myLayout = windowNavigation $ avoidStruts
 -- workspace. (use the xprop utility to get window attributes)
 myManageHook = composeAll [
       className =? "Vlc"            --> doFloat
-    , className =? "Pidgin"         --> doShift "1:main"
+    , className =? "Pidgin"         --> doShift "1:msg"
     , className =? "Firefox"        --> doShift "2:web"
     , className =? "Eclipse"        --> doShift "3:dev"
     , className =? "net-minecraft-LauncherFrame" --> doShift "4:media"
     , className =? "Gimp"           --> doShift "5:misc"
     ]
+    <+> scratchpadManageHook (W.RationalRect 0.0 0.0 1.0 0.5)
 
 -- Whether focus follows the mouse pointer.
 myFocusFollowsMouse :: Bool
@@ -127,14 +132,14 @@ myFocusFollowsMouse = True
 
 -- Perform an arbitrary action each time xmonad starts or is restarted with mod-q.
 myStartupHook = do
---    spawn "firefox"
+    spawn "trayer --monitor primary --edge top --align right --SetDockType true --expand true --transparent true --tint 0x000000 --alpha 0 --height 16 --widthtype request"
     return ()
 
 -- the handle event hook to be used with xmonad
 myHandleEventHook = ewmhDesktopsEventHook <+> docksEventHook
 
 -- log hook for usage with dzen2
-myDzenLogHook h = dynamicLogWithPP $ dzenPP { ppOutput = hPutStrLn h }
+myDzenLogHook h = dynamicLogWithPP $ dzenPP { ppOutput = hPutStrLn h, ppSort = fmap (.scratchpadFilterOutWorkspace) $ ppSort dzenPP }
 
 -- log hook to be used with XMobar (pass a pipe to a running xmobar)
 myXmobarLogHook h =  do
@@ -145,6 +150,7 @@ myXmobarLogHook h =  do
                           , ppTitle = xmobarColor "#FFB6B0" "" . shorten 100
                           , ppCurrent = xmobarColor "#CEFFAC" ""
                           , ppSep = "   "
+                          , ppSort = fmap (.scratchpadFilterOutWorkspace) $ ppSort xmobarPP
                       }
 
 ---------------------------------------------------------------
@@ -180,8 +186,8 @@ useDZen = True
 --
 -- command line calls to my dzen2 instances:
 -- when using DZen2, use version with Xinerama, XFT and XPM (Option 7 in config.mk)
-myDZenXMBar = "dzen2 -xs 1 -h 16 -w 550 -fn 'Monaco:size=8' -ta l"
-myDZenSTBar = "conky | dzen2 -fn 'Monaco:size=8' -xs 1 -ta r -x 550 -h 15 -w 950"
+myDZenXMBar = "dzen2 -xs 1 -h 16 -w 500 -fn 'Monaco:size=8' -ta l"
+myDZenSTBar = "conky | dzen2 -fn 'Monaco:size=8' -xs 1 -ta r -x 500 -h 15 -w 950"
 mediahost = "mediacenter"
 main = do
   rightBar <- if useDZen
@@ -215,13 +221,13 @@ main = do
     , ((0, 0x1008ff12), spawn "amixer set Master toggle")
     , ((0, 0x1008ff11), spawn "amixer set Master 4%-")
     , ((0, 0x1008ff13), spawn "amixer set Master 4%+")
-    , ((0, 0x1008ff41), spawn "firefox") --black launch key
+    , ((0, 0x1008ff41), spawn "synclient TouchpadOff=$(synclient -l | grep -c 'TouchpadOff.*=.*0')") --black launch key Thinkvantage
     --, ((0, ???), spawn "amixer set Capture toggle") --mute key
     -- , ((0, keycode 114), spawn "mkdir test")
     -- Fn Media keys
     , ((0, 0x1008ff2d), spawn "xscreensaver-command -lock")
     , ((0, 0x1008ff8f), spawn "skype")
-    , ((0, 0x1008ff59), spawn "screens")
+    , ((0, 0x1008ff59), spawn "screens && nitrogen --restore")
     , ((0, 0x1008ff14), spawn "mpc toggle")
     , ((0, 0x1008ff17), spawn "mpc next")
     , ((0, 0x1008ff16), spawn "mpc prev")
@@ -245,6 +251,8 @@ main = do
     -- grid selector
     , ((myModMask, xK_g), goToSelected defaultGSConfig)
     -- override default xmonad restart binding (to kill dzen2)
-    , ((myModMask, xK_q), spawn "killall conky dzen2 && xmonad --recompile && xmonad --restart")
+    , ((myModMask, xK_q), spawn "killall trayer conky dzen2 && xmonad --recompile && xmonad --restart")
+    -- scratchpad
+    , ((myModMask .|. controlMask, xK_Return),  scratchpadSpawnActionTerminal "urxvt -name scratchpad +sb -e bash -c 'tmux attach -t sp || tmux new -s sp'")
     ])
 

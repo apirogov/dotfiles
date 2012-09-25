@@ -26,10 +26,26 @@ xsetroot -cursor_name left_ptr
 #synclient PalmMinWidth=2
 #syndaemon -K -i 1 -d &
 synclient TouchpadOff=1
+
+#enable proxy (to use with hamachi, pidgin, dropbox, skype)
+assignProxy(){
+  PROXY_ENV="http_proxy ftp_proxy https_proxy all_proxy HTTP_PROXY HTTPS_PROXY FTP_PROXY ALL_PROXY"
+  for envar in $PROXY_ENV
+  do
+    export $envar=$1
+  done
+}
+#assignProxy "http://127.0.0.1:8888"
+#assignProxy "http://141.83.42.10:3128"
+
+#some java hacks to make minecraft etc work with openjdk7
+export _JAVA_AWT_WM_NONREPARENTING=1
+export LD_LIBRARY_PATH="/usr/lib/jvm/java-7-openjdk/jre/lib/amd64"
+
 ~/.autorun
 
 #Start WM (last thing to be done)
-eval $(grep "export MEDIAHOST" .bashrc) #for keybindings in xmonad
+#eval $(grep "export MEDIAHOST" .bashrc) #for keybindings in xmonad / not necessary anymore
 case "$1" in
   openbox)
 	  exec openbox-session ;;

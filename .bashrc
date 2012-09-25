@@ -157,31 +157,41 @@ alias fontlist='fc-list'
 alias gcc='LANG="C" gcc -ansi -std=c89 -pedantic -Wall -Wextra -Wshadow -Wcast-qual -Wformat=2 -Wmissing-include-dirs -Wfloat-equal -Wswitch-enum -Wundef -Wwrite-strings -Wredundant-decls -fverbose-asm -pg -g '	#High standard level, many debugging opts
 alias hc='rm -rf /tmp/*.o; ghc -fwarn-name-shadowing -hidir=/tmp -odir=/tmp -O' #"script compile" shortie
 alias ping='ping -c 5'	#Limit ping number
+alias pingl='ping6 ff02::1%eth0'
 alias mkisofs='mkisofs -v -r -J -o'	#Usage: mkisofs target.img /src/path
 alias xp='xprop | grep "WM_WINDOW_ROLE\|WM_CLASS" && echo "WM_CLASS(STRING) = \"NAME\", \"CLASS\"";xwininfo'
 alias setmp3chmod='find -name "*.mp3" -print0 | xargs -0 chmod 644'
 alias m4a2mp3='for a in *.m4a; do faad -f 2 -w "$a"  | lame -r - "$a.mp3"; done'
-alias normalizevolume='find /media/DATA/myfiles/music/ -type f -iname "*.mp3" -print0 | xargs -0 mp3gain -r -k -s i -d 4'
+alias normalizevolume='find /home/admin/myfiles/music/ -type f -iname "*.mp3" -print0 | xargs -0 mp3gain -r -k -s i -d 4'
 alias mirror="rsync -auv --delete"
-alias systemdaemons="systemctl list-unit-files --type=service"
+alias initsshkeys='eval `keychain --eval --nogui -Q -q id_rsa`'
+alias listd="systemctl list-unit-files --type=service" #show all daemons run on startup
+alias startd="sudo systemctl start"
+alias stopd="sudo systemctl stop"
+alias restartd="sudo systemctl restart"
+alias statusd="systemctl status"  #show daemon status -> started or stopped?
+alias getconnectedmacs='ssh root@10.130.118.1 "iw dev wlan0 station dump" | grep Station | awk "{print \$2}"'
 
 #mediacenter - using ssh/sshfs/rsync/mpd/ncmpcpp
 #use to: backup folders, mount remote data, control music
-#requires to have MPD default port, MEDIAPORT and port 8000 for mpd streaming open on media server
-#MEDIAHOST "mediacenter" must be declared correctly in /etc/hosts
-MEDIAHOST=mediacenter
-MEDIAPORT=2200
-MEDIAUSER=admin
+#requires to have MPD default port, MEDIAPORT for ssh and port 8000 for mpd streaming open on media server
+#MEDIAHOST "mediacenter" must be declared correctly in /etc/hosts on both machines, no-ip forwarding would be nice
+#alternative with less available ports: use ssh tunnel like:
+#ssh -p MEDIAPORT -fN MEDIALOGIN -L LOCALPORT:MEDIAHOST:REMOTEPORT
+#and connect to localhost to these ports
+MEDIAUSER=admin       #user for ssh connection
+MEDIAHOST=mediacenter #declared hostname or IP
+MEDIASSHP=2200  #SSH port
+MEDIAMAC='00:1b:fc:fc:c3:29'  #MAC address of network device of mediacenter
 MEDIALOGIN=$MEDIAUSER@$MEDIAHOST
-MEDIAMAC='00:1b:fc:fc:c3:29'
-alias center.ssh="ssh -p $MEDIAPORT $MEDIALOGIN"
+alias center.ssh="ssh -p $MEDIASSHP $MEDIALOGIN"
 alias center.wake="wol $MEDIAMAC"
 alias center.ping="ping -c 5 $MEDIAHOST"
-alias center.shutdown="ssh -p $MEDIAPORT $MEDIALOGIN 'sudo shutdown -h now'"
-alias center.mount="mkdir ~/media; sshfs -p $MEDIAPORT $MEDIALOGIN:/media/DATA ~/media"
+alias center.shutdown="ssh -p $MEDIASSHP $MEDIALOGIN 'sudo shutdown -h now'"
+alias center.mount="mkdir ~/media; sshfs -p $MEDIASSHP $MEDIALOGIN:/media/DATA ~/media"
 alias center.umount="fusermount -u ~/media; rmdir ~/media"
-alias center.updatebackup="rsync --delete -avue 'ssh -p $MEDIAPORT' ~/myfiles $MEDIALOGIN:/media/DATA" #mirror local -> remote external
-alias center.updatebackup2="ssh -p $MEDIAPORT $MEDIALOGIN 'rsync -auv --delete /media/DATA/myfiles /media/HD'" #mirror rem. external -> rem. internal
+alias center.updatebackup="rsync --delete -avue 'ssh -p $MEDIASSHP' ~/myfiles $MEDIALOGIN:/media/DATA" #mirror local -> remote external
+alias center.updatebackup2="ssh -p $MEDIASSHP $MEDIALOGIN 'rsync -auv --delete /media/DATA/myfiles /media/HD'" #mirror rem. external -> rem. internal
 alias center.mpc="ncmpcpp -h $MEDIAHOST"
 alias center.stream="mplayer -nocache http://$MEDIAHOST:8000"
 
@@ -216,10 +226,12 @@ git() {
 
 #Handy batch imagemagick foto modification shortcut
 #example: imageconvert -resize 33%
-imageconvert() {
+batchconv() {
   mkdir modified
   find . -iname "*.jpg" | xargs -l -i convert "$@" {} ./modified/{}
 }
+
+shrinkimg() { convert -resize 33% "$1" "$1.jpg";}
 
 #My vnc shortie: vnc host password other_options
 vnc(){ echo $2|vncviewer -compresslevel 9 -quality 7 -autopass $3 $1; }
@@ -249,6 +261,17 @@ unixtime(){ date +"%s"; }	#Just for fun
 #set 256 color color
 Set256Color(){ if [ "$TERM" != "linux" ];then echo -e "\e[38;5;$1m";fi;}
 
+assignProxy(){
+  PROXY_ENV="http_proxy ftp_proxy https_proxy all_proxy HTTP_PROXY HTTPS_PROXY FTP_PROXY ALL_PROXY"
+  for envar in $PROXY_ENV
+  do
+    export $envar=$1
+  done
+}
+
+clrProxy(){
+  assignProxy "" # This is what 'unset' does.
+}
 
 #GREETING (Distribution, Kernel Version, Date+Time, Uptime, Todo-List)
 echo -e "\e[1;36m$(Set256Color 51)        ,                        _     _ _                  
@@ -268,4 +291,5 @@ PATH=$PATH:$HOME/.rvm/bin # Add RVM to PATH for scripting
 #setxkbmap -layout de,de -variant nodeadkeys,neo -option -option grp:sclk_toggle -option grp_led:scroll
 #set Scroll-lock key to switch NEO (default) and QUERTZ
 #setxkbmap -layout de,de -variant neo,nodeadkeys -option -option grp:sclk_toggle -option grp_led:scroll
+
 
