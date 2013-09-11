@@ -43,9 +43,13 @@ URL_readme = ${TermExec} 'less /usr/doc/%s/README'
 URL_info = ${TermExec} 'info %s'
 URL_sh = sh -c '%s'
 URL_g = firefox 'http://www.google.com/search?q=%s'
+URL_duckg = firefox 'https://duckduckgo.com/?q=%s'
+URL_wikie = firefox 'http://en.wikipedia.org/w/index.php?title=Special%3ASearch&search=%s' 
+URL_wikid = firefox 'http://de.wikipedia.org/w/index.php?title=Spezial%3ASuche&search=%s' 
+
 
 # extension handlers
-EXT:doc,rtf = libreoffice %s
+EXT:doc,rtf,odt = libreoffice %s
 EXT:txt,cc,cpp,h,java,html,htm,epl,tex,latex,js,css,xml,xsl,am = gvim %s
 EXT:ps,pdf,djvu = evince %s
 EXT:jpg,png,bmp,gif = gpicview %s

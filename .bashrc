@@ -1,12 +1,15 @@
 #Anton Pirogov's .bashrc
 
+. /etc/profile
+
 # If not running interactively, don't do anything
 [ -z "$PS1" ] && return
 
 # If exists, add ~/bin to $PATH.
 if [ -d ~/bin ] ; then
- PATH=~/bin:$PATH
+ PATH=~/bin:~/bin/matlab/bin:$PATH
 fi
+# Add Cabal to $PATH.
 if [ -d ~/.cabal/bin ] ; then
  PATH=~/.cabal/bin:$PATH
 fi
@@ -93,7 +96,7 @@ BLUE="\[\e[1;34m\]"
 CYAN="\[\e[1;36m\]"
 WHITE="\[\e[1;37m\]"
 BLUEBG="\[\e[44m\]"
-export PS1="$BLUEBG$WHITE[\t]$DEFAULT$WHITE>$BLUE\u$RED@$CYAN\h$DEFAULT:\W$GREEN\$$DEFAULT "
+export PS1="$BLUEBG$WHITE[\t]$DEFAULT $([ "$EUID" != "0" ] && echo "$BLUE\u$RED@$CYAN" || echo "$RED\u@")\h$DEFAULT \W$WHITE \\$ $DEFAULT" 
 
 #EXPORTS
 export LANG="de_DE.UTF-8"
@@ -112,9 +115,6 @@ export VISUAL="gvim"
 export PAGER="less"
 export LESS="-iMn -F -X -R"
 export SHELL="bash"
-#export TERM="xterm"
-export OOO_FORCE_DESKTOP=gnome
-export DISPLAY=":0.0"
 export JAVA_HOME=/usr #OpenJDK
 
 #ALIASES
@@ -140,7 +140,7 @@ alias findtext="grep -ri"
 alias cleanhistory="tac ~/.bash_history | awk '!seen[$0]++' | tac > newhist"
 alias top10size='find . -printf "%s %p\n"|sort -nr|head'
 alias showswap='cat /proc/swaps'
-#alias resizescreen='xrandr -s 1 && xrandr -s 0'
+#alias resizescreen='xrandr -s 1 && xrandr -s 0' #reset screen resolution to default
 
 #Package Management - Pacman
 alias ygl='pacman -Qe | less'	#Get List w. names of all inst. pkgs.
@@ -152,52 +152,67 @@ alias yin='sudo pacman -S --needed'	#Install package from database
 alias yrm='sudo pacman -Ruscn'		#Recursive remove
 alias yup='yaourt -Syu --aur'		#Dist upgrade
 
-#Misc. Programs
-alias fontlist='fc-list'
-alias gcc='LANG="C" gcc -ansi -std=c89 -pedantic -Wall -Wextra -Wshadow -Wcast-qual -Wformat=2 -Wmissing-include-dirs -Wfloat-equal -Wswitch-enum -Wundef -Wwrite-strings -Wredundant-decls -fverbose-asm -pg -g '	#High standard level, many debugging opts
-alias hc='rm -rf /tmp/*.o; ghc -fwarn-name-shadowing -hidir=/tmp -odir=/tmp -O' #"script compile" shortie
-alias ping='ping -c 5'	#Limit ping number
-alias pingl='ping6 ff02::1%eth0'
-alias mkisofs='mkisofs -v -r -J -o'	#Usage: mkisofs target.img /src/path
-alias xp='xprop | grep "WM_WINDOW_ROLE\|WM_CLASS" && echo "WM_CLASS(STRING) = \"NAME\", \"CLASS\"";xwininfo'
-alias setmp3chmod='find -name "*.mp3" -print0 | xargs -0 chmod 644'
-alias m4a2mp3='for a in *.m4a; do faad -f 2 -w "$a"  | lame -r - "$a.mp3"; done'
-alias normalizevolume='find /home/admin/myfiles/music/ -type f -iname "*.mp3" -print0 | xargs -0 mp3gain -r -k -s i -d 4'
-alias mirror="rsync -auv --delete"
-alias initsshkeys='eval `keychain --eval --nogui -Q -q id_rsa`'
+#Systemd
 alias listd="systemctl list-unit-files --type=service" #show all daemons run on startup
 alias startd="sudo systemctl start"
 alias stopd="sudo systemctl stop"
 alias restartd="sudo systemctl restart"
 alias statusd="systemctl status"  #show daemon status -> started or stopped?
+
+
+#Misc. Programs
+alias initsshkeys='eval `keychain --eval --nogui -Q -q id_rsa`'
+alias fontlist='fc-list'
+alias gcc='LANG="C" gcc -ansi -std=c99 -pedantic -Wall -Wextra -Wshadow -Wcast-qual -Wformat=2 -Wmissing-include-dirs -Wfloat-equal -Wswitch-enum -Wundef -Wwrite-strings -Wredundant-decls -fverbose-asm -pg -g '	#High standard level, many debugging opts
+alias hc='rm -rf /tmp/*.o; ghc -fwarn-name-shadowing -hidir=/tmp -odir=/tmp -O' #"script compile" shortie
+alias ping='ping -c 5'	#Limit ping number
+alias pingl='ping6 ff02::1%eth0'  #ping local
+alias mkisofs='mkisofs -v -r -J -o'	#Usage: mkisofs target.img /src/path
+alias xp='xprop | grep "WM_WINDOW_ROLE\|WM_CLASS" && echo "WM_CLASS(STRING) = \"NAME\", \"CLASS\"";xwininfo'
+alias makepdf='pdflatex *.tex && evince *.pdf' #shortie for iterations with latex homeworks
+alias joinpdf='gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=join.pdf ' #requires ghostscript
+alias xephyr='Xephyr :1 -ac -reset -screen 1440x900 2>&1 >/dev/null'
+
+#Uni
+alias pushpoolprint='initsshkeys; ssh sshgate mv ./print/*.pdf ./print/old; scp *.pdf sshgate:./print/'
+alias reversessh='ssh -l pirogov -nNT -R 1337:localhost:2200 sshgate.informatik.uni-luebeck.de' #dann auf ssh-gate: ssh admin@localhost -p 1337
+
+#Music
+alias setmp3chmod='find -name "*.mp3" -print0 | xargs -0 chmod 644'
+alias fixmusicdir='chmod -R u+rwX,go+rX,go-w ./'  #set files to 644, dirs to 755
+alias m4a2mp3='for a in *.m4a; do faad -f 2 -w "$a"  | lame -r - "$a.mp3"; done'
+alias normalizevolume='find /home/admin/myfiles/music/ -type f -iname "*.mp3" -exec mp3gain -p -r -k -s i -d 6.0 "{}" \;'
+alias mirror="rsync -auv --delete"
+
+#My Wifi Network
 alias getconnectedmacs='ssh root@10.130.118.1 "iw dev wlan0 station dump" | grep Station | awk "{print \$2}"'
+alias capturetraf='ssh root@10.130.118.1 tcpdump -i br-freifunk -w - > capture.cap'
+
 
 #mediacenter - using ssh/sshfs/rsync/mpd/ncmpcpp
 #use to: backup folders, mount remote data, control music
 #requires to have MPD default port, MEDIAPORT for ssh and port 8000 for mpd streaming open on media server
-#MEDIAHOST "mediacenter" must be declared correctly in /etc/hosts on both machines, no-ip forwarding would be nice
+#MEDIAHOST "mediacenter" must be declared correctly in /etc/hosts on both machines
 #alternative with less available ports: use ssh tunnel like:
 #ssh -p MEDIAPORT -fN MEDIALOGIN -L LOCALPORT:MEDIAHOST:REMOTEPORT
 #and connect to localhost to these ports
 MEDIAUSER=admin       #user for ssh connection
 MEDIAHOST=mediacenter #declared hostname or IP
 MEDIASSHP=2200  #SSH port
-MEDIAMAC='00:1b:fc:fc:c3:29'  #MAC address of network device of mediacenter
 MEDIALOGIN=$MEDIAUSER@$MEDIAHOST
 alias center.ssh="ssh -p $MEDIASSHP $MEDIALOGIN"
-alias center.wake="wol $MEDIAMAC"
 alias center.ping="ping -c 5 $MEDIAHOST"
-alias center.shutdown="ssh -p $MEDIASSHP $MEDIALOGIN 'sudo shutdown -h now'"
+alias center.shutdown="ssh -p $MEDIASSHP $MEDIALOGIN 'systemctl poweroff'"
 alias center.mount="mkdir ~/media; sshfs -p $MEDIASSHP $MEDIALOGIN:/media/DATA ~/media"
 alias center.umount="fusermount -u ~/media; rmdir ~/media"
 alias center.updatebackup="rsync --delete -avue 'ssh -p $MEDIASSHP' ~/myfiles $MEDIALOGIN:/media/DATA" #mirror local -> remote external
-alias center.updatebackup2="ssh -p $MEDIASSHP $MEDIALOGIN 'rsync -auv --delete /media/DATA/myfiles /media/HD'" #mirror rem. external -> rem. internal
 alias center.mpc="ncmpcpp -h $MEDIAHOST"
 alias center.stream="mplayer -nocache http://$MEDIAHOST:8000"
 
 #alias to access best accessible mpd -> mediaserver or fallback localhost
 SMARTMPD='$(if ping -c 1 -w 1 $MEDIAHOST > /dev/null; then echo $MEDIAHOST; else echo localhost; fi)'
 alias music="ncmpcpp -h $SMARTMPD"
+alias musickrtek="ncmpcpp -h clubmate42@krtek"
 
 #Mounting my Player with mtpfs
 alias player.mount='mkdir player; sudo mtpfs -o allow_other player'
@@ -209,7 +224,12 @@ alias cdc='eject -t sr0' 	#CD Close
 alias togglepad='killall syndaemon; synclient TouchpadOff=$(synclient -l | grep -c "TouchpadOff.*=.*0")'
 
 #MISC FUNCTIONS
-up() { for updirs in $(seq ${1:-1}); do cd ..; done; } #Move x dirs up
+
+#Resolve Uni Lübeck pc pool hostname to IP using ssh-gate
+poolpc() { ssh sshgate ping -c 1 $1 | head -n 1 | awk '{print$3}' | sed 's/[()]//g';}
+
+#Create socks proxy to uni lübeck intranet for usage with tsocks etc running on port 7070
+uniconnect() { ssh -N -D7070 sshgate;}
 
 # Cool History Summerizer - most used commands
 top10cmds(){ history|awk '{a[$2]++}END{for(i in a){printf"%5d\t%s\n",a[i],i}}'|sort -nr|head;}
@@ -225,7 +245,7 @@ git() {
 }
 
 #Handy batch imagemagick foto modification shortcut
-#example: imageconvert -resize 33%
+#example: batchconv -resize 33%
 batchconv() {
   mkdir modified
   find . -iname "*.jpg" | xargs -l -i convert "$@" {} ./modified/{}
@@ -244,9 +264,6 @@ killallr() {
 	sh -c "ps -e -o comm" | grep -e ^.*$1.*$ | grep -v grep | xargs killall
 }
 
-#ROT18
-rot18(){ echo "puts'$1'.split(//).map{|x|x.slice 0}.map{|x|x>64&&x<91||x>96&&x<123?(((x-(x<93?65:97)+13)%26+(x<93?65:97)).chr):x<58&&x>47?(((x-43)%10+48).chr):x.chr}.join"|ruby; }
-
 #String escape method into hex, usage: escape STRING ESCPREFIX(like % or 0x)
 escape(){ echo "puts '$2'+'$1'.split(//).map{|x| x.slice(0).ord.to_s(16)}.join('$2')"|ruby; }
 
@@ -256,7 +273,8 @@ getip(){ wget -O - -q http://checkip.dyndns.org/index.html|sed -e 's/.* //' -e '
 #German-English translation... via dict.cc, requires curl, grep and ruby
 translate(){ curl --silent http://www.dict.cc/?s=$1|grep c[12]Arr | ruby -e "arr=[gets.split('\",\"'),gets.split('\",\"')]; arr[0].shift; arr[1].shift; arr.each{|x| x[-1]=x[-1][0..-5] }; 0.upto(arr[0].length-1){|n| puts arr[0][n]+' <-> '+arr[1][n] }"; }
 
-unixtime(){ date +"%s"; }	#Just for fun
+#Time from epoch
+unixtime(){ date +"%s"; }
 
 #set 256 color color
 Set256Color(){ if [ "$TERM" != "linux" ];then echo -e "\e[38;5;$1m";fi;}
@@ -268,7 +286,6 @@ assignProxy(){
     export $envar=$1
   done
 }
-
 clrProxy(){
   assignProxy "" # This is what 'unset' does.
 }
@@ -284,7 +301,6 @@ $(Set256Color 33)    /##,-,##\     \__,_|_|  \___|_| |_|_|_|_| |_|\__,_/_/\_\\
 \e[0;36m$(Set256Color 27) /\`           \`\ "
 
 [[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
-PATH=$PATH:$HOME/.rvm/bin # Add RVM to PATH for scripting
 
 #setxkbmap de neo -option	#set neo keyboard layout
 #set Scroll-lock key to switch QWERTZ (default) and NEO
@@ -292,4 +308,7 @@ PATH=$PATH:$HOME/.rvm/bin # Add RVM to PATH for scripting
 #set Scroll-lock key to switch NEO (default) and QUERTZ
 #setxkbmap -layout de,de -variant neo,nodeadkeys -option -option grp:sclk_toggle -option grp_led:scroll
 
+#Modified US Layout with Umlauts on AltGr
+#setxkbmap us cz_sk_de
+#todo: set vconsole.conf layout to us too?
 

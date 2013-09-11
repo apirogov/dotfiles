@@ -1,18 +1,12 @@
 #!/bin/sh
-/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
-xscreensaver -nosplash &
-/usr/lib/notification-daemon-1.0/notification-daemon &
+/home/admin/.lightsOn.sh 120 &  #prevent screensaver on fullscreen
+#sudo nm-applet & #network manager
+#blueman-applet & #bluetooth manager
 
-sh /home/admin/bin/scrfix.sh  #because latest kernel sucks
-xmonad --restart
-
-sudo nm-applet &
-blueman-applet &
-
+#Programs
 dropboxd &
 clipit &
-/home/admin/.lightsOn.sh 120 &
-#normal programs
 firefox &
-pidgin &
-skype &
+synergy &
+#pidgin &
+#skype &

@@ -47,8 +47,8 @@ set ttyfast                    " we have a fast terminal connection
 " Wrapping
 set nowrap                     " disable wrapping (cause its bad for coding)
 set textwidth=0                " after how many chars a break is made
+set showbreak=+                " show a + if a line is longer than the screen
 "set linebreak                  " wrap on word boundaries (not in word middle)
-"set showbreak=+                " show a + if a line is longer than the screen
 "set cpoptions+=n               " show break char between line numbers
 
 " Folding
@@ -101,7 +101,7 @@ if has("gui_running")
 	"set guioptions-=T            " Remove toolbar in GUI mode
 	"set guioptions=acg           " Remove all menus, toolbars and stuff
 	"set nomousehide              " don't hide mouse while typing
-	"set lines=25                 " standard console size
+  "set lines=25                 " standard console size
 	"set columns=80               " standard console size
 endif
 
@@ -147,27 +147,35 @@ if has("autocmd")
   au BufRead,BufNewFile *.hs      map <F8>  :w<cr>:!rm -rf /tmp/*.o; ghc -fwarn-name-shadowing -hidir=/tmp -odir=/tmp -O -o a.out % && ./a.out<cr>
   " Load into GHCI
   au BufRead,BufNewFile *.hs      map <F7>  :w<cr>:!ghci %<cr>
+ 
+  " Compile a pdf from latex
+  au BufRead,BufNewFile *.tex     map <F8>  :w<cr>:cd %:p:h<cr>:!pdflatex *.tex && evince *.pdf<cr><cr>
 
 endif
 
 " ------- Plugin config -------
 
 " Load plugins from bundle folders with pathogen
-let g:pathogen_disabled=["SuperTab"] "list of disabled bundles (additionaly to bundles ending with ~
+let g:pathogen_disabled=["vim-latex"] "list of disabled bundles (additionaly to bundles ending with ~
 call pathogen#infect() 
+
 " add current git branch to statusline
 set statusline+=%{fugitive#statusline()}
+
 " Let TagList appear on the right
 let Tlist_Use_Right_Window = 1
 let g:snips_author = "Anton Pirogov"
+
 " VimClojure
 let vimclojure#HighlightBuiltins=1      " Highlight Clojure's builtins
 let vimclojure#ParenRainbow=1           " Rainbow parentheses'!
+
 " TSlime
 " Automatically connected to: tmux new-session -s repl -n repl
 let b:tmux_sessionname = "repl"
 let b:tmux_windowname  = "repl"
 let b:tmux_panenumber  = 0
+map <C-c><F7> ggVG<C-c><C-c>
 
 " ---------------------------------------------------------------------------
 " Automagic Clojure folding on defn's and defmacro's
@@ -228,8 +236,8 @@ cmap w!! %!sudo tee > /dev/null %
 cmap cwd lcd %:p:h
 
 "Highlight tabs
-" syntax match Tab /\t/
-" hi Tab guifg=grey ctermbg=grey
+syntax match Tab /\t/
+hi Tab guifg=grey ctermbg=grey
 
 " ---- Easy Multi-Tab Mode ----
 
@@ -237,9 +245,15 @@ cmap cwd lcd %:p:h
 "set showtabline=2    " always show tab bar
 set tabpagemax=20    " maximum number of tabs to create
 map <C-t>	:tabnew<cr>
-map <C-w>	:tabclose<cr>
-" map <C-j>	:tabprevious<cr>
-" map <C-k>	:tabnext<cr>
+" map <C-w>	:tabclose<cr>
+map <C-j>	:tabprevious<cr>
+map <C-k>	:tabnext<cr>
+
+" Split window bindings
+nmap <silent> <A-Up> :wincmd k<CR>
+nmap <silent> <A-Down> :wincmd j<CR>
+nmap <silent> <A-Left> :wincmd h<CR>
+nmap <silent> <A-Right> :wincmd l<CR>
 
 "Sort a file
 map <leader>s :%!sort<cr>
@@ -286,6 +300,16 @@ augroup JumpCursorOnEdit
  \ unlet b:doopenfold |
  \ endif
 augroup END
+
+" disable arrow keys
+"noremap  <Up> ""
+"noremap! <Up> <Esc>
+"noremap  <Down> ""
+"noremap! <Down> <Esc>
+"noremap  <Left> ""
+"noremap! <Left> <Esc>
+"noremap  <Right> ""
+"noremap! <Right> <Esc>
 
 " ---------- Memos ------------
 "Tip: Makros

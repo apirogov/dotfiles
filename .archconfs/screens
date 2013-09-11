@@ -54,3 +54,5 @@ if [[ "$BRIGHT" != "$(cat /sys/class/backlight/acpi_video0/brightness)" ]]
 then
     sudo brightness $BRIGHT
 fi
+nitrogen --restore
+xmonad --restart

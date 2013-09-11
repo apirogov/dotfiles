@@ -1,5 +1,5 @@
 -- xmonad config used by Anton Pirogov
--- Copyright © 2012 Anton Pirogov
+-- Copyright © 2013 Anton Pirogov
 -- requires fully enabled dzen2 or MPD enabled xmobar + conky + acpi + xmonad-contrib
 ---------------------------------------------------------------
 
@@ -61,7 +61,7 @@ myModMask       = mod4Mask
 
 -- The default number of workspaces (virtual screens) and their names.
 -- The number of workspaces is determined by the length of this list.
-myWorkspaces    = ["1:msg","2:web","3:dev","4:media","5:misc"]
+myWorkspaces    = ["1:main","2:web","3:dev","4:media","5:misc"]
 
 ------------------------------------------------------------------------
 -- Layouts:
@@ -74,7 +74,7 @@ myLayout = windowNavigation $ avoidStruts
            ( defaultPerWorkspace ||| hintedTile Tall ||| hintedTile Wide ||| tabbedLayout ||| Full ||| Grid ||| spiral (6/7) ||| Circle )
   where
      defaultPerWorkspace = named "Default"
-                         $ onWorkspace "1:msg"  (pidginWide ||| pidginTall)
+                         $ onWorkspace "1:main"  (pidginWide ||| pidginTall)
                          $ onWorkspace "2:web"   tabbedLayout
                          $ onWorkspace "3:dev"   tabbedLayout
                          $ onWorkspace "4:media" Full
@@ -122,7 +122,9 @@ myManageHook = composeAll [
     , className =? "Firefox"        --> doShift "2:web"
     , className =? "Eclipse"        --> doShift "3:dev"
     , className =? "net-minecraft-LauncherFrame" --> doShift "4:media"
+    , className =? "Xephyr"         --> doShift "4:media"
     , className =? "Gimp"           --> doShift "5:misc"
+    , className =? "VirtualBox"           --> doShift "5:misc"
     ]
     <+> scratchpadManageHook (W.RationalRect 0.0 0.0 1.0 0.5)
 
@@ -143,8 +145,6 @@ myDzenLogHook h = dynamicLogWithPP $ dzenPP { ppOutput = hPutStrLn h, ppSort = f
 
 -- log hook to be used with XMobar (pass a pipe to a running xmobar)
 myXmobarLogHook h =  do
-                      setWMName "LG3D"
-                      ewmhDesktopsLogHook
                       dynamicLogWithPP $ xmobarPP {
                             ppOutput = hPutStrLn h
                           , ppTitle = xmobarColor "#FFB6B0" "" . shorten 100
@@ -199,9 +199,13 @@ main = do
 
   xmonad $ ewmh $ defaults {
     --logHook = myDzenLogHook dzenBar
-    logHook = if useDZen
-                 then myDzenLogHook bar
-                 else myXmobarLogHook bar
+    logHook = do
+                setWMName "LG3D"
+                ewmhDesktopsLogHook
+                if useDZen
+                   then myDzenLogHook bar
+                   else myXmobarLogHook bar
+
 	} `additionalKeys` ( [  -- Key bindings --
     -- improved WindowNavigation keybindings
       ((myModMask,               xK_Right), sendMessage $ Go R)
@@ -218,16 +222,16 @@ main = do
     -- Home key
     -- , ((0, 0x1008ff18), spawn "echo not set")
     -- Audio keys
-    , ((0, 0x1008ff12), spawn "amixer set Master toggle")
-    , ((0, 0x1008ff11), spawn "amixer set Master 4%-")
+    , ((0, 0x1008ff12), spawn "amixer set Master toggle") -- speaker mute
+    , ((0, 0x1008ff11), spawn "amixer set Master 4%-") -- volume up + down
     , ((0, 0x1008ff13), spawn "amixer set Master 4%+")
+    , ((0, 0x1008ffb2), spawn "amixer set Mic toggle") -- mic mute
     , ((0, 0x1008ff41), spawn "synclient TouchpadOff=$(synclient -l | grep -c 'TouchpadOff.*=.*0')") --black launch key Thinkvantage
-    --, ((0, ???), spawn "amixer set Capture toggle") --mute key
     -- , ((0, keycode 114), spawn "mkdir test")
     -- Fn Media keys
     , ((0, 0x1008ff2d), spawn "xscreensaver-command -lock")
     , ((0, 0x1008ff8f), spawn "skype")
-    , ((0, 0x1008ff59), spawn "screens && nitrogen --restore")
+    , ((0, 0x1008ff59), spawn "screens && nitrogen --restore && killall trayer conky dzen2 && xmonad --restart")
     , ((0, 0x1008ff14), spawn "mpc toggle")
     , ((0, 0x1008ff17), spawn "mpc next")
     , ((0, 0x1008ff16), spawn "mpc prev")
@@ -253,6 +257,7 @@ main = do
     -- override default xmonad restart binding (to kill dzen2)
     , ((myModMask, xK_q), spawn "killall trayer conky dzen2 && xmonad --recompile && xmonad --restart")
     -- scratchpad
-    , ((myModMask .|. controlMask, xK_Return),  scratchpadSpawnActionTerminal "urxvt -name scratchpad +sb -e bash -c 'tmux attach -t sp || tmux new -s sp'")
+    , ((myModMask .|. controlMask, xK_Return),  scratchpadSpawnActionTerminal "urxvt -name scratchpad +sb -e bash -c 'tmux attach -t sp || tmux new -s sp'") --local tmux
+    --, ((myModMask .|. controlMask, xK_Return),  scratchpadSpawnActionTerminal "urxvt -name scratchpad +sb -e bash -c 'eval `keychain --eval --nogui -Q -q id_rsa`; TERM=xterm-256color ssh -p 2200 admin@10.130.118.2'")
     ])
 
