@@ -123,6 +123,23 @@ alias ls='ls --color=auto'
 alias la='ls -A'
 alias ll='ls -lhtA'
 
+#Package Management - Pacman
+alias ygl='pacman -Qe | less'	#Get List w. names of all inst. pkgs.
+alias ygf='pacman -Qm'        #List foreign/AUR packages
+alias ysi='pacman -Si'				#Search Info about packages
+alias yss='yaourt -Ss'				#Search for packages
+alias yip='sudo pacman -U'		#Install local Package
+alias yin='sudo pacman -S --needed'	#Install package from database
+alias yrm='sudo pacman -Ruscn'		#Recursive remove
+alias yup='yaourt -Syu --aur'		#Dist upgrade
+
+#Systemd
+alias listd="systemctl list-unit-files --type=service" #show all daemons run on startup
+alias startd="sudo systemctl start"
+alias stopd="sudo systemctl stop"
+alias restartd="sudo systemctl restart"
+alias statusd="systemctl status"  #show daemon status -> started or stopped?
+
 #file operation/standard tools
 alias df='df -hT'		#-h : Human readable
 alias du='du -sh'
@@ -142,26 +159,9 @@ alias top10size='find . -printf "%s %p\n"|sort -nr|head'
 alias showswap='cat /proc/swaps'
 #alias resizescreen='xrandr -s 1 && xrandr -s 0' #reset screen resolution to default
 
-#Package Management - Pacman
-alias ygl='pacman -Qe | less'	#Get List w. names of all inst. pkgs.
-alias ygf='pacman -Qm'        #List foreign/AUR packages
-alias ysi='pacman -Si'				#Search Info about packages
-alias yss='yaourt -Ss'				#Search for packages
-alias yip='sudo pacman -U'		#Install local Package
-alias yin='sudo pacman -S --needed'	#Install package from database
-alias yrm='sudo pacman -Ruscn'		#Recursive remove
-alias yup='yaourt -Syu --aur'		#Dist upgrade
-
-#Systemd
-alias listd="systemctl list-unit-files --type=service" #show all daemons run on startup
-alias startd="sudo systemctl start"
-alias stopd="sudo systemctl stop"
-alias restartd="sudo systemctl restart"
-alias statusd="systemctl status"  #show daemon status -> started or stopped?
-
-
 #Misc. Programs
 alias initsshkeys='eval `keychain --eval --nogui -Q -q id_rsa`'
+alias ssh='initsshkeys && ssh'
 alias fontlist='fc-list'
 alias gcc='LANG="C" gcc -ansi -std=c99 -pedantic -Wall -Wextra -Wshadow -Wcast-qual -Wformat=2 -Wmissing-include-dirs -Wfloat-equal -Wswitch-enum -Wundef -Wwrite-strings -Wredundant-decls -fverbose-asm -pg -g '	#High standard level, many debugging opts
 alias hc='rm -rf /tmp/*.o; ghc -fwarn-name-shadowing -hidir=/tmp -odir=/tmp -O' #"script compile" shortie
@@ -172,6 +172,14 @@ alias xp='xprop | grep "WM_WINDOW_ROLE\|WM_CLASS" && echo "WM_CLASS(STRING) = \"
 alias makepdf='pdflatex *.tex && evince *.pdf' #shortie for iterations with latex homeworks
 alias joinpdf='gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=join.pdf ' #requires ghostscript
 alias xephyr='Xephyr :1 -ac -reset -screen 1440x900 2>&1 >/dev/null'
+alias tcmount='sudo truecrypt -t --fs-options=users,uid=$(id -u),gid=$(id -g),fmask=0113,dmask=0002 --mount'
+alias tcumount='sudo truecrypt -t -d'
+alias mirror="rsync -auv --delete"
+alias unixtime="date +'%s'"
+alias getip="wget -O - -q http://checkip.dyndns.org/index.html|sed -e 's/.* //' -e 's/<.*//'"
+alias speedtest='wget -O /dev/null http://speedtest.wdc01.softlayer.com/downloads/test10.zip'
+alias tmux='tmux -2'
+alias t='todo.sh'
 
 #Uni
 alias pushpoolprint='initsshkeys; ssh sshgate mv ./print/*.pdf ./print/old; scp *.pdf sshgate:./print/'
@@ -182,7 +190,6 @@ alias setmp3chmod='find -name "*.mp3" -print0 | xargs -0 chmod 644'
 alias fixmusicdir='chmod -R u+rwX,go+rX,go-w ./'  #set files to 644, dirs to 755
 alias m4a2mp3='for a in *.m4a; do faad -f 2 -w "$a"  | lame -r - "$a.mp3"; done'
 alias normalizevolume='find /home/admin/myfiles/music/ -type f -iname "*.mp3" -exec mp3gain -p -r -k -s i -d 6.0 "{}" \;'
-alias mirror="rsync -auv --delete"
 
 #My Wifi Network
 alias getconnectedmacs='ssh root@10.130.118.1 "iw dev wlan0 station dump" | grep Station | awk "{print \$2}"'
@@ -267,14 +274,8 @@ killallr() {
 #String escape method into hex, usage: escape STRING ESCPREFIX(like % or 0x)
 escape(){ echo "puts '$2'+'$1'.split(//).map{|x| x.slice(0).ord.to_s(16)}.join('$2')"|ruby; }
 
-#Show extern IP
-getip(){ wget -O - -q http://checkip.dyndns.org/index.html|sed -e 's/.* //' -e 's/<.*//';}
-
 #German-English translation... via dict.cc, requires curl, grep and ruby
 translate(){ curl --silent http://www.dict.cc/?s=$1|grep c[12]Arr | ruby -e "arr=[gets.split('\",\"'),gets.split('\",\"')]; arr[0].shift; arr[1].shift; arr.each{|x| x[-1]=x[-1][0..-5] }; 0.upto(arr[0].length-1){|n| puts arr[0][n]+' <-> '+arr[1][n] }"; }
-
-#Time from epoch
-unixtime(){ date +"%s"; }
 
 #set 256 color color
 Set256Color(){ if [ "$TERM" != "linux" ];then echo -e "\e[38;5;$1m";fi;}
@@ -312,3 +313,5 @@ $(Set256Color 33)    /##,-,##\     \__,_|_|  \___|_| |_|_|_|_| |_|\__,_/_/\_\\
 #setxkbmap us cz_sk_de
 #todo: set vconsole.conf layout to us too?
 
+
+PATH=$PATH:$HOME/.rvm/bin # Add RVM to PATH for scripting

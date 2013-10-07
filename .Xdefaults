@@ -83,7 +83,7 @@ XTerm*saveLines:            2048
 XTerm*scrollBar:            false
 !XTerm*titeInhibit:         true
 
-XTerm*faceName:             Monaco
+XTerm*faceName:             Inconsolata
 XTerm*faceSize:             10
 XTerm*termName:             xterm-xfree86
 
@@ -92,7 +92,7 @@ XTerm*termName:             xterm-xfree86
 
 !URxvt*termName:			rxvt-unicode
 URxvt*geometry:			80x24
-URxvt*font:				xft:Monaco:size=10
+URxvt*font:				xft:Inconsolata:size=10
 URxvt*urlLauncher:		chromium
 URxvt*scrollBar:		true
 URxvt*scrollBar_right:	true
@@ -107,6 +107,7 @@ URxvt.perl-ext-common: default,matcher
 URxvt*saveLines:		5000
 URxvt.matcher.button:	1
 URxvt*BorderLess:		1
+URxvt*urgentOnBell: true
 
 Xft*dpi:				96
 Xft*antialias:			true

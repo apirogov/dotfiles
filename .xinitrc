@@ -16,6 +16,10 @@ fi
 #xset m 1 0 & #set mouse sensitivity
 #xmodmap -e "pointer = 3 2 1" #invert mouse for left hand
 
+#fix repetition of arrow keys (some weird Xorg regression bug)
+xset r 113
+xset r 116
+
 #setxkbmap de nodeadkeys      #set default layout
 setxkbmap us cz_sk_de
 
@@ -38,10 +42,12 @@ export LD_LIBRARY_PATH="/usr/lib/jvm/java-7-openjdk/jre/lib/amd64"
 
 #pulseaudio --start &
 /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
-xscreensaver -nosplash &
 /usr/lib/notification-daemon-1.0/notification-daemon &
+xscreensaver -nosplash &
+#wallpaperd & #Per workspace wallpaper
+#eval $(gpg-agent --daemon) &
 
-#Applications
+#Application
 ~/.autorun
 
 #Start WM (last thing to be done)
@@ -51,6 +57,10 @@ case "$1" in
 	  exec openbox-session ;;
   xmonad)
     exec dbus-launch xmonad ;;
+  dwm)
+    exec dbus-launch dwm ;;
+  i3)
+    exec dbus-launch i3 ;;
   *)  #default
     exec xmonad ;;
 esac

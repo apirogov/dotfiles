@@ -1,22 +1,231 @@
 " Anton Pirogov's .vimrc
+" vim: set foldmethod=marker:
+" ======================
 
-" General
+"let mapleader = ","            " Set leader key for keybindings (default: \)
+
+" Vundle bundles {{{
+filetype off                   " required!
+set rtp+=~/.vim/bundle/vundle/
+call vundle#rc()
+
+" let Vundle manage Vundle
+" required! 
+Bundle 'gmarik/vundle'
+
+" Drop-In improvements (zeroconf)
+Bundle 'matchit.zip'
+Bundle 'Processing'
+Bundle 'tpope/vim-speeddating'
+Bundle 'tpope/vim-repeat'
+Bundle 'tpope/vim-unimpaired'
+Bundle 'sudar/vim-arduino-syntax'
+Bundle 'hail2u/vim-css3-syntax'
+Bundle 'othree/html5-syntax.vim'
+Bundle 'kchmck/vim-coffee-script'
+
+" Coding/IDE features
+Bundle 'tpope/vim-fugitive'
+Bundle 'tpope/vim-endwise'
+Bundle 'tpope/vim-commentary'
+Bundle 'scrooloose/nerdtree'
+Bundle 'majutsushi/tagbar'
+Bundle 'Raimondi/delimitMate'
+Bundle 'ervandew/supertab'
+
+" Language specific
+" Bundle 'c.vim'
+Bundle 'a.vim'
+Bundle 'mattn/emmet-vim'
+Bundle 'vim-scripts/VimClojure'
+Bundle 'gberenfield/cljfold.vim' 
+
+" Snipmate stuff
+Bundle 'MarcWeber/vim-addon-mw-utils'
+Bundle 'tomtom/tlib_vim'
+Bundle 'garbas/vim-snipmate'
+Bundle 'honza/vim-snippets'
+
+" General vim usability
+Bundle 'sjl/gundo.vim'
+Bundle 'kien/ctrlp.vim'
+Bundle 'corntrace/bufexplorer'
+Bundle 'kshenoy/vim-signature'
+Bundle 'Lokaltog/vim-easymotion'
+Bundle 'tpope/vim-surround'
+Bundle 'tpope/vim-abolish'
+Bundle 'maxbrunsfeld/vim-yankstack'
+Bundle 'christoomey/vim-tmux-navigator'
+Bundle 'epeli/slimux'
+Bundle 'DrawIt'
+
+" Colors
+Bundle 'altercation/vim-colors-solarized'
+
+filetype plugin indent on " required!
+" }}}
+
+" Plugin config and keybindings {{{
+
+" vimFugitive: add current git branch to statusline
+set statusline+=%{fugitive#statusline()}
+
+" vimCommentary - gc<Motion> -> toggle comment, gcu -> uncomment commented
+
+" Toggle NERDTree
+map <F10> :NERDTreeToggle<cr>
+
+" Toggle Tag List
+map <F11> :TagbarToggle<cr>
+
+" delimitMate: disable in regular text
+au FileType mail,text let b:delimitMate_autoclose = 0
+
+" VimClojure
+let vimclojure#HighlightBuiltins=1      " Highlight Clojure's builtins
+let vimclojure#ParenRainbow=1           " Rainbow parentheses'!
+
+" Snipmate
+let g:snips_author = "Anton Pirogov"
+
+" GUndo
+nnoremap <F5> :GundoToggle<CR>
+
+" CtrlP - C-j/C-k to next/prev completion, C-r regex mode, C-f/b cycle modes, C-t/v/s open in new tab/split
+" BufExplorer - opens with <leader>be
+" vimSignature - Toggle mark with mN, `N -> goto mark N, m<space> remove all marks
+" EasyMotion - Toggle easy motion with <leader><leader>w or f or t
+" vimSurround - cs"' changes "a" to 'a', ds" changes "a" to a, ysiw a on a -> 'a'
+
+" yankStack: other keybindings (conflicting ctrlp)
+let g:yankstack_map_keys = 0
+nmap <leader>p <Plug>yankstack_substitute_older_paste
+nmap <leader>P <Plug>yankstack_substitute_newer_paste
+
+" Vim-tmux-navigator - C-hjkl to move between splits and also tmux panes
+
+" Slimux
+map <leader>t :SlimuxREPLSendLine<CR>
+vmap <leader>t :SlimuxREPLSendSelection<CR>
+map <leader>a :SlimuxShellLast<CR>
+map <leader>k :SlimuxSendKeysLast<CR>
+
+" DrawIt - <leader>di -> start, <leader>ds -> stop
+
+" }}}
+
+" Misc. Keybindings {{{
+
+"Highlight tabs
+syntax match Tab /\t/
+hi Tab guifg=grey ctermbg=grey
+
+" Paste from clipboard
+nmap <C-v><C-v> "+p
+
+" Tab keybindings
+map <C-t> :tabnew<CR>
+nnoremap <A-Left> :tabprevious<CR>
+nnoremap <A-Right> :tabnext<CR>
+nnoremap <silent> <A-Up> :execute 'silent! tabmove ' . (tabpagenr()-2)<CR>
+nnoremap <silent> <A-Down> :execute 'silent! tabmove ' . tabpagenr()<CR>
+
+" Resize splits
+nnoremap <C-Left> <C-w><
+nnoremap <C-Right> <C-w>>
+nnoremap <C-Up> <C-w>-
+nnoremap <C-Down> <C-w>+
+
+" Toggle tabs
+let notabs = 1
+nnoremap <silent> <F9> :let notabs=!notabs<Bar>:if notabs<Bar>:tabo<Bar>:else<Bar>:tab ball<Bar>:tabn<Bar>:endif<CR>
+
+"Sort a file
+map <leader>s :%!sort<cr>
+"Wrap on/off
+map <leader>w :set wrap!<cr>
+"apply ruby one liner to a range ($_ = current line)
+map <leader>r :rubydo $_ = 
+" Disable search highlighting
+nmap <silent> <leader>/ :nohlsearch<CR>
+
+"Write to file without previous write access (asks password)
+cmap w!! %!sudo tee > /dev/null %
+" Switch current directory to that of the file
+cmap cwd lcd %:p:h
+
+" Fix Modifier+Arrow combinations within tmux
+if &term =~ '^screen'
+    " tmux will send xterm-style keys when its xterm-keys option is on
+    execute "set <xUp>=\e[1;*A"
+    execute "set <xDown>=\e[1;*B"
+    execute "set <xRight>=\e[1;*C"
+    execute "set <xLeft>=\e[1;*D"
+endif
+
+" disable arrow keys
+" noremap  <Up> ""
+" noremap! <Up> <Esc>
+" noremap  <Down> ""
+" noremap! <Down> <Esc>
+" noremap  <Left> ""
+" noremap! <Left> <Esc>
+" noremap  <Right> ""
+" noremap! <Right> <Esc>
+
+" Arrow keys for indentation
+nmap <Left> <<
+nmap <Right> >>
+vmap <Left> <gv
+vmap <Right> >gv
+" Arrow keys for line swapping (unimpaired)
+nmap <Up> [e
+nmap <Down> ]e
+vmap <Up> [egv
+vmap <Down> ]egv
+
+" ---------- Memos ------------
+"Tip: Makros
+"Record:
+"q<some key>
+"<edit one line and move to the next>
+"q
+"Play:
+"@<some key>
+"@@ (play last macro)
+"100@<some key> repeat macro 100 times
+"Tip: Increment/Decrement number: C-A/C-X
+"Tip: Revert file state to some time: :earlier <time, e.g. 15m>
+"or :later <time> to reverse it back (all based on undo)
+"Tip: Convert file to hex editor output: :%!xxd
+
+" }}}
+
+" General {{{
 set nocompatible               " prevent vi emulation
 set encoding=utf-8             " set default encoding
 set fileformats=unix,dos,mac   " set ordered list of supported file fmts
-set shell=/bin/bash            " just to be sure xD
+set shell=/bin/bash            " just to be sure
 set directory=~/.vim/tmp       " Dir for vim temp files
 
 " Config files & registers (e.g. undo)
 set nobackup                   " make no backups of files
 "set backupdir=~                " not required
 set history=100                " number of lines of command line history
-set viminfo='20,\"50           " r/w a .viminfo file, don't store >50 lines
+" Tell vim to remember certain things when we exit
+"  '10  :  marks will be remembered for up to 10 previously edited files
+"  "100 :  will save up to 100 lines for each register
+"  :20  :  up to 20 lines of command-line history will be remembered
+"  %    :  saves and restores the buffer list
+"  n... :  where to save the viminfo files
+set viminfo='10,\"100,:20,%,n~/.viminfo
 
 " Mouse & keys
 set mouse=a                    " mouse in all modes
 set backspace=indent,eol,start " improve backspace in insert mode
 set esckeys                    " cursor keys in insert mode
+set timeoutlen=500             " terminal esc timeout
+set ttimeoutlen=50             " terminal esc timeout
 
 " Search behaviour & completition & matching
 set hlsearch                   " highlight search matches
@@ -35,7 +244,7 @@ set matchpairs+=<:>            " Have % bounce between angled brackets and other
 "set preserveindent             " only add as much chars as required 
 set smartindent                " enable intelligent guessing of indentation
 set tabstop=2                  " set tab size to 4
-set shiftwidth=4               " set shiftwidth to 4
+set shiftwidth=2               " set shiftwidth to 4
 set expandtab                  " replace tabs with spaces
 
 " Scroll behaviour
@@ -46,8 +255,8 @@ set ttyfast                    " we have a fast terminal connection
 
 " Wrapping
 set nowrap                     " disable wrapping (cause its bad for coding)
-set textwidth=0                " after how many chars a break is made
 set showbreak=+                " show a + if a line is longer than the screen
+"set textwidth=0                " after how many chars a break is made
 "set linebreak                  " wrap on word boundaries (not in word middle)
 "set cpoptions+=n               " show break char between line numbers
 
@@ -62,6 +271,8 @@ set foldcolumn=1               " columns for fold markers
 "set foldopen-=undo             " don't unfold when undo sth.
 
 " Improvement & tweaks
+set tabpagemax=20              " maximum number of tabs to create
+"set showtabline=2             " always show tab bar
 set nojoinspaces               " don't insert 2 spaces after .?! if 2 lines get j.
 set undolevels=1000            " number of undo levels
 set confirm                    " confirm actions
@@ -77,6 +288,8 @@ set report=0                   " if lines got changed - notify
 "set ofu=syntaxcomplete#Complete      " Insert mode tab completion (builtin)
 
 " Status line & appearance
+set background=dark            " terminal background
+colorscheme wir_black          " my colorscheme for console mode
 "set title                     " shows title text in console title bar
 set statusline=%<%F%h%m%r%h%w%y\ %{&ff}\ %{strftime(\"%d/%m/%Y-%H:%M\")}%=\ l:%l\/%L\ col:%c%V\ pos:%o\ ascii:%b\ %P\ 
 set t_Co=256                   " 256 Color mode
@@ -92,13 +305,13 @@ set lazyredraw                 " no window redraw while running macros (faster)
 set wildmenu                   " turn on wild menu (completition feature)
 set wildmode=longest:list      " turn on long format
 set wildignore=*.dll,*.o,*.obj,*.exe,*.swp,*.jpg       " ignore some formats
-colorscheme ir_black           " my colorscheme for console mode
-set background=dark            " terminal background
 if has("gui_running")
-	colorscheme wombat           " GUI scheme
+  set background=dark
+  colorscheme solarized        " GUI scheme
 	set cursorline               " highlight current line
 	set guifont=Monaco           " Font for GVim
-	"set guioptions-=T            " Remove toolbar in GUI mode
+	set guioptions-=T            " Remove toolbar in GUI mode
+	set guioptions-=e            " Remove gui tabs (console tabs)
 	"set guioptions=acg           " Remove all menus, toolbars and stuff
 	"set nomousehide              " don't hide mouse while typing
   "set lines=25                 " standard console size
@@ -112,17 +325,14 @@ set noerrorbells               " no beeps
 set shortmess=aoOstI           " shortens messages to avoid "press a key" prompt
 set clipboard+=unnamed         " yank & copy to X clipboard
 
-let mapleader = ","            " Set leader key for keybindings
-
-
 " Enable syntax highlighting
 if has("syntax")
 	syntax on
   set popt+=syntax:y           " Syntax when printing
 endif
+" }}}
 
-" --- Lang. specific stuff ----
-
+" Language specific stuff {{{
 if has("autocmd")
   " Enabled file type detection and file-type specific plugins.
   filetype plugin indent on " filetype plugin and indent
@@ -152,177 +362,19 @@ if has("autocmd")
   au BufRead,BufNewFile *.tex     map <F8>  :w<cr>:cd %:p:h<cr>:!pdflatex *.tex && evince *.pdf<cr><cr>
 
 endif
+" }}}
 
-" ------- Plugin config -------
-
-" Load plugins from bundle folders with pathogen
-let g:pathogen_disabled=["vim-latex"] "list of disabled bundles (additionaly to bundles ending with ~
-call pathogen#infect() 
-
-" add current git branch to statusline
-set statusline+=%{fugitive#statusline()}
-
-" Let TagList appear on the right
-let Tlist_Use_Right_Window = 1
-let g:snips_author = "Anton Pirogov"
-
-" VimClojure
-let vimclojure#HighlightBuiltins=1      " Highlight Clojure's builtins
-let vimclojure#ParenRainbow=1           " Rainbow parentheses'!
-
-" TSlime
-" Automatically connected to: tmux new-session -s repl -n repl
-let b:tmux_sessionname = "repl"
-let b:tmux_windowname  = "repl"
-let b:tmux_panenumber  = 0
-map <C-c><F7> ggVG<C-c><C-c>
-
-" ---------------------------------------------------------------------------
-" Automagic Clojure folding on defn's and defmacro's
-"
-function GetClojureFold()
-      if getline(v:lnum) =~ '^\s*(defn.*\s'
-            return ">1"
-      elseif getline(v:lnum) =~ '^\s*(defmacro.*\s'
-            return ">1"
-      elseif getline(v:lnum) =~ '^\s*(defmethod.*\s'
-            return ">1"
-      elseif getline(v:lnum) =~ '^\s*$'
-            let my_cljnum = v:lnum
-            let my_cljmax = line("$")
-
-            while (1)
-                  let my_cljnum = my_cljnum + 1
-                  if my_cljnum > my_cljmax
-                        return "<1"
-                  endif
-
-                  let my_cljdata = getline(my_cljnum)
-
-" If we match an empty line, stop folding
-                  if my_cljdata =~ '^$'
-                        return "<1"
-                  else
-                        return "="
-                  endif
-            endwhile
-      else
-            return "="
-      endif
-endfunction
-
-function TurnOnClojureFolding()
-      setlocal foldexpr=GetClojureFold()
-      setlocal foldmethod=expr
-endfunction
-
-autocmd FileType clojure call TurnOnClojureFolding()
-
-" ----- Misc. Keybindings -----
-
-" Toggle NERDTree
-map <F10> :NERDTreeToggle<cr>
-" Toggle Tag List
-map <F11> :TlistToggle<cr>
-" Toggle both
-map <F12> :NERDTreeToggle<cr>:TlistToggle<cr>
-"toggle bracket autoclose
-map <leader>c :AutoCloseToggle<cr>
-
-"Write to file without previous write access (asks password)
-cmap w!! %!sudo tee > /dev/null %
-
-" Switch current directory to that of the file
-cmap cwd lcd %:p:h
-
-"Highlight tabs
-syntax match Tab /\t/
-hi Tab guifg=grey ctermbg=grey
-
-" ---- Easy Multi-Tab Mode ----
-
-"CTRL-T open tab CTRL-J focus left tab CTRL-K focus right tab
-"set showtabline=2    " always show tab bar
-set tabpagemax=20    " maximum number of tabs to create
-map <C-t>	:tabnew<cr>
-" map <C-w>	:tabclose<cr>
-map <C-j>	:tabprevious<cr>
-map <C-k>	:tabnext<cr>
-
-" Split window bindings
-nmap <silent> <A-Up> :wincmd k<CR>
-nmap <silent> <A-Down> :wincmd j<CR>
-nmap <silent> <A-Left> :wincmd h<CR>
-nmap <silent> <A-Right> :wincmd l<CR>
-
-"Sort a file
-map <leader>s :%!sort<cr>
-"Wrap on/off
-map <leader>w :set wrap!<cr>
-"apply ruby one liner to a range ($_ = current line)
-map <leader>r :rubydo $_ = 
-
-" ----- Misc improvements -----
-
-" Remove trailing whitespace from code files on save
-function StripTrailingWhitespace()
-  " store current cursor location
-  silent exe "normal ma<CR>"
-  " delete the whitespace (e means don't warn if pattern not found)
-  %s/\s\+$//e
-  " restore old cursor location
-  silent exe "normal `a<CR>"
-endfunction
-au BufWritePre *.c,*.h,*.rb,*.java,*.hs,*.cpp,*.js,*.php call StripTrailingWhitespace()
+" Misc improvement scripts {{{
 
 " when we reload, tell vim to restore the cursor to the saved position
-augroup JumpCursorOnEdit
- au!
- autocmd BufReadPost *
- \ if expand("<afile>:p:h") !=? $TEMP |
- \ if line("'\"") > 1 && line("'\"") <= line("$") |
- \ let JumpCursorOnEdit_foo = line("'\"") |
- \ let b:doopenfold = 1 |
- \ if (foldlevel(JumpCursorOnEdit_foo) > foldlevel(JumpCursorOnEdit_foo - 1)) |
- \ let JumpCursorOnEdit_foo = JumpCursorOnEdit_foo - 1 |
- \ let b:doopenfold = 2 |
- \ endif |
- \ exe JumpCursorOnEdit_foo |
- \ endif |
- \ endif
- " Need to postpone using "zv" until after reading the modelines.
- autocmd BufWinEnter *
- \ if exists("b:doopenfold") |
- \ exe "normal zv" |
- \ if(b:doopenfold > 1) |
- \ exe "+".1 |
- \ endif |
- \ unlet b:doopenfold |
- \ endif
-augroup END
+au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g`\"" | endif
 
-" disable arrow keys
-"noremap  <Up> ""
-"noremap! <Up> <Esc>
-"noremap  <Down> ""
-"noremap! <Down> <Esc>
-"noremap  <Left> ""
-"noremap! <Left> <Esc>
-"noremap  <Right> ""
-"noremap! <Right> <Esc>
-
-" ---------- Memos ------------
-"Tip: Makros
-"Record:
-"q<some key>
-"<edit one line and move to the next>
-"q
-"Play:
-"@<some key>
-"@@ (play last macro)
-"100@<some key> repeat macro 100 times
-"Tip: Increment/Decrement number: C-A/C-X
-"Tip: Revert file state to some time: :earlier <time, e.g. 15m>
-"or :later <time> to reverse it back (all based on undo)
-"Tip: Convert file to hex editor output: :%!xxd
-
+" Remove trailing whitespace from code files on save
+fun! <SID>StripTrailingWhitespaces()
+    let l = line(".")
+    let c = col(".")
+    %s/\s\+$//e
+    call cursor(l, c)
+endfun
+autocmd FileType c,cpp,java,php,ruby,python autocmd BufWritePre <buffer> :call <SID>StripTrailingWhitespaces()
+" }}}
