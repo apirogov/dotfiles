@@ -1,1 +1,7 @@
 inoremap <C-a> <Ins><C-a><Ins>
+nnoremap <C-a> <Ins><C-a><Ins>
+
+" Disable vimperator on feedly
+"autocmd LocationChange .*                             js modes.passAllKeys = false
+"autocmd LocationChange cloud\\.feedly\\.com           js modes.passAllKeys = true
+" TODO: vimperator plugin http://stackoverflow.com/questions/14271624/disable-vimperator-temporarily

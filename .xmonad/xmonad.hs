@@ -13,6 +13,7 @@ import qualified Data.Map as M
 import XMonad.Actions.PerWorkspaceKeys
 import XMonad.Actions.GridSelect
 import XMonad.Actions.DynamicWorkspaces
+import XMonad.Actions.UpdatePointer
 
 -- hooks
 import XMonad.Hooks.DynamicLog
@@ -67,7 +68,7 @@ myModMask       = mod4Mask
 
 -- The default number of workspaces (virtual screens) and their names.
 -- The number of workspaces is determined by the length of this list.
-myWorkspaces    = ["1:main","2:web","3:dev","4:media","5:misc"]
+myWorkspaces    = ["1:main","2:web","3:dev","4:docs","5:media","6:misc"]
 
 ------------------------------------------------------------------------
 -- Layouts:
@@ -76,7 +77,7 @@ myWorkspaces    = ["1:main","2:web","3:dev","4:media","5:misc"]
 -- If you change layout bindings be sure to use 'mod-shift-space' after
 -- restarting (with 'mod-q') to reset your layout state.
 
-myLayout = smartBorders $ windowNavigation $ avoidStruts $ modWorkspace "1:main" imLayout
+myLayout = avoidStruts $ smartBorders $ windowNavigation $ {-- modWorkspace "1:main" imLayout --}
            (   (named "Def" $ defaultPerWorkspace)
            ||| (named "Spi" $ mySpiral)
            ||| (named "Tal" $ hintedTile Tall)
@@ -92,8 +93,9 @@ myLayout = smartBorders $ windowNavigation $ avoidStruts $ modWorkspace "1:main"
                          $ onWorkspace "1:main"  mySpiral
                          $ onWorkspace "2:web"   tabbedLayout
                          $ onWorkspace "3:dev"   tabbedLayout
-                         $ onWorkspace "4:media" (noBorders Full)
-                         $ onWorkspace "5:misc"  Grid
+                         $ onWorkspace "4:docs"  mySpiral
+                         $ onWorkspace "5:media" (noBorders Full)
+                         $ onWorkspace "6:misc"  Grid
                          $ hintedTile Tall       -- for all the others
 
      -- default for hinted Tall/Mirror Tall (HintedTile is better that layoutHints $ Tall)
@@ -145,10 +147,10 @@ myManageHook = composeAll [
     , className =? "Firefox"        --> doShift "2:web"
     , className =? "Eclipse"        --> doShift "3:dev"
     , className =? "net-minecraft-LauncherFrame" --> doShift "4:media"
-    , className =? "Xephyr"         --> doShift "4:media"
-    , className =? "VirtualBox"     --> doShift "4:media"
-    , className =? "Dolphin-emu"    --> doShift "4:media"
-    , className =? "Gimp"           --> doShift "5:misc"
+    , className =? "Xephyr"         --> doShift "5:media"
+    , className =? "VirtualBox"     --> doShift "5:media"
+    , className =? "Dolphin-emu"    --> doShift "5:media"
+    , className =? "Gimp"           --> doShift "6:misc"
     ]
     <+> scratchpadManageHook (W.RationalRect 0.0 0.0 1.0 0.5)
     <+> manageDocks
@@ -266,6 +268,7 @@ main = do
     logHook = do
                 setWMName "LG3D"
                 ewmhDesktopsLogHook
+                -- updatePointer (Relative 0 0)
                 if useDZen
                    then myDzenLogHook bar
                    else myXmobarLogHook bar
@@ -317,17 +320,17 @@ main = do
     , ((myModMask .|. controlMask, xK_Next), spawn $ "mpc -h " ++ mediahost ++  " volume -10")
     -- per workspace keys
     , ((myModMask, xK_s), bindOn [
-         ("3:dev", do spawn $ myTerminal ++ " -t repl -e 'tmux new-session -s code -n code'")
+         ("3:dev", do spawn $ myTerminal ++ " -t dev -e 'tmux attach'")
         ,("",         spawn "notify-send \"not specified\"")
         ])
     , ((myModMask, xK_g), goToSelected defaultGSConfig)  -- grid selector
+    , ((myModMask, xK_BackSpace), removeWorkspace)
     , ((myModMask, xK_b), sendMessage ToggleStruts)  -- toggle dock spacing
     , ((myModMask .|. shiftMask, xK_o), restart "/home/admin/.xmonad/obtoxmd.sh" True)  -- replace with openbox
     -- scratchpad
     , ((myModMask .|. controlMask, xK_Return),  scratchpadSpawnActionTerminal "urxvt -name scratchpad +sb -e bash -c 'tmux attach -t sp || tmux new -s sp'") --local tmux
     --, ((myModMask .|. controlMask, xK_Return),  scratchpadSpawnActionTerminal "urxvt -name scratchpad +sb -e bash -c 'eval `keychain --eval --nogui -Q -q id_rsa`; TERM=xterm-256color ssh -p 2200 admin@10.130.118.2'")
     -- dynamic workspaces
-    , ((myModMask, xK_BackSpace), removeWorkspace)
     , ((myModMask, xK_a      ), selectWorkspace defaultXPConfig)
     , ((myModMask, xK_z      ), renameWorkspace defaultXPConfig)
     ]

@@ -5,15 +5,26 @@
 #Works with wallpaperd or feh
 #Copyright (C) 2013 Anton Pirogov
 
-useFeh = true
-#Path of the pictures to be used by feh, must contain N.jpg files
-#where n=number of workspace
-PIC_PATH="~/myfiles/pictures/funktional/Wallpapers/workspaces/"
+setter = :feh
 
-#if feh ist not used, configure wallpaperd accordingly (do it! it's faster!)
-#and this script will just forward the data to wallpaperd
+#Path of the pictures to be used, must contain N.jpg files of folders named N containing
+#pics which are chosen randomly, where N=number of workspace
+PIC_PATH="~/myfiles/pictures/Wallpapers/workspaces/"
 
-exit 1 if useFeh && !File.exists?(File.expand_path(PIC_PATH))
+exit 1 if !File.exists?(File.expand_path(PIC_PATH))
+
+def get_pic_path(workspace)
+  path = File.expand_path (PIC_PATH+workspace[0])
+
+  if Dir.exists? path  # has directory? choose random one
+    pics = Dir.entries path
+    pic = pics.shuffle.first
+    return path+"/"+pic
+  end
+
+  # Return <ws number>.jpg path
+  return path+".jpg"
+end
 
 old=nil
 line="x"
@@ -22,11 +33,11 @@ while line!=nil && line.chomp.length>0
   workspaces = STDIN.gets #with stripped dynamicLogPP
 
   if workspaces != old
-    if useFeh
-      cmd = "feh --no-fehbg --bg-scale #{workspaces.split(',').map{|x| PIC_PATH+x[0]+'.jpg'}.join ' '}"
-    else
-      cmd = "wallpaperd --visible-workspaces #{workspaces}"
+    cmd = case setter
+    when :feh then "feh --no-fehbg --bg-scale #{workspaces.split(',').map{|x| get_pic_path x}.join ' '}"
+    else "wallpaperd --visible-workspaces #{workspaces}"
     end
+
     `#{cmd}`
 
     old = workspaces

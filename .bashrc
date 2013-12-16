@@ -13,6 +13,10 @@ fi
 if [ -d ~/.cabal/bin ] ; then
  PATH=~/.cabal/bin:$PATH
 fi
+#Add gem path
+if [ -d /home/admin/.gem/ruby/2.0.0/bin ] ; then
+ PATH=/home/admin/.gem/ruby/2.0.0/bin:$PATH
+fi
 
 # X Terminal titles
 export PROMPT_COMMAND=""
@@ -48,6 +52,7 @@ shopt -s dotglob	# files beginning with . to be returned in the results of path-
 #set -o vi		# Vi-like command entry mode
 #set -o noclobber	# prevent overwriting files with cat
 set -o ignoreeof	# stops ctrl+d from logging me out
+#set -o vi #vi mode
 bind 'set completion-ignore-case on'
 bind 'set show-all-if-ambiguous on'
 
@@ -164,7 +169,7 @@ alias initsshkeys='eval `keychain --eval --nogui -Q -q id_rsa`'
 alias ssh='initsshkeys && ssh'
 alias fontlist='fc-list'
 alias gcc='LANG="C" gcc -ansi -std=c99 -pedantic -Wall -Wextra -Wshadow -Wcast-qual -Wformat=2 -Wmissing-include-dirs -Wfloat-equal -Wswitch-enum -Wundef -Wwrite-strings -Wredundant-decls -fverbose-asm -pg -g '	#High standard level, many debugging opts
-alias hc='rm -rf /tmp/*.o; ghc -fwarn-name-shadowing -hidir=/tmp -odir=/tmp -O' #"script compile" shortie
+alias hc='rm -rf /tmp/*.o; ghc -Wall -fwarn-name-shadowing -fwarn-incomplete-patterns -hidir=/tmp -odir=/tmp -O' #"script compile" shortie
 alias ping='ping -c 5'	#Limit ping number
 alias pingl='ping6 ff02::1%eth0'  #ping local
 alias mkisofs='mkisofs -v -r -J -o'	#Usage: mkisofs target.img /src/path
@@ -182,7 +187,7 @@ alias tmux='tmux -2'
 alias t='todo.sh'
 
 #Uni
-alias pushpoolprint='initsshkeys; ssh sshgate mv ./print/*.pdf ./print/old; scp *.pdf sshgate:./print/'
+alias pushpoolprint='initsshkeys; ssh sshgate mv ./print/*.pdf ./print/old; scp *.pdf sshgate:./print/ ; echo "-" ; ssh sshgate ls print'
 alias reversessh='ssh -l pirogov -nNT -R 1337:localhost:2200 sshgate.informatik.uni-luebeck.de' #dann auf ssh-gate: ssh admin@localhost -p 1337
 
 #Music
