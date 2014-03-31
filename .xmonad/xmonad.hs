@@ -12,8 +12,6 @@ import qualified Data.Map as M
 -- actions
 import XMonad.Actions.PerWorkspaceKeys
 import XMonad.Actions.GridSelect
-import XMonad.Actions.DynamicWorkspaces
-import XMonad.Actions.UpdatePointer
 
 -- hooks
 import XMonad.Hooks.DynamicLog
@@ -48,7 +46,6 @@ import XMonad.Util.EZConfig (additionalKeys)
 import XMonad.Util.WorkspaceCompare (getSortByXineramaRule)
 import XMonad.Util.Scratchpad
 import XMonad.Util.Replace
-import XMonad.Prompt (defaultXPConfig)
 
 ---------------------------------------------------------------
 
@@ -145,6 +142,7 @@ myManageHook = composeAll [
     , className =? "Gajim"          --> doShift "1:msg"
     , className =? "Skype"          --> doShift "1:msg"
     , className =? "Firefox"        --> doShift "2:web"
+    , className =? "Thunderbird"    --> doShift "2:web"
     , className =? "Eclipse"        --> doShift "3:dev"
     , className =? "net-minecraft-LauncherFrame" --> doShift "4:media"
     , className =? "Xephyr"         --> doShift "5:media"
@@ -169,12 +167,12 @@ myHandleEventHook = ewmhDesktopsEventHook <+> fullscreenEventHook <+> docksEvent
 
 -- startup for trayer
 --myTrayerCommand = "trayer --monitor primary --edge top --align right --SetDockType true --expand true --transparent true --tint 0x000000 --alpha 0 --height 16 --widthtype request"
-myTrayerCommand = "trayer --monitor primary --edge top --align right --SetDockType true --expand true --transparent true --tint 0x000000 --alpha 0 --height 16 --widthtype pixel --width 150"
+myTrayerCommand = "trayer --monitor primary --edge top --align right --SetDockType true --expand true --transparent true --tint 0x000000 --alpha 0 --height 16 --widthtype pixel --width 100"
 
 -- command line calls to my dzen2 instances:
 -- when using DZen2, use version with Xinerama, XFT and XPM (Option 7 in config.mk)
-myDZenXMBar = "dzen2 -xs 1 -h 16 -w 500 -fn 'Inconsolata:size=10' -ta l"
-myDZenSTBar = "conky | dzen2 -fn 'Inconsolata:size=10' -xs 1 -ta r -x 500 -h 16 -w 950"
+myDZenXMBar = "dzen2 -e '' -xs 1 -h 16 -w 500 -fn 'Inconsolata:size=10' -ta l"
+myDZenSTBar = "conky | dzen2 -e '' -fn 'Inconsolata:size=10' -xs 1 -ta r -x 500 -h 16 -w 1000"
 
 -- log hook for usage with dzen2
 myDzenLogHook h = dynamicLogWithPP $ defaultPP {
@@ -254,27 +252,25 @@ useDZen = True
 --
 mediahost = "mediacenter"
 main = do
-  rightBar <- if useDZen
-                then spawnPipe myDZenSTBar
-                else spawnPipe ""
-  bar <- if useDZen
-            then spawnPipe myDZenXMBar
-            else spawnPipe $ "MPD_HOST="++ mediahost ++" ~/.cabal/bin/xmobar ~/.xmonad/xmobar"
+  rightBar <- spawnPipe $ if useDZen
+                then myDZenSTBar
+                else ""
+  bar <- spawnPipe $ if useDZen
+            then myDZenXMBar
+            else  "MPD_HOST="++ mediahost ++" ~/.cabal/bin/xmobar ~/.xmonad/xmobar"
   wswp <- spawnPipe "~/.xmonad/wswphook.rb"
-  --wswp <- spawnPipe "dzen2"
 
   replace
   xmonad $ withUrgencyHook NoUrgencyHook $ ewmh $ defaults {
     logHook = do
                 setWMName "LG3D"
                 ewmhDesktopsLogHook
-                -- updatePointer (Relative 0 0)
                 if useDZen
                    then myDzenLogHook bar
                    else myXmobarLogHook bar
                 myWallpaperHook wswp
 
-	} `additionalKeys` ( [  -- Key bindings --
+  } `additionalKeys` [  -- Key bindings --
     -- improved WindowNavigation keybindings
       ((myModMask,               xK_Right), sendMessage $ Go R)
     , ((myModMask,               xK_Left ), sendMessage $ Go L)
@@ -301,17 +297,16 @@ main = do
     , ((0, 0x1008ff13), spawn "amixer set Master 4%+")
     , ((0, 0x1008ffb2), spawn "amixer set Mic toggle") -- mic mute
     , ((0, 0x1008ff41), spawn "synclient TouchpadOff=$(synclient -l | grep -c 'TouchpadOff.*=.*0')") --black launch key Thinkvantage
-    -- , ((0, keycode 114), spawn "mkdir test")
     -- Fn Media keys which do not work automatically
     , ((0, 0x1008ff2d), spawn "xscreensaver-command -lock")
     , ((0, 0x1008ff8f), spawn "skype")
-    , ((0, 0x1008ff59), spawn "screens; nitrogen --restore; killall trayer conky dzen2; xmonad --restart")
+    , ((0, 0x1008ff59), spawn "screens; killall trayer conky dzen2; xmonad --restart")
     , ((0, 0x1008ff14), spawn "mpc toggle")
     , ((0, 0x1008ff17), spawn "mpc next")
     , ((0, 0x1008ff16), spawn "mpc prev")
     -- MPD specific hotkeys
-    , ((myModMask .|. controlMask, xK_plus), spawn "mpc volume +10")
-    , ((myModMask .|. controlMask, xK_minus), spawn "mpc volume -10")
+    , ((myModMask .|. controlMask, xK_bracketright), spawn "mpc volume +10")
+    , ((myModMask .|. controlMask, xK_slash), spawn "mpc volume -10")
     -- For media center music control
     , ((controlMask, 0x1008ff14), spawn $ "mpc -h " ++ mediahost ++ " toggle")
     , ((controlMask, 0x1008ff17), spawn $ "mpc -h " ++ mediahost ++ " next")
@@ -320,24 +315,13 @@ main = do
     , ((myModMask .|. controlMask, xK_Next), spawn $ "mpc -h " ++ mediahost ++  " volume -10")
     -- per workspace keys
     , ((myModMask, xK_s), bindOn [
-         ("3:dev", do spawn $ myTerminal ++ " -t dev -e 'tmux attach'")
-        ,("",         spawn "notify-send \"not specified\"")
+         ("3:dev", spawn $ myTerminal ++ " -t dev -e 'tmux attach'")
+        ,("",      spawn "notify-send \"not specified\"")
         ])
     , ((myModMask, xK_g), goToSelected defaultGSConfig)  -- grid selector
-    , ((myModMask, xK_BackSpace), removeWorkspace)
     , ((myModMask, xK_b), sendMessage ToggleStruts)  -- toggle dock spacing
     , ((myModMask .|. shiftMask, xK_o), restart "/home/admin/.xmonad/obtoxmd.sh" True)  -- replace with openbox
     -- scratchpad
     , ((myModMask .|. controlMask, xK_Return),  scratchpadSpawnActionTerminal "urxvt -name scratchpad +sb -e bash -c 'tmux attach -t sp || tmux new -s sp'") --local tmux
     --, ((myModMask .|. controlMask, xK_Return),  scratchpadSpawnActionTerminal "urxvt -name scratchpad +sb -e bash -c 'eval `keychain --eval --nogui -Q -q id_rsa`; TERM=xterm-256color ssh -p 2200 admin@10.130.118.2'")
-    -- dynamic workspaces
-    , ((myModMask, xK_a      ), selectWorkspace defaultXPConfig)
-    , ((myModMask, xK_z      ), renameWorkspace defaultXPConfig)
     ]
-    -- better support for dynamic workspaces
-    ++
-    zip (zip (repeat (myModMask)) [xK_1..xK_9]) (map (withNthWorkspace W.greedyView) [0..])
-    ++
-    zip (zip (repeat (myModMask .|. shiftMask)) [xK_1..xK_9]) (map (withNthWorkspace W.shift) [0..])
-    )
-

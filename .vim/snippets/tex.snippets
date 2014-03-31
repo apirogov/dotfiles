@@ -1,0 +1,13 @@
+#Homework
+snippet hw
+	\documentclass[maincolor=black,sheet=${1:NO},${2:prefix}]{exercise}
+	\setgroup{Gruppe ${3:GROUPNO}}
+	\settitle[${4:CLASS} Übungsblatt \thesheet]{}
+	\addstudent[616847]{Anton Pirogov}
+
+	\begin{document}
+	\task
+	${0}
+	\end{document}
+snippet student
+	\addstudent[${1:MATNR}]{${2:NAME}}${0}

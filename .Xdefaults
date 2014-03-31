@@ -68,7 +68,7 @@ XTerm*saveLines            : 2048
 XTerm*scrollBar            : false
 !XTerm*titeInhibit         : true
 
-XTerm*faceName             : Inconsolata
+XTerm*faceName             : Inconsolata-g
 XTerm*faceSize             : 9
 XTerm*termName             : xterm-xfree86
 
@@ -77,16 +77,17 @@ XTerm*termName             : xterm-xfree86
 
 !URxvt*termName       : rxvt-unicode
 URxvt*geometry        : 80x24
-URxvt*font            : xft          : Inconsolata : size=9
+URxvt*font            : xft:Inconsolata:size=9
 URxvt*urlLauncher     : chromium
-URxvt*scrollBar       : true
+URxvt*scrollBar       : false
 URxvt*scrollBar_right : true
 URxvt*scrollColor     : #000080
 
 URxvt*depth       : 32
 URxvt*transparent : true
-URxvt*tintColor   : blue
-URxvt*shading     : 40
+URxvt*background  : rgba:1111/1111/1111/dddd
+/* URxvt*tintColor   : Blue */
+URxvt*shading     : 10
 
 URxvt.perl-ext-common : default,matcher
 URxvt*saveLines       : 5000

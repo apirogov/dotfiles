@@ -5,21 +5,18 @@
 # If not running interactively, don't do anything
 [ -z "$PS1" ] && return
 
-# If exists, add ~/bin to $PATH.
-if [ -d ~/bin ] ; then
- PATH=~/bin:~/bin/matlab/bin:$PATH
-fi
 # Add Cabal to $PATH.
 if [ -d ~/.cabal/bin ] ; then
  PATH=~/.cabal/bin:$PATH
 fi
 #Add gem path
-if [ -d /home/admin/.gem/ruby/2.0.0/bin ] ; then
- PATH=/home/admin/.gem/ruby/2.0.0/bin:$PATH
+if [ -d /home/admin/.gem/ruby/2.1.0/bin ] ; then
+ PATH=/home/admin/.gem/ruby/2.1.0/bin:$PATH
 fi
 
 # X Terminal titles
 export PROMPT_COMMAND=""
+ PATH=~/bin:~/bin/matlab/bin:$PATH
 case "$TERM" in
  xterm*|rxvt*)
   PROMPT_COMMAND='echo -ne "\033]0;${USER}@${HOSTNAME}: ${PWD/$HOME/~}\007";'
@@ -50,6 +47,7 @@ shopt -s dotglob	# files beginning with . to be returned in the results of path-
 
 ## SET OPTIONS
 #set -o vi		# Vi-like command entry mode
+#Btw: Alt-Backspace deletes word
 #set -o noclobber	# prevent overwriting files with cat
 set -o ignoreeof	# stops ctrl+d from logging me out
 #set -o vi #vi mode
@@ -152,13 +150,14 @@ alias duf='du -sk * | sort -n | perl -ne '\''($s,$f)=split(m{\t});for (qw(K M G)
 alias rm='rm -iv'		#safety - ask before delete/overwrite
 alias cp='cp -iv'
 alias mv='mv -iv'
-alias c='clear'			#Shorties
+alias c='cd'			#Shorties
+alias ..='cd ..'
 alias q='exit'
 alias mkdir='mkdir -p -v'	#Allow multiple levels at once
 alias sym='ln -s'		#Symlink
 alias ps='ps -e -o pid,comm,args,vsize,pcpu' #Tweaked process list
 alias findfile='find . -name'
-alias findtext="grep -ri"
+# alias findtext="grep -ri" #Deprecated, use ag
 alias cleanhistory="tac ~/.bash_history | awk '!seen[$0]++' | tac > newhist"
 alias top10size='find . -printf "%s %p\n"|sort -nr|head'
 alias showswap='cat /proc/swaps'
@@ -175,16 +174,16 @@ alias pingl='ping6 ff02::1%eth0'  #ping local
 alias mkisofs='mkisofs -v -r -J -o'	#Usage: mkisofs target.img /src/path
 alias xp='xprop | grep "WM_WINDOW_ROLE\|WM_CLASS" && echo "WM_CLASS(STRING) = \"NAME\", \"CLASS\"";xwininfo'
 alias makepdf='pdflatex *.tex && evince *.pdf' #shortie for iterations with latex homeworks
-alias joinpdf='gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=join.pdf ' #requires ghostscript
+alias joinpdf='gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=join.pdf ' #requires ghostscript, convert also works!
 alias xephyr='Xephyr :1 -ac -reset -screen 1440x900 2>&1 >/dev/null'
 alias tcmount='sudo truecrypt -t --fs-options=users,uid=$(id -u),gid=$(id -g),fmask=0113,dmask=0002 --mount'
 alias tcumount='sudo truecrypt -t -d'
 alias mirror="rsync -auv --delete"
 alias unixtime="date +'%s'"
-alias getip="wget -O - -q http://checkip.dyndns.org/index.html|sed -e 's/.* //' -e 's/<.*//'"
-alias speedtest='wget -O /dev/null http://speedtest.wdc01.softlayer.com/downloads/test10.zip'
 alias tmux='tmux -2'
 alias t='todo.sh'
+alias getip="wget -O - -q http://checkip.dyndns.org/index.html|sed -e 's/.* //' -e 's/<.*//'"
+alias speedtest='wget -O /dev/null http://speedtest.wdc01.softlayer.com/downloads/test10.zip'
 
 #Uni
 alias pushpoolprint='initsshkeys; ssh sshgate mv ./print/*.pdf ./print/old; scp *.pdf sshgate:./print/ ; echo "-" ; ssh sshgate ls print'
@@ -214,7 +213,6 @@ MEDIASSHP=2200  #SSH port
 MEDIALOGIN=$MEDIAUSER@$MEDIAHOST
 alias center.ssh="ssh -p $MEDIASSHP $MEDIALOGIN"
 alias center.ping="ping -c 5 $MEDIAHOST"
-alias center.shutdown="ssh -p $MEDIASSHP $MEDIALOGIN 'systemctl poweroff'"
 alias center.mount="mkdir ~/media; sshfs -p $MEDIASSHP $MEDIALOGIN:/media/DATA ~/media"
 alias center.umount="fusermount -u ~/media; rmdir ~/media"
 alias center.updatebackup="rsync --delete -avue 'ssh -p $MEDIASSHP' ~/myfiles $MEDIALOGIN:/media/DATA" #mirror local -> remote external
@@ -237,6 +235,60 @@ alias togglepad='killall syndaemon; synclient TouchpadOff=$(synclient -l | grep 
 
 #MISC FUNCTIONS
 
+#https://superuser.com/questions/611538/is-there-a-way-to-display-a-countdown-or-stopwatch-timer-in-a-terminal
+function countdown(){
+   date1=$((`date +%s` + $1));
+   while [ "$date1" -ne `date +%s` ]; do
+     sleep 0.5
+     echo -ne "$(date -u --date @$(($date1 - `date +%s`)) +%H:%M:%S)\r";
+   done
+}
+function stopwatch(){
+  date1=`date +%s`;
+   while true; do
+     sleep 0.5
+    echo -ne "$(date -u --date @$((`date +%s` - $date1)) +%H:%M:%S)\r";
+   done
+}
+
+#Homework assignments
+#--------------------
+#Change to current semester directory
+cdsem() {
+  if [ $# -eq 0 ]  #no arguments -> latest
+  then
+    cd $(find ~/myfiles/documents/uni/ -maxdepth 1 -name "Bachelor*" | sort | tail -n 1)
+  else #specified no
+    cd ~/myfiles/documents/uni/Bachelor$1
+  fi
+}
+
+#Copy tex file into subdir
+#requires to have a whatever_base.tex file with placeholder NUM
+hwtex() {
+  if [ $# -eq 0 ]  #no arguments
+  then
+    echo "No number given!"
+    return 1
+  fi
+
+  num=$(printf "%02d" $1)
+  match=$(find ./ -name "*_base.tex"|sort|tail -n 1)
+  if [ -z "$match" ] #no file found
+  then
+    echo "No base file (ending with _base.tex) found!"
+    return 1
+  fi
+
+  mkdir L$num
+  cat $match | sed "s/NUM/$num/" > L$num/$(sed "s/base/$num/" <<< $match)
+  cd L$num
+}
+#--------------------
+
+#say over google tts
+say() { mplayer "http://translate.google.com/translate_tts?ie=UTF-8&tl=en&q=$1";}
+
 #Resolve Uni Lübeck pc pool hostname to IP using ssh-gate
 poolpc() { ssh sshgate ping -c 1 $1 | head -n 1 | awk '{print$3}' | sed 's/[()]//g';}
 
@@ -246,7 +298,6 @@ uniconnect() { ssh -N -D7070 sshgate;}
 # Cool History Summerizer - most used commands
 top10cmds(){ history|awk '{a[$2]++}END{for(i in a){printf"%5d\t%s\n",a[i],i}}'|sort -nr|head;}
 
-#OWN FUNCTIONS
 #Make sure ssh-agent is running with keychain before using git push
 git() {
   if [ "push" == "$1" ] || [ "pull" == "$1" ]
@@ -260,7 +311,7 @@ git() {
 #example: batchconv -resize 33%
 batchconv() {
   mkdir modified
-  find . -iname "*.jpg" | xargs -l -i convert "$@" {} ./modified/{}
+  find . -iname "*.jpg" -o -iname "*.png" | xargs -l -i convert "$@" {} ./modified/{}
 }
 
 shrinkimg() { convert -resize 33% "$1" "$1.jpg";}
@@ -273,7 +324,7 @@ calc(){ ruby -e "require 'mathn'; puts $1";}
 
 #Regex killall
 killallr() {
-	sh -c "ps -e -o comm" | grep -e ^.*$1.*$ | grep -v grep | xargs killall
+  sh -c "ps -e -o comm" | grep -e ^.*$1.*$ | grep -v grep | xargs killall
 }
 
 #String escape method into hex, usage: escape STRING ESCPREFIX(like % or 0x)
@@ -297,18 +348,16 @@ clrProxy(){
 }
 
 #GREETING (Distribution, Kernel Version, Date+Time, Uptime, Todo-List)
-echo -e "\e[1;36m$(Set256Color 51)        ,                        _     _ _                  
+echo -e "\e[1;36m$(Set256Color 51)        ,                        _     _ _
        /#\         __ _ _ __ ___| |__ | (_)_ __  _   ___  __
 $(Set256Color 45)      ,###\       / _\` | '__/ __| '_ \| | | '_ \| | | \ \/ /
-\e[0;36m$(Set256Color 39)     /#####\     | (_| | | | (__| | | | | | | | | |_| |>  < 
+\e[0;36m$(Set256Color 39)     /#####\     | (_| | | | (__| | | | | | | | | |_| |>  <
 $(Set256Color 33)    /##,-,##\     \__,_|_|  \___|_| |_|_|_|_| |_|\__,_/_/\_\\
    /##(   )##\`   \e[0;33m\t$(uname -o) Kernel $(uname -r)
 \e[0;36m$(Set256Color 27)  /#.--   --.#\  \e[0;32m$(date "+%a, %e. %B %Y %H:%M:%S"), uptime:$(uptime|head -c 18|tail -c 5)
 \e[0;36m$(Set256Color 27) /\`           \`\ "
 
-[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
-
-#setxkbmap de neo -option	#set neo keyboard layout
+#setxkbmap de neo -option   #set neo keyboard layout
 #set Scroll-lock key to switch QWERTZ (default) and NEO
 #setxkbmap -layout de,de -variant nodeadkeys,neo -option -option grp:sclk_toggle -option grp_led:scroll
 #set Scroll-lock key to switch NEO (default) and QUERTZ
@@ -316,7 +365,4 @@ $(Set256Color 33)    /##,-,##\     \__,_|_|  \___|_| |_|_|_|_| |_|\__,_/_/\_\\
 
 #Modified US Layout with Umlauts on AltGr
 #setxkbmap us cz_sk_de
-#todo: set vconsole.conf layout to us too?
 
-
-PATH=$PATH:$HOME/.rvm/bin # Add RVM to PATH for scripting

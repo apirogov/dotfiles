@@ -31,8 +31,6 @@ setxkbmap -option caps:escape #caps lock = another esc
 
 screens -d  #use my custom screen toggle script to set dualscreen
 
-nitrogen --restore &
-
 #Touchpad settings
 synclient PalmDetect=1
 synclient PalmMinWidth=5

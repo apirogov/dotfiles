@@ -1,0 +1,695 @@
+" Anton Pirogov's .vimrc
+" vim: set foldmethod=marker foldlevel=0:
+" TODO: vim2hs vs. other haskell plugins? Java plugins? Eclim?
+" ======================
+let mapleader = ","            " Set leader key for keybindings (default: \)
+" General defaults {{{
+" -------------------------------------------------------------
+set nocompatible               " prevent vi emulation
+set backspace=indent,eol,start " Sane backspace behaviour
+set encoding=utf-8             " set default encoding
+set fileformats=unix,dos,mac   " set ordered list of supported file fmts
+set shell=/bin/bash            " Shell used by :sh
+set history=100                " number of lines of command line history
+" Tell vim to remember certain things when we exit
+"  '10  :  marks will be remembered for up to 10 previously edited files
+"  "100 :  will save up to 100 lines for each register
+"  :20  :  up to 20 lines of command-line history will be remembered
+"  %    :  saves and restores the buffer list
+"  n... :  where to save the viminfo files
+set viminfo='10,\"100,:20,%,n~/.viminfo
+
+set directory=~/.vim/tmp       " Dir for vim temp files
+set undodir=~/.vim/tmp
+set undofile
+set backupdir=~/.vim/tmp
+set nobackup                   " make no backups of files
+
+" Mouse & keys
+set mouse=a                    " mouse in all modes
+set esckeys                    " cursor keys in insert mode
+
+" Search behaviour & Command completion & Parens matching
+set incsearch                  " Incremental search
+set hlsearch                   " highlight search matches
+set ignorecase                 " case insensitive matching
+set smartcase                  " override ignorecase if regex contains uppercase chars
+set magic                      " use 'magic' patterns (extended regular expressions)
+set infercase                  " adjust case of auto completed words
+set wildmenu                   " turn on wild menu (completition feature)
+set wildmode=list:longest,full " turn on long format
+set wildignore=*.dll,*.o,*.obj,*.exe,*.swp,*.jpg       " ignore some formats
+set showmatch                  " Show matching parens
+set matchpairs+=<:>            " Have % bounce between angled brackets and others
+
+" Indentation & tabs
+set smarttab                   " Tab in front of line indents
+set smartindent                " enable intelligent guessing of indentation
+set tabstop=2                  " A tab is n spaces
+set expandtab                  " replace tabs with spaces
+set softtabstop=2              " Insert n spaces when tab is pressed
+set shiftwidth=2               " An indent is n spaces
+set shiftround                 " Round indent to multiple of shiftwidth
+
+" Wrapping
+set nowrap                     " disable wrapping (cause its bad for coding)
+set showbreak=+                " show a + if a line is longer than the screen
+set linebreak                  " wrap on word boundaries (not in word middle)
+set textwidth=100               " after how many chars a break is made
+" set colorcolumn=+1             " Highlight that column (more annoying)
+" set cpoptions+=n               " show break char between line numbers
+
+" Folding
+set foldmethod=syntax          " fold mode - by syntax. control: zo, zc
+set foldnestmax=5              " max. nested folds
+set foldenable                 " enable autofolding
+set foldlevel=5                " Level from which autofold
+set foldcolumn=1               " columns for fold markers
+"set foldopen-=search          " don't unfold while searching
+"set foldopen-=undo            " don't unfold when undo sth.
+
+" Improvement & tweaks
+set ttimeout
+set ttimeoutlen=50
+set display+=lastline          " Keep last line while scrolling
+set ttyfast                    " we have a fast terminal connection -> smoothness
+set lazyredraw                 " no window redraw while running macros (faster)
+set autoread                   " Automatically read file on external changes
+set undolevels=1000            " number of undo levels
+set tabpagemax=20              " maximum number of tabs to create
+set nostartofline              " don't jump to first char with page commands
+set nojoinspaces               " don't insert 2 spaces after .?! if 2 lines get j.
+set nrformats-=octal           " C-A/C-X work as dec even for nums starting with leading 0
+set confirm                    " confirm actions
+set gdefault                   " set 'g' flag by default with :s/foo/bar/
+set autowrite                  " automatically save before :next, :make etc.
+set report=0                   " if lines got changed - always notify
+set listchars=tab:⇥\ ,trail:·,extends:>,precedes:<,nbsp:+ " Show these non-printables
+set list                       " Show special chars
+
+if has("syntax")
+  syntax on
+  set popt+=syntax:y           " Syntax highlighting also when printing
+endif
+
+" Status line & appearance
+set background=light           " terminal background
+set laststatus=2               " Always show statusline
+set ruler                      " Show current position
+set showcmd                    " Show partial command in statusline
+set cmdheight=1                " command bar is 1 high
+set showmode                   " show current mode
+set number                     " show line number
+set t_Co=256                   " Number of colors in terminal
+
+if has("gui_running")          " GVim
+  set cursorline               " highlight current line
+  set guifont=Inconsolata-g\ 10  " Font for GVim
+  set guioptions-=T            " Remove toolbar
+  set guioptions-=e            " Remove GUI tabs (use console tabs)
+  set guioptions-=r            " Remove right-hand scrollbar
+endif
+
+" Anti Annoyance
+set vb t_vb=                   " prevent annoying beeps, flash screen instead
+set novisualbell               " don't blink
+set noerrorbells               " no beeps
+set shortmess=aoOstI           " shortens messages to avoid "press a key" prompt
+" set clipboard+=unnamedplus
+set clipboard=unnamed,unnamedplus      " yank & copy to X clipboard (+ register, *=selection reg.)
+" }}}
+
+" Vundle bundles {{{
+" ==============
+" Vundle init {{{
+" ------------------
+" Setting up Vundle - the vim plugin bundler
+let iCanHazVundle=1
+let vundle_readme=expand('~/.vim/bundle/vundle/README.md')
+if !filereadable(vundle_readme)
+  echo "Installing Vundle.."
+  echo ""
+  silent !mkdir -p ~/.vim/bundle
+  silent !git clone https://github.com/gmarik/vundle ~/.vim/bundle/vundle
+  let iCanHazVundle=0
+endif
+
+filetype off                   " required!
+set rtp+=~/.vim/bundle/vundle/
+call vundle#rc()
+
+" let Vundle manage Vundle, required!
+Plugin 'gmarik/vundle'
+" }}}
+
+" Looks {{{
+" =====
+" Colors
+Plugin 'altercation/vim-colors-solarized'
+Plugin 'w0ng/vim-hybrid'
+Plugin 'tomasr/molokai'
+Plugin 'zaiste/Atom'
+Plugin 'sjl/badwolf'
+Plugin 'vim-scripts/tir_black'
+Plugin 'jnurmine/Zenburn'
+Plugin 'vim-scripts/Wombat'
+Plugin 'vim-scripts/summerfruit256.vim'
+Plugin 'rainux/vim-desert-warm-256'
+Plugin 'vim-scripts/jellybeans.vim'
+Plugin 'vim-scripts/pyte'
+Plugin '29decibel/codeschool-vim-theme'
+
+" Colorscheme switcher
+Plugin 'xolox/vim-colorscheme-switcher'
+" Approximate GVim themes in terminal
+Plugin 'godlygeek/csapprox'
+" }}}
+
+" General improvements {{{
+"===========================================
+" Movement
+" --------
+" Improved %
+Plugin 'matchit.zip'
+" Smooth scrolling with C-D,C-U,C-B,C-F
+Plugin 'terryma/vim-smooth-scroll'
+" f with 2 chars + vim-easymotion alternative
+Plugin 'justinmk/vim-sneak'
+" Toggle mark with mN, `N -> goto mark N, m<space> remove all marks
+Plugin 'kshenoy/vim-signature'
+" Absolute and relative line numbers with :NumbersToggle
+Plugin 'myusuf3/numbers.vim'
+" Show detailed info about characters with ga
+Plugin 'tpope/vim-characterize'
+
+" Search and replace
+" ------------------
+" Search with number of matches
+Plugin 'vim-scripts/IndexedSearch'
+" Tab complete in Search
+Plugin 'vim-scripts/SearchComplete'
+" Start */# search (forward/backward) from visual block
+Plugin 'bronson/vim-visual-star-search'
+
+" Edit
+" ----
+" repeat with . hook for plugins
+Plugin 'tpope/vim-repeat'
+" C-a/C-x for dates
+Plugin 'tpope/vim-speeddating'
+" Manage surroundings with [dcy]s<motion><surrounding>
+Plugin 'tpope/vim-surround'
+" Easier change inside surroundings with ,ci/,cas
+Plugin 'briandoll/change-inside-surroundings.vim'
+" Exchange places with cx<movement> cx<movement>
+Plugin 'tommcdo/vim-exchange'
+" Emacs-like yanking (,p/,P), see stack with :Yanks
+Plugin 'maxbrunsfeld/vim-yankstack'
+" Alignment on some pattern with :Tabularize /char
+Plugin 'godlygeek/tabular'
+
+" Convenience, UI
+" ---------------
+" Generic plugin to search information from different sources (Ido-mode?)
+Plugin 'Shougo/unite.vim'
+" Async file search for unite and other stuff
+Plugin 'Shougo/vimproc.vim'
+" File browser to open stuff within vim and outside of vim (like NERDTree)
+Plugin 'Shougo/vimfiler.vim'
+" Open files, mru and buffers with fuzzy search with C-p
+Plugin 'kien/ctrlp.vim'
+" Complete buffer overview with ,be
+Plugin 'corntrace/bufexplorer'
+" Emacs-like scratch buffer with :Scratch
+Plugin 'vim-scripts/scratch.vim'
+" Undo tree visualization with :UndotreeToggle
+Plugin 'mbbill/undotree'
+" Status line on steroids
+Plugin 'bling/vim-airline'
+" Delete buffer without closing window (viewport)/changing layout with :Bdelete
+Plugin 'moll/vim-bbye'
+" Swap windows without ruining layout with <leader>yw/<leader>pw
+Plugin 'wesQ3/vim-windowswap'
+" }}}
+
+" Code editing/IDE/Project features (generic) {{{
+" ===========================================
+" Code editing
+" ------------
+" Auto-Closing for symbols
+Plugin 'Raimondi/delimitMate'
+" Color parentheses and other surroundings
+Plugin 'kien/rainbow_parentheses.vim'
+" Split/Join code lines (like ifs) more easily with gS/gJ depending on context
+Plugin 'AndrewRadev/splitjoin.vim'
+" Code Commenting - gc<Motion> -> toggle comment, gcu -> uncomment commented
+Plugin 'tpope/vim-commentary'
+" Automatic code block closing (if ... end, etc)
+Plugin 'tpope/vim-endwise'
+" Completion engine (tab completion / supertab replacement)
+if v:version > 703
+Plugin 'Shougo/neocomplete'
+else
+Plugin 'Shougo/neocomplcache'
+endif
+" Code snippets (complete with C-k) / snipmate replacement
+Plugin 'Shougo/neosnippet.vim'
+Plugin 'Shougo/neosnippet-snippets'
+Plugin 'honza/vim-snippets'
+" Parallel editing with multiple cursors with C-n (for refactoring) (conflicts with neocomplete)
+Plugin 'kris89/vim-multiple-cursors'
+
+" Code browsing
+" -------------
+" Ag (the silver searcher) search (awesome fast code grep with :Ag)
+Plugin 'rking/ag.vim'
+" Code browser
+Plugin 'majutsushi/tagbar'
+" Automatic ctags file updates for tagbar with :UpdateTags
+Plugin 'xolox/vim-easytags'
+
+" Project and session management
+" ------------------------------
+" tmux/vim interop: C-hjkl to move between splits and also tmux panes
+Plugin 'christoomey/vim-tmux-navigator'
+" Allow project-local vim config (.lvimrc)
+Plugin 'embear/vim-localvimrc'
+" Automatically switch to project root with <leader>cd
+Plugin 'airblade/vim-rooter'
+" Better session management with :Save/OpenSession
+Plugin 'xolox/vim-misc'
+Plugin 'xolox/vim-session'
+
+" Checking, evaluating and compiling
+" ----------------------------------
+" Async compiling
+Plugin 'tpope/vim-dispatch'
+" slime-like repl interaction
+Plugin 'epeli/slimux'
+" Generate view of tasks with XXX/FIXME/TODO with <leader>t
+Plugin 'vim-scripts/TaskList.vim'
+" Syntax checking for vim. Close error window with lclose show with Errors
+Plugin 'scrooloose/syntastic'
+
+" Version control
+" ---------------
+" Git integration
+Plugin 'tpope/vim-fugitive'
+" Gitk clone within vim (fugitive-extension)
+Plugin 'gregsexton/gitv'
+" See changed lines within file :GitGutterToggle
+Plugin 'airblade/vim-gitgutter'
+
+" Syntax support
+" --------------
+Plugin 'Processing'
+Plugin 'sudar/vim-arduino-syntax'
+Plugin 'hail2u/vim-css3-syntax'
+Plugin 'othree/html5-syntax.vim'
+Plugin 'sideshowcoder/vimtodotxt'
+Plugin 'tpope/vim-markdown'
+Plugin 'nelstrom/vim-markdown-folding'
+Plugin 'kchmck/vim-coffee-script'
+Plugin 'gberenfield/cljfold.vim'
+Plugin 'Twinside/vim-syntax-haskell-cabal'
+Plugin 'vim-scripts/haskell.vim'
+Plugin 'Twinside/vim-haskellFold'
+
+" Useful text objects and movement operators
+" (New a*/i* mappings, indent=i/I, function=f
+" entire=e, underscore=_, camelcase=,w/,b/,e)
+" ------------------------------------------
+Plugin 'kana/vim-textobj-user'
+Plugin 'kana/vim-textobj-indent'
+Plugin 'kana/vim-textobj-function'
+Plugin 'kana/vim-textobj-entire'
+Plugin 'lucapette/vim-textobj-underscore'
+Plugin 'vim-scripts/camelcasemotion'
+
+" Language specific plugins
+" -------------------------
+" Latex -> :Latexmk/:LatexView
+Plugin 'LaTeX-Box-Team/LaTeX-Box'
+" C/C++
+Plugin 'a.vim'
+" Java
+Plugin 'javacomplete'
+
+" Haskell
+" type checking and lint (:GhcMod* commands) (slower than hdevtools)
+Plugin 'eagletmt/ghcmod-vim'
+" Haskell tab completion with ghc-mod
+Plugin 'eagletmt/neco-ghc'
+" Haskell ctags for tagbar (install lushtags and ghc-mod with cabal)
+Plugin 'bitc/lushtags'
+" Hoogle interface from vim (see :help hoogle)
+Plugin 'Twinside/vim-hoogle'
+" Replace operators with corresponding unicode symbols
+Plugin 'vim-scripts/Haskell-Conceal'
+
+" Clojure
+" Plugin 'guns/vim-clojure-static'
+" Plugin 'tpope/vim-fireplace'
+" Plugin 'guns/vim-sexp'
+" }}}
+
+" Misc plugins {{{
+" ====
+" Useful misc
+" -----------
+" Calendar with :Calendar[H|T]
+Plugin 'mattn/calendar-vim'
+" :Hammer to compile markup to html and open browser
+Plugin 'matthias-guenther/hammer.vim'
+" Colorize color codes in right color with :ColorHighlight
+Plugin 'chrisbra/color_highlight'
+" HTML Un/escape characters with ,he/,hu
+Plugin 'skwp/vim-html-escape'
+" Draw diagrams: <leader>di -> start, <leader>ds -> stop
+Plugin 'DrawIt'
+
+" Organization
+" ------------
+" Universal Text Linking - Execute URLs, etc.
+Plugin 'vim-scripts/utl.vim'
+" }}}
+
+" Vundle finalize {{{
+" ===============
+if iCanHazVundle == 0
+  echo "Installing Bundles, please ignore key map error messages"
+  echo ""
+  :BundleInstall
+
+endif
+
+"Enables filetype-specific plugins and indentation after Vundle is done
+filetype plugin indent on " required!
+" }}}
+" }}}
+
+" Plugin settings {{{
+
+" Colorscheme switcher and colorscheme settings {{{
+let g:colorscheme_switcher_define_mappings = 0
+" the default ones are fugly
+let g:colorscheme_switcher_exclude = ['blue','darkblue','default','delek','desert','elflord','evening','koehler','morning','murphy','pablo','peachpuff','ron','shine','slate','torte','zellner']
+if !has("gui_running") " Terminal vim can't take all colorschemes
+  let g:solarized_termcolors=256
+  let g:rehash256 = 1 " For molokai
+  let g:colorscheme_switcher_exclude += ['atom','codeschool','wombat','pyte']
+endif
+" }}}
+
+" Neocomplete {{{
+if v:version > 703
+  let g:neocomplete#enable_at_startup = 1
+  let g:neocomplete#enable_smart_case = 1
+  let g:neocomplete#sources#syntax#min_keyword_length = 3
+  " Plugin key-mappings.
+  inoremap <expr><C-g>     neocomplete#undo_completion()
+  inoremap <expr><C-l>     neocomplete#complete_common_string()
+  " Recommended key-mappings.
+  " <CR>: close popup and save indent.
+  inoremap <silent> <CR> <C-r>=<SID>my_cr_function()<CR>
+  function! s:my_cr_function()
+    return neocomplete#close_popup() . "\<CR>"
+    " For no inserting <CR> key.
+    "return pumvisible() ? neocomplete#close_popup() : "\<CR>"
+  endfunction
+  " <TAB>: completion.
+  inoremap <expr><TAB>  pumvisible() ? "\<C-n>" : "\<TAB>"
+  " <C-h>, <BS>: close popup and delete backword char.
+  inoremap <expr><C-h> neocomplete#smart_close_popup()."\<C-h>"
+  inoremap <expr><BS>  neocomplete#smart_close_popup()."\<C-h>"
+  inoremap <expr><C-y> neocomplete#close_popup()
+  inoremap <expr><C-e> neocomplete#cancel_popup()
+else " use identical neocomplcache settings
+  let g:neocomplcache_enable_at_startup = 1
+  let g:neocomplcache_enable_smart_case = 1
+  let g:neocomplcache_min_syntax_length = 3
+  inoremap <expr><C-g>     neocomplcache#undo_completion()
+  inoremap <expr><C-l>     neocomplcache#complete_common_string()
+  inoremap <silent> <CR> <C-r>=<SID>my_cr_function()<CR>
+  function! s:my_cr_function()
+    return neocomplcache#close_popup() . "\<CR>"
+  endfunction
+  inoremap <expr><TAB>  pumvisible() ? "\<C-n>" : "\<TAB>"
+  inoremap <expr><C-h>  neocomplcache#smart_close_popup()."\<C-h>"
+  inoremap <expr><BS>   neocomplcache#smart_close_popup()."\<C-h>"
+  inoremap <expr><C-y>  neocomplcache#close_popup()
+  inoremap <expr><C-e>  neocomplcache#cancel_popup()
+endif
+" }}}
+
+" Neosnippet {{{
+let g:neosnippet#enable_snipmate_compatibility = 1    " Use own snipmate snippets from .vim/snippets
+let g:tex_flavor = 'latex'                            " All .tex files detected as LaTeX (for snips)
+" Plugin key-mappings.
+imap <C-k>     <Plug>(neosnippet_expand_or_jump)
+smap <C-k>     <Plug>(neosnippet_expand_or_jump)
+xmap <C-k>     <Plug>(neosnippet_expand_target)
+" For snippet_complete marker.
+"if has('conceal')
+"  set conceallevel=2 concealcursor=i
+"endif
+" }}}
+
+" Vim airline {{{
+let g:airline#extensions#tabline#enabled = 1
+let g:airline_theme='powerlineish'
+let g:airline_left_sep=''
+let g:airline_right_sep=''
+let g:airline_section_z=''
+" }}}
+
+" Vim surround {{{
+" Add surrounding #{ ... } (ruby string var. interpolation)
+let g:surround_113 = "#{\r}" " v
+let g:surround_35 = "#{\r}" " #
+" ysiwc cmd -> \cmd{bla} for latex
+let g:surround_{char2nr('c')} = "\\\1command\1{\r}"
+" }}}
+
+" Syntastic {{{
+let g:syntastic_enable_signs=1    "mark syntax errors with :signs
+let g:syntastic_auto_jump=0       "automatically jump to the error when saving the file
+let g:syntastic_auto_loc_list=1   "show the error list automatically
+let g:syntastic_quiet_messages = {'level': 'warnings'} " No warnings
+let g:syntastic_haskell_checkers = ['ghc_mod','hlint']
+" }}}
+
+let g:enable_numbers = 0                  " No relative line numbers on start
+
+let g:yankstack_map_keys = 0              " Yankstack: Do not want bindings
+
+let g:session_autosave = 'no'             " Disable asking about saving sessions
+let g:session_autoload = 'no'
+
+let g:sneak#streak = 1                    " Vim sneak - enable streak mode
+
+set statusline+=%{fugitive#statusline()}  " vimFugitive: add current git branch to statusline
+
+au FileType mail,text,todotxt let b:delimitMate_autoclose = 0 " delimitMate: disable in regular text
+
+au VimEnter * RainbowParenthesesToggle    " RainbowParentheses: everywhere
+
+" CtrlP - C-j/C-k to next/prev completion, C-r regex mode, C-f/b cycle modes, C-t/v/s open in new tab/split, C-w - del word
+" }}}
+
+" Keybindings {{{
+" F9-F12-Keys (F1-F8 reserved for language-specific stuff)
+" ------
+" Colorschemes
+map <silent> <F12> :NextColorScheme<cr>
+map <silent> <S-F12> :PrevColorScheme<cr>
+
+" Undotree
+nnoremap <silent> <F11> :UndotreeToggle<CR>
+" Yankstack
+nnoremap <silent> <S-F11> :Yanks<cr>
+
+" Toggle Tag List
+map <silent><F10> :TagbarToggle<cr>
+" Toggle relative line numbers
+map <silent><S-F10> :NumbersToggle<cr>
+" Toggle DirTree
+map <silent><F9> :VimFilerExplorer<cr>
+" Toggle calendar
+map <silent><S-F9> :Calendar<cr>
+
+" Chords (Ctrl,Alt)
+" ---------------------
+" Tab keybindings
+map <C-t> :tabnew<CR>
+nnoremap <A-Left> :tabprev<CR>
+nnoremap <A-Right> :tabnext<CR>
+nnoremap <silent> <A-Up> :execute 'silent! tabmove ' . (tabpagenr()-2)<CR>
+nnoremap <silent> <A-Down> :execute 'silent! tabmove ' . tabpagenr()<CR>
+" Toggle tabs
+" let notabs = 1
+" nnoremap <silent> <F9> :let notabs=!notabs<Bar>:if notabs<Bar>:tabo<Bar>:else<Bar>:tab ball<Bar>:tabn<Bar>:endif<CR>
+
+" Resize splits
+nnoremap <C-Left> <C-w><
+nnoremap <C-Right> <C-w>>
+nnoremap <C-Up> <C-w>-
+nnoremap <C-Down> <C-w>+
+
+" Smooth scrolling
+noremap <silent> <c-u> :call smooth_scroll#up(&scroll, 10, 2)<CR>
+noremap <silent> <c-d> :call smooth_scroll#down(&scroll, 10, 2)<CR>
+noremap <silent> <c-b> :call smooth_scroll#up(&scroll*2, 20, 4)<CR>
+noremap <silent> <c-f> :call smooth_scroll#down(&scroll*2, 20, 4)<CR>
+
+" Arrow keys (indent and move lines)
+" ----------------------------------
+nmap <Left> <<
+nmap <Right> >>
+vmap <Left> <gv
+vmap <Right> >gv
+nmap <Up> ddkkp
+nmap <Down> ddp
+
+" Leader keys
+" -----------
+" Slimux
+map <leader>s :SlimuxREPLSendLine<CR>
+vmap <leader>s :SlimuxREPLSendSelection<CR>
+
+" Yankstack cycling
+nmap <leader>p <Plug>yankstack_substitute_older_paste
+nmap <leader>P <Plug>yankstack_substitute_newer_paste
+" Buf Select
+map <leader>bb :CtrlPBuffer<cr>
+" MRU select
+map <leader>bm :CtrlPMRUFiles<cr>
+" Toggle conceal mode
+map <leader>cc :if &cole==0<Bar>:set cole=2<Bar>:else<Bar>:set cole=0<Bar>:endif<cr>
+"Wrap on/off
+map <leader>w :set wrap!<cr>
+"apply ruby one liner to a range ($_ = current line)
+map <leader>r :rubydo $_ = 
+" Disable highlight of last search
+map <leader>/ :nohlsearch<cr>
+"Take rest of line and put above (reversed split)
+nmap <leader>j d$O<esc>p
+"Add beautiful line out of minus signs of correct length in code comments
+nmap <leader>l zzpwv$r-
+
+" Calling yankstack#setup() here stops it from overriding the vim-sneak mappings that come next.
+call yankstack#setup()
+nmap s <Plug>Sneak_s
+nmap S <Plug>Sneak_S
+xmap s <Plug>Sneak_s
+xmap S <Plug>Sneak_S
+
+" I don't need ex mode but I like macros
+nmap Q @q
+" }}}
+
+" Language specific settings and keybindings {{{
+" ----------------------------------------------
+
+" Filetype-specific general settings
+au BufNewFile,BufRead todo.txt set filetype=todotxt
+au FileType ruby setlocal expandtab shiftwidth=2 softtabstop=2
+au FileType haskell setlocal omnifunc=necoghc#omnifunc
+au FileType java setlocal omnifunc=javacomplete#Complete
+
+" type info for Haskell
+au FileType haskell nnoremap <buffer> <silent> <F1> :GhcModType<CR>
+au FileType haskell nnoremap <buffer> <silent> <F2> :GhcModTypeClear<CR>
+au FileType haskell nnoremap <buffer> <silent> <F3> :GhcModInfo<CR>
+
+" Filetype-specific keybindings
+" F7 = Load into REPL (if any) F8 = Compile this single file and run executable / Run with interpreter
+
+" Save and compile without make file and run small C program (not useful on multifile project)
+au BufRead,BufNewFile  *.c,*.h  map <F8>  :w<cr>:!cc % && ./a.out<cr>
+
+" Save and compile with ant
+au BufRead,BufNewFile  *.java   map <F8>  :w<cr>:!ant<cr>
+
+" Save and run ruby interpreter
+au BufRead,BufNewFile  *.rb     map <F8>  :w<cr>:!ruby %<cr>
+" Load into IRB
+au BufRead,BufNewFile  *.rb     map <F7>  :w<cr>:!irb -r ./%<cr>
+
+" Compile a standalone haskell script
+au BufRead,BufNewFile *.hs      map <F8>  :w<cr>:!rm -rf /tmp/*.o; ghc -fwarn-name-shadowing -hidir=/tmp -odir=/tmp -O -o a.out % && ./a.out<cr>
+" Load into GHCI
+au BufRead,BufNewFile *.hs      map <F7>  :w<cr>:!ghci %<cr>
+
+" Compile a pdf from latex
+" au BufRead,BufNewFile *.tex     map <F8>  :w<cr>:cd %:p:h<cr>:!lualatex *.tex<cr><cr>
+au BufRead,BufNewFile *.tex     map <F8>  :w<cr>:Latexmk<cr>
+au BufRead,BufNewFile *.tex     map <F7>  :w<cr>:LatexView<cr>
+" }}}
+
+" Misc improvements and settings {{{
+" ---------------------
+colorscheme solarized          " default color scheme
+
+"Write to file without previous write access (asks password)
+cmap w!! %!sudo tee > /dev/null %
+" Switch current directory to that of the file
+cmap cwd lcd %:p:h
+
+" Fix Modifier+Arrow combinations within tmux
+if &term =~ '^screen'
+    " tmux will send xterm-style keys when its xterm-keys option is on
+    execute "set <xUp>=\e[1;*A"
+    execute "set <xDown>=\e[1;*B"
+    execute "set <xRight>=\e[1;*C"
+    execute "set <xLeft>=\e[1;*D"
+endif
+
+"Highlight tabs
+" syntax match Tab /\t/
+" hi Tab guifg=grey ctermbg=grey
+
+" when we reload, tell vim to restore the cursor to the saved position
+au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g`\"" | endif
+
+" Remove trailing whitespace from code files on save
+fun! <SID>StripTrailingWhitespaces()
+    let l = line(".")
+    let c = col(".")
+    %s/\s\+$//e
+    call cursor(l, c)
+endfun
+au FileType c,cpp,java,php,ruby,python,tex,haskell,clojure au BufWritePre <buffer> :call <SID>StripTrailingWhitespaces()
+
+" Include completion for filetypes with custom lists
+au FileType * exec("setlocal dictionary+=".$HOME."/.vim/dict/".expand('<amatch>'))
+set complete+=k
+
+" ---------- Memos ------------
+"Tip: Makros
+"Record:
+"q<some key>
+"<edit one line and move to the next>
+"q
+"Play:
+"@<some key>
+"@@ (play last macro)
+"100@<some key> repeat macro 100 times
+"Tip: Increment/Decrement number: C-A/C-X
+"Tip: Revert file state to some time: :earlier <time, e.g. 15m>
+"or :later <time> to reverse it back (all based on undo)
+"Tip: Convert file to hex editor output: :%!xxd, revert with :!xxd -r
+"Tip: Find non-ascii: /[^\x00-\xff]
+"Tip: !cmd runs external commands, r! cmd -> paste output into buffer
+"Tip: dis,das delete in/around sentence (modifiers a and i, object s)
+"Tip: zz = center around cursor,zt=cursor top, ZZ = :wq, D = d$
+"Tip: look g commands - eg. gv reselects last visual selection
+"Tip: g~<motion> toggle case
+"Tip: :%TOhtml -> render file to html
+"Tip: Move cursor to old/new pos C-o/C-i
+"Tip: gq/gw to format a paragraph on line width
+"Tip: <range>rubydo $_ = stuff <- changes lines with ruby code
+"Tip: Open file at specific line or search position with: vim +line file or vim +/search file
+"     same works with :e within
+" }}}
+
