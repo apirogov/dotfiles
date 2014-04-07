@@ -347,7 +347,7 @@ clrProxy(){
   assignProxy "" # This is what 'unset' does.
 }
 
-#GREETING (Distribution, Kernel Version, Date+Time, Uptime, Todo-List)
+#GREETING (Distribution, Kernel Version, Date+Time, Uptime)
 echo -e "\e[1;36m$(Set256Color 51)        ,                        _     _ _
        /#\         __ _ _ __ ___| |__ | (_)_ __  _   ___  __
 $(Set256Color 45)      ,###\       / _\` | '__/ __| '_ \| | | '_ \| | | \ \/ /
@@ -362,7 +362,6 @@ $(Set256Color 33)    /##,-,##\     \__,_|_|  \___|_| |_|_|_|_| |_|\__,_/_/\_\\
 #setxkbmap -layout de,de -variant nodeadkeys,neo -option -option grp:sclk_toggle -option grp_led:scroll
 #set Scroll-lock key to switch NEO (default) and QUERTZ
 #setxkbmap -layout de,de -variant neo,nodeadkeys -option -option grp:sclk_toggle -option grp_led:scroll
-
 #Modified US Layout with Umlauts on AltGr
 #setxkbmap us cz_sk_de
 

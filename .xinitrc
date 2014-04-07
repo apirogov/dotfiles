@@ -14,7 +14,7 @@ fi
 #Stuff before WM
 
 #xset m 1 0 #set mouse sensitivity
-#xmodmap -e "pointer = 3 2 1" #invert mouse for left hand
+xmodmap -e "pointer = 3 2 1" #invert mouse for left hand
 
 #fix repetition of arrow keys (some weird Xorg regression bug)
 xset r 113

@@ -7,7 +7,6 @@
 import System.IO (hPutStrLn)
 import XMonad hiding (Tall)
 import qualified XMonad.StackSet as W
-import qualified Data.Map as M
 
 -- actions
 import XMonad.Actions.PerWorkspaceKeys
@@ -19,6 +18,7 @@ import XMonad.Hooks.ManageDocks
 import XMonad.Hooks.SetWMName
 import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.UrgencyHook
+import XMonad.Hooks.WallpaperSetter
 
 -- base layouts
 import XMonad.Layout.LayoutHints (layoutHints)
@@ -154,7 +154,6 @@ myManageHook = composeAll [
     <+> manageDocks
 
 -- Whether focus follows the mouse pointer.
-myFocusFollowsMouse :: Bool
 myFocusFollowsMouse = True
 
 -- Perform an arbitrary action each time xmonad starts or is restarted with mod-q.
@@ -207,18 +206,6 @@ myXmobarLogHook h = dynamicLogWithPP $ xmobarPP {
                     , ppSort = fmap (.scratchpadFilterOutWorkspace) $ ppSort xmobarPP
                     }
 
-myWallpaperHook h = dynamicLogWithPP $ defaultPP {
-                       ppOutput  = hPutStrLn h
-                     , ppVisible = id
-                     , ppCurrent = id
-                     , ppSort    = getSortByXineramaRule
-                     , ppWsSep   = ","
-                     , ppSep     = ""
-                     , ppHidden  = (\x -> "")
-                     , ppTitle   = (\x -> "")
-                     , ppLayout  = (\x -> "")
-                     }
-
 ---------------------------------------------------------------
 
 -- A structure containing your configuration settings, overriding
@@ -258,17 +245,18 @@ main = do
   bar <- spawnPipe $ if useDZen
             then myDZenXMBar
             else  "MPD_HOST="++ mediahost ++" ~/.cabal/bin/xmobar ~/.xmonad/xmobar"
-  wswp <- spawnPipe "~/.xmonad/wswphook.rb"
 
   replace
   xmonad $ withUrgencyHook NoUrgencyHook $ ewmh $ defaults {
     logHook = do
                 setWMName "LG3D"
                 ewmhDesktopsLogHook
+                wallpaperSetter defWallpaperConf {
+                    wallpapers=defWPNames myWorkspaces
+                                          `modWPList` [("1:main",WallpaperDir "random")] }
                 if useDZen
                    then myDzenLogHook bar
                    else myXmobarLogHook bar
-                myWallpaperHook wswp
 
   } `additionalKeys` [  -- Key bindings --
     -- improved WindowNavigation keybindings
