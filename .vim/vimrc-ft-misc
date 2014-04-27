@@ -1,0 +1,14 @@
+" C/C++ -> toggle between header and source file
+Plugin 'a.vim'
+
+" Language specific settings and keybindings
+" ------------------------------------------
+
+" Save and compile without make file and run small C program (not useful on multifile project)
+au BufRead,BufNewFile  *.c,*.h  map <F8>  :w<cr>:!cc % && ./a.out<cr>
+
+" Save and run ruby interpreter
+au BufRead,BufNewFile  *.rb     map <F8>  :w<cr>:!ruby %<cr>
+" Load into IRB
+au BufRead,BufNewFile  *.rb     map <F7>  :w<cr>:!irb -r ./%<cr>
+

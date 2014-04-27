@@ -96,9 +96,10 @@ URxvt*urgentOnBell    : true
 
 !----------------------------
 ! XFT settings
-Xft.dpi       : 96
+!Xft.dpi       : 96
+Xft.autohint  : 0
+Xft.lcdfilter: lcddefault
+Xft.hintstyle : hintfull
 Xft.antialias : true
 !Xft.rgba      : none
-Xft.hinting   : full
-!Xft.hintstyle : hintslight
 

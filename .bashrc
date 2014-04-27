@@ -1,5 +1,4 @@
 #Anton Pirogov's .bashrc
-
 . /etc/profile
 
 # If not running interactively, don't do anything
@@ -13,10 +12,11 @@ fi
 if [ -d /home/admin/.gem/ruby/2.1.0/bin ] ; then
  PATH=/home/admin/.gem/ruby/2.1.0/bin:$PATH
 fi
+#Add own binaries
+PATH=~/bin:~/bin/matlab/bin:$PATH
 
-# X Terminal titles
+#X Terminal titles
 export PROMPT_COMMAND=""
- PATH=~/bin:~/bin/matlab/bin:$PATH
 case "$TERM" in
  xterm*|rxvt*)
   PROMPT_COMMAND='echo -ne "\033]0;${USER}@${HOSTNAME}: ${PWD/$HOME/~}\007";'
@@ -25,20 +25,6 @@ case "$TERM" in
   ;;
 esac
 
-#Set Chars to WINDOWS-Keys on keyboard
-#WARNING: These keys sometimes won't work as expected by some programs!
-#if [ -n "$DISPLAY" ]; then
-#xmodmap -e 'keycode 133 = dollar';
-#xmodmap -e 'keycode 134 = at';
-#fi
-
-#Remap context key (no context menus anymore with this key!)
-#Now you can use it as compose key to compose stuff like áêìöú
-#or with shift+context as extended key
-#xmodmap -e 'keycode 135 = Multi_key'	#As Compose key ala compose+^+a=â
-#xmodmap -e 'keycode 135 = Mode_switch'	#As Mode switch (kinda 2nd AltGr)
-#xmodmap syntax: xmodmap -e 'keycode NUM = normal, shift, ModeSwitch, MSw.+Shift, AltGr, AltGr+Shift
-
 ## SHOPT OPTIONS
 shopt -s cdspell	# This will correct minor spelling errors in a cd command.
 shopt -s histappend	# Append to history rather than overwrite
@@ -46,11 +32,12 @@ shopt -s checkwinsize	# Check window after each command
 shopt -s dotglob	# files beginning with . to be returned in the results of path-name expansion.
 
 ## SET OPTIONS
-#set -o vi		# Vi-like command entry mode
-#Btw: Alt-Backspace deletes word
-#set -o noclobber	# prevent overwriting files with cat
-set -o ignoreeof	# stops ctrl+d from logging me out
-#set -o vi #vi mode
+set -o ignoreeof    # stops ctrl+d from logging me out
+#Btw: Alt-Backspace deletes word in emacs mode
+#set -o vi           #vi mode
+#set -o noclobber    # prevent overwriting files with cat
+
+## BIND OPTIONS
 bind 'set completion-ignore-case on'
 bind 'set show-all-if-ambiguous on'
 
@@ -60,22 +47,12 @@ bind 'set show-all-if-ambiguous on'
 #be strange side effects! so: \[e[Nm\]
 #
 #values for N:
-#
 #0 default	1 bold	4 underline	5 blink	7 inverse	8 invisible
 #22 unbold	24 not underline	25 not blink	27 not inverse	28 visible
-#
-#Default 16 system colors:
-#FG BG (Foreground/Background)
-#30	40	Black
-#31	41	Red
-#32	42	Green
-#33	43	Yellow
-#34	44	Blue
-#35	45	Magneta
-#36	46	Cyan
-#37	47	White
-#Hint: Bold+Color = brighter color(for FG), so 16 colors :)
-#Alternative: instead of 3n 9n for FG and instead of 4n 10n for BG
+#Default 8 system colors: N=XY where:
+#X: 3=FG 4=BG
+#Y: 0=Black, 1=Red, 2=Green, 3=Yellow, 4=Blue, 5=Magenta, 6=Cyan, 7=White
+#Bold+Color = brighter color (for FG)
 #Hint: You can combine the above numbers in one escape sequence
 #  separating the numbers with semicolons, e.g. \e[1;34m for bold blue FG
 #Hint: If you want the REAL ESCAPE SEQUENCE, press CTRL+V,ESC
@@ -86,11 +63,9 @@ bind 'set show-all-if-ambiguous on'
 #BG color to index X: 48;5;X
 #X = number 0 to 255
 
-#PS1
-#Default:
-#PS1='\u@\h:\W\$ ' #Boring :-P
-
-#PS1:
+#Default PS1:
+#PS1='\u@\h:\W\$ '
+#Colored PS1:
 DEFAULT="\[\e[0m\]"
 RED="\[\e[1;31m\]"
 GREEN="\[\e[32m\]"
@@ -105,20 +80,20 @@ export PS1="$BLUEBG$WHITE[\t]$DEFAULT $([ "$EUID" != "0" ] && echo "$BLUE\u$RED@
 export LANG="de_DE.UTF-8"
 export LC_ALL="de_DE.UTF-8"
 export TZ="Europe/Berlin"
-export HISTCONTROL="erasedups" #No duplicates at all
-#export HISTCONTROL="ignoreboth" #No repeated cmds or cmds preceded by a space
+
+export HISTCONTROL="ignorespace:erasedups" #No duplicates in history, no cmds preceded by space
 export HISTIGNORE="&:ls:ll:la:pwd:exit:clear"	#Never log these
 export HISTSIZE="9999"	#Lines saved in one session
 export HISTFILESIZE="999999"	#Lines total
 #export HISTTIMEFORMAT='%F %T '
 export PROMPT_COMMAND+="history -a; history -n"
+
 export BROWSER="firefox"
 export EDITOR="vim"
 export VISUAL="gvim"
 export PAGER="less"
 export LESS="-iMn -F -X -R"
 export SHELL="bash"
-export JAVA_HOME=/usr #OpenJDK
 
 #ALIASES
 #navigation
@@ -127,8 +102,8 @@ alias la='ls -A'
 alias ll='ls -lhtA'
 
 #Package Management - Pacman
-alias ygl='pacman -Qe | less'	#Get List w. names of all inst. pkgs.
-alias ygf='pacman -Qm'        #List foreign/AUR packages
+alias ygl='pacman -Qqne'      #List of installed packages
+alias ygf='pacman -Qqme'      #List foreign/AUR packages
 alias ysi='pacman -Si'				#Search Info about packages
 alias yss='yaourt -Ss'				#Search for packages
 alias yip='sudo pacman -U'		#Install local Package
@@ -136,57 +111,58 @@ alias yin='sudo pacman -S --needed'	#Install package from database
 alias yrm='sudo pacman -Ruscn'		#Recursive remove
 alias yup='yaourt -Syu --aur'		#Dist upgrade
 
-#Systemd
-alias listd="systemctl list-unit-files --type=service" #show all daemons run on startup
-alias startd="sudo systemctl start"
-alias stopd="sudo systemctl stop"
-alias restartd="sudo systemctl restart"
-alias statusd="systemctl status"  #show daemon status -> started or stopped?
-
 #file operation/standard tools
+alias ..='cd ..'
+alias q='exit'
 alias df='df -hT'		#-h : Human readable
 alias du='du -sh'
 alias duf='du -sk * | sort -n | perl -ne '\''($s,$f)=split(m{\t});for (qw(K M G)) {if($s<1024) {printf("%.1f",$s);print "$_\t$f"; last};$s=$s/1024}'\' #readable + sorted
 alias rm='rm -iv'		#safety - ask before delete/overwrite
 alias cp='cp -iv'
 alias mv='mv -iv'
-alias c='cd'			#Shorties
-alias ..='cd ..'
-alias q='exit'
 alias mkdir='mkdir -p -v'	#Allow multiple levels at once
 alias sym='ln -s'		#Symlink
 alias ps='ps -e -o pid,comm,args,vsize,pcpu' #Tweaked process list
 alias findfile='find . -name'
-# alias findtext="grep -ri" #Deprecated, use ag
+alias findtext="grep -ri" #better use ag when installed
 alias cleanhistory="tac ~/.bash_history | awk '!seen[$0]++' | tac > newhist"
 alias top10size='find . -printf "%s %p\n"|sort -nr|head'
 alias showswap='cat /proc/swaps'
+alias listd="systemctl list-unit-files --type=service" #show all daemons run on startup
 #alias resizescreen='xrandr -s 1 && xrandr -s 0' #reset screen resolution to default
 
-#Misc. Programs
+#SSH key
 alias initsshkeys='eval `keychain --eval --nogui -Q -q id_rsa`'
 alias ssh='initsshkeys && ssh'
-alias fontlist='fc-list'
-alias gcc='LANG="C" gcc -ansi -std=c99 -pedantic -Wall -Wextra -Wshadow -Wcast-qual -Wformat=2 -Wmissing-include-dirs -Wfloat-equal -Wswitch-enum -Wundef -Wwrite-strings -Wredundant-decls -fverbose-asm -pg -g '	#High standard level, many debugging opts
-alias hc='rm -rf /tmp/*.o; ghc -Wall -fwarn-name-shadowing -fwarn-incomplete-patterns -hidir=/tmp -odir=/tmp -O' #"script compile" shortie
-alias ping='ping -c 5'	#Limit ping number
-alias pingl='ping6 ff02::1%eth0'  #ping local
-alias mkisofs='mkisofs -v -r -J -o'	#Usage: mkisofs target.img /src/path
+
+#Misc. Programs
 alias xp='xprop | grep "WM_WINDOW_ROLE\|WM_CLASS" && echo "WM_CLASS(STRING) = \"NAME\", \"CLASS\"";xwininfo'
-alias makepdf='pdflatex *.tex && evince *.pdf' #shortie for iterations with latex homeworks
-alias joinpdf='gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=join.pdf ' #requires ghostscript, convert also works!
 alias xephyr='Xephyr :1 -ac -reset -screen 1440x900 2>&1 >/dev/null'
-alias tcmount='sudo truecrypt -t --fs-options=users,uid=$(id -u),gid=$(id -g),fmask=0113,dmask=0002 --mount'
-alias tcumount='sudo truecrypt -t -d'
-alias mirror="rsync -auv --delete"
-alias unixtime="date +'%s'"
 alias tmux='tmux -2'
 alias t='todo.sh'
+
+#Compiler settings
+alias hc='rm -rf /tmp/*.o; ghc -Wall -fwarn-name-shadowing -fwarn-incomplete-patterns -hidir=/tmp -odir=/tmp -O' #"script compile" shortie
+alias gcc='LANG="C" gcc -ansi -std=c99 -pedantic -Wall -Wextra -Wshadow -Wcast-qual -Wformat=2 -Wmissing-include-dirs -Wfloat-equal -Wswitch-enum -Wundef -Wwrite-strings -Wredundant-decls -fverbose-asm -pg -g '	#High standard level, many debugging opts
+
+#Internet
+alias ping='ping -c 5'	#Limit ping number
+alias pingl='ping6 ff02::1%eth0'  #ping local
 alias getip="wget -O - -q http://checkip.dyndns.org/index.html|sed -e 's/.* //' -e 's/<.*//'"
 alias speedtest='wget -O /dev/null http://speedtest.wdc01.softlayer.com/downloads/test10.zip'
 
+#Filesystem, Truecrypt
+alias mkisofs='mkisofs -v -r -J -o'	#Usage: mkisofs target.img /src/path
+alias mirror="rsync -auv --delete"
+alias tcmount='sudo truecrypt -t --fs-options=users,uid=$(id -u),gid=$(id -g),fmask=0113,dmask=0002 --mount'
+alias tcumount='sudo truecrypt -t -d'
+
+#PDF
+alias joinpdf='gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=join.pdf ' #requires ghostscript, convert also works!
+alias makepdf='pdflatex *.tex && evince *.pdf' #shortie for iterations with latex homeworks
+
 #Uni
-alias pushpoolprint='initsshkeys; ssh sshgate mv ./print/*.pdf ./print/old; scp *.pdf sshgate:./print/ ; echo "-" ; ssh sshgate ls print'
+alias pushpoolprint='initsshkeys; ssh sshgate mv ./print/*.pdf ./print/old; scp *.pdf sshgate:./print/ ; echo "Inhalt print:" ; ssh sshgate ls print'
 alias reversessh='ssh -l pirogov -nNT -R 1337:localhost:2200 sshgate.informatik.uni-luebeck.de' #dann auf ssh-gate: ssh admin@localhost -p 1337
 
 #Music
@@ -198,7 +174,6 @@ alias normalizevolume='find /home/admin/myfiles/music/ -type f -iname "*.mp3" -e
 #My Wifi Network
 alias getconnectedmacs='ssh root@10.130.118.1 "iw dev wlan0 station dump" | grep Station | awk "{print \$2}"'
 alias capturetraf='ssh root@10.130.118.1 tcpdump -i br-freifunk -w - > capture.cap'
-
 
 #mediacenter - using ssh/sshfs/rsync/mpd/ncmpcpp
 #use to: backup folders, mount remote data, control music
@@ -223,10 +198,6 @@ alias center.stream="mplayer -nocache http://$MEDIAHOST:8000"
 SMARTMPD='$(if ping -c 1 -w 1 $MEDIAHOST > /dev/null; then echo $MEDIAHOST; else echo localhost; fi)'
 alias music="ncmpcpp -h $SMARTMPD"
 alias musickrtek="ncmpcpp -h clubmate42@krtek"
-
-#Mounting my Player with mtpfs
-alias player.mount='mkdir player; sudo mtpfs -o allow_other player'
-alias player.umount='sudo umount player; rmdir player'
 
 #Hardware control
 alias cdo='eject sr0'	#CD Open
@@ -253,7 +224,7 @@ function stopwatch(){
 
 #Homework assignments
 #--------------------
-#Change to current semester directory
+#Change to current semester directory (highest number)
 cdsem() {
   if [ $# -eq 0 ]  #no arguments -> latest
   then
@@ -261,6 +232,11 @@ cdsem() {
   else #specified no
     cd ~/myfiles/documents/uni/Bachelor$1
   fi
+}
+
+#Go to ranger mark
+cdmark() {
+  cd $(grep "^$1" ~/.config/ranger/bookmarks | sed "s/^$1://")
 }
 
 #Copy tex file into subdir
@@ -283,6 +259,25 @@ hwtex() {
   mkdir L$num
   cat $match | sed "s/NUM/$num/" > L$num/$(sed "s/base/$num/" <<< $match)
   cd L$num
+}
+
+#Recursive javac in root source directory (poor man's build system)
+javacrec() {
+  #Fix encoding of files to UTF-8
+  find . -name "*.java" -exec sh -c 'iconv -f ISO-8859-15 -t UTF-8 "$1" > tmp; mv tmp "$1"' x {} \;
+  #Compile
+  find -name "*.java" > .java_sources.txt
+  javac @.java_sources.txt
+  rm -f .java_sources.txt
+}
+
+#Recompile pdf (shrinking, removing password) repdf in out [password]
+repdf() {
+  if [ -n "$3" ]; then
+    PASSWORDARG="-sPDFPassword=$3"
+  fi
+  #add -dPDFSETTINGS=/screen for lower quality, ebook=middle, printer=good, prepress=best
+  gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dNOPAUSE -dQUIET -dBATCH $PASSWORDARG -sOutputFile=$2 $1
 }
 #--------------------
 
@@ -321,11 +316,6 @@ vnc(){ echo $2|vncviewer -compresslevel 9 -quality 7 -autopass $3 $1; }
 
 #Ruby calculator
 calc(){ ruby -e "require 'mathn'; puts $1";}
-
-#Regex killall
-killallr() {
-  sh -c "ps -e -o comm" | grep -e ^.*$1.*$ | grep -v grep | xargs killall
-}
 
 #String escape method into hex, usage: escape STRING ESCPREFIX(like % or 0x)
 escape(){ echo "puts '$2'+'$1'.split(//).map{|x| x.slice(0).ord.to_s(16)}.join('$2')"|ruby; }

@@ -1,0 +1,87 @@
+" Plugins with fancy and IDE-like integration stuff
+" vim: set foldmethod=marker foldlevel=0:
+" ---------------------------------------
+" Completion engine (tab completion / supertab replacement)
+if v:version > 703 && has('lua')
+  Plugin 'Shougo/neocomplete'
+  " neocomplete settings {{{
+  let g:neocomplete#enable_at_startup = 1
+  let g:neocomplete#enable_smart_case = 1
+  let g:neocomplete#sources#syntax#min_keyword_length = 3
+  " Plugin key-mappings.
+  inoremap <expr><C-g>     neocomplete#undo_completion()
+  inoremap <expr><C-l>     neocomplete#complete_common_string()
+  " Recommended key-mappings.
+  " <CR>: close popup and save indent.
+  inoremap <silent> <CR> <C-r>=<SID>my_cr_function()<CR>
+  function! s:my_cr_function()
+    return neocomplete#close_popup() . "\<CR>"
+    " For no inserting <CR> key.
+    "return pumvisible() ? neocomplete#close_popup() : "\<CR>"
+  endfunction
+  " <TAB>: completion.
+  inoremap <expr><TAB>  pumvisible() ? "\<C-n>" : "\<TAB>"
+  " <C-h>, <BS>: close popup and delete backword char.
+  inoremap <expr><C-h> neocomplete#smart_close_popup()."\<C-h>"
+ " inoremap <expr><BS>  neocomplete#smart_close_popup()."\<C-h>"
+  inoremap <expr><C-y> neocomplete#close_popup()
+  inoremap <expr><C-e> neocomplete#cancel_popup()
+  " }}}
+else
+  Plugin 'Shougo/neocomplcache'
+  " neocomplcache settings {{{
+  let g:neocomplcache_enable_at_startup = 1
+  let g:neocomplcache_enable_smart_case = 1
+  let g:neocomplcache_min_syntax_length = 3
+  inoremap <expr><C-g>     neocomplcache#undo_completion()
+  inoremap <expr><C-l>     neocomplcache#complete_common_string()
+  inoremap <silent> <CR> <C-r>=<SID>my_cr_function()<CR>
+  function! s:my_cr_function()
+    return neocomplcache#close_popup() . "\<CR>"
+  endfunction
+  inoremap <expr><TAB>  pumvisible() ? "\<C-n>" : "\<TAB>"
+  inoremap <expr><C-h>  neocomplcache#smart_close_popup()."\<C-h>"
+  inoremap <expr><BS>   neocomplcache#smart_close_popup()."\<C-h>"
+  inoremap <expr><C-y>  neocomplcache#close_popup()
+  inoremap <expr><C-e>  neocomplcache#cancel_popup()
+  " }}}
+endif
+
+" Code snippets (complete with C-k) / snipmate replacement
+Plugin 'Shougo/neosnippet.vim'
+Plugin 'Shougo/neosnippet-snippets'
+Plugin 'honza/vim-snippets'
+" neosnippet settings {{{
+let g:neosnippet#enable_snipmate_compatibility = 1    " Use own snipmate snippets from .vim/snippets
+let g:tex_flavor = 'latex'                            " All .tex files detected as LaTeX (for snips)
+" Plugin key-mappings.
+imap <C-k>     <Plug>(neosnippet_expand_or_jump)
+smap <C-k>     <Plug>(neosnippet_expand_or_jump)
+xmap <C-k>     <Plug>(neosnippet_expand_target)
+" For snippet_complete marker.
+" if has('conceal')
+"   set conceallevel=2 concealcursor=i
+" endif
+" }}}
+
+" Code browsing
+" -------------
+" Automatic ctags file updates for tagbar with :UpdateTags
+" Plugin 'xolox/vim-easytags'
+" Code browser
+Plugin 'majutsushi/tagbar'
+map <silent><F11> :TagbarToggle<cr>
+
+" Project and session management
+" ------------------------------
+" Async compiling
+Plugin 'tpope/vim-dispatch'
+" Allow project-local vim config (.lvimrc)
+Plugin 'embear/vim-localvimrc'
+" Automatically switch to project root with <leader>cd
+Plugin 'airblade/vim-rooter'
+let g:rooter_manual_only = 1
+" Better session management with :Save/OpenSession
+" Plugin 'xolox/vim-session'
+" let g:session_autosave = 'no'             " Disable asking about saving sessions
+" let g:session_autoload = 'no'

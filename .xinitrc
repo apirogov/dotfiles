@@ -1,5 +1,4 @@
 #!/bin/sh
-#
 # ~/.xinitrc
 # Executed by startx (run your window manager from here)
 
@@ -14,11 +13,11 @@ fi
 #Stuff before WM
 
 #xset m 1 0 #set mouse sensitivity
-xmodmap -e "pointer = 3 2 1" #invert mouse for left hand
+# xmodmap -e "pointer = 3 2 1" #invert mouse for left hand
 
 #fix repetition of arrow keys (some weird Xorg regression bug)
-xset r 113
-xset r 116
+# xset r 113
+# xset r 116
 
 #Set cursor
 xsetroot -cursor_name left_ptr
@@ -34,13 +33,13 @@ screens -d  #use my custom screen toggle script to set dualscreen
 #Touchpad settings
 synclient PalmDetect=1
 synclient PalmMinWidth=5
-synclient PalmMinZ=150
-#syndaemon -K -i 1 -d &
+synclient PalmMinZ=100
+syndaemon -t -K -i 1 -d
 synclient TouchpadOff=1
 
 #some java hacks to make minecraft etc work with openjdk7
-export _JAVA_AWT_WM_NONREPARENTING=1
-export LD_LIBRARY_PATH="/usr/lib/jvm/java-7-openjdk/jre/lib/amd64"
+# export _JAVA_AWT_WM_NONREPARENTING=1
+# export LD_LIBRARY_PATH="/usr/lib/jvm/java-7-openjdk/jre/lib/amd64"
 
 #Daemons
 #----
@@ -49,6 +48,9 @@ export LD_LIBRARY_PATH="/usr/lib/jvm/java-7-openjdk/jre/lib/amd64"
 /usr/lib/notification-daemon-1.0/notification-daemon &
 xscreensaver -nosplash &
 #eval $(gpg-agent --daemon) &
+
+#Settings
+xrdb ~/.Xresources
 
 #Applications
 ~/.autorun
@@ -59,8 +61,6 @@ case "$1" in
 	  exec openbox-session ;;
   xmonad)
     exec dbus-launch xmonad ;;
-  dwm)
-    exec dbus-launch dwm ;;
   i3)
     exec dbus-launch i3 ;;
   *)  #default

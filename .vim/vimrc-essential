@@ -1,0 +1,113 @@
+" Universally useful vim plugins, Vundle initialization
+
+" Improved %
+Plugin 'matchit.zip'
+" f with 2 chars + vim-easymotion alternative
+Plugin 'justinmk/vim-sneak'
+" Show marks. Toggle mark with mN, `N -> goto mark N, m<space> remove all
+Plugin 'kshenoy/vim-signature'
+" Search with number of matches
+Plugin 'vim-scripts/IndexedSearch'
+" Start */# search (forward/backward) from visual block
+Plugin 'bronson/vim-visual-star-search'
+" Creates directories automatically
+Plugin 'dockyard/vim-easydir'
+" tmux/vim interop: C-hjkl to move between splits and also tmux panes
+Plugin 'christoomey/vim-tmux-navigator'
+" C-a/C-x for dates
+Plugin 'tpope/vim-speeddating'
+" Show detailed info about characters with ga
+Plugin 'tpope/vim-characterize'
+
+" Useful text objects and movement operators
+" (New a*/i* mappings, indent=i/I, function=f
+" entire=e, underscore=_, camelcase=,w/,b/,e)
+Plugin 'kana/vim-textobj-user'
+Plugin 'kana/vim-textobj-indent'
+Plugin 'kana/vim-textobj-function'
+Plugin 'kana/vim-textobj-entire'
+Plugin 'lucapette/vim-textobj-underscore'
+Plugin 'vim-scripts/camelcasemotion'
+
+" Exchange places with cx<movement> cxx=line, X=in visual mode, cxc=clear
+Plugin 'tommcdo/vim-exchange'
+" repeat with . hook for plugins
+Plugin 'tpope/vim-repeat'
+" Manage surroundings with [dcy]s<motion><surrounding>
+Plugin 'tpope/vim-surround'
+" Add surrounding #{ ... } (ruby string var. interpolation)
+let g:surround_35 = "#{\r}" " #
+" ysiwc cmd -> \cmd{bla} for latex
+let g:surround_{char2nr('c')} = "\\\1command\1{\r}"
+" Easier change inside surroundings with ,ci/,cas
+Plugin 'briandoll/change-inside-surroundings.vim'
+
+" Universal Text Linking - Execute URLs, etc.
+Plugin 'vim-scripts/utl.vim'
+" Alignment on some pattern with :Tabularize /char
+Plugin 'godlygeek/tabular'
+" Emacs-like scratch buffer with :Scratch
+Plugin 'vim-scripts/scratch.vim'
+" Ag (the silver searcher) search (awesome fast code grep with :Ag)
+Plugin 'rking/ag.vim'
+
+" NetRW+ (- to move from buffer to containing dir
+Plugin 'tpope/vim-vinegar'
+" Undo tree visualization with :UndotreeToggle
+Plugin 'mbbill/undotree'
+map <leader>u :UndotreeToggle<CR>
+" Status line on steroids
+Plugin 'bling/vim-airline'
+" let g:airline_theme='powerlineish'
+let g:airline_left_sep=''
+let g:airline_right_sep=''
+let g:airline_section_z='%4l,%3c' " Only line,col
+let g:airline#extensions#tabline#enabled = 1
+" Smooth scrolling with C-D,C-U,C-B,C-F
+Plugin 'terryma/vim-smooth-scroll'
+noremap <silent> <c-u> :call smooth_scroll#up(&scroll, 10, 2)<CR>
+noremap <silent> <c-d> :call smooth_scroll#down(&scroll, 10, 2)<CR>
+noremap <silent> <c-b> :call smooth_scroll#up(&scroll*2, 20, 4)<CR>
+noremap <silent> <c-f> :call smooth_scroll#down(&scroll*2, 20, 4)<CR>
+
+" Open files, mru and buffers with fuzzy search with C-p
+Plugin 'kien/ctrlp.vim'
+let g:ctrlp_cache_dir = $HOME . '/.cache/ctrlp'
+if executable('ag') " faster if present
+  let g:ctrlp_user_command = 'ag %s -l --nocolor -g ""'
+endif
+map <leader>bb :CtrlPBuffer<cr>
+map <leader>bm :CtrlPMRUFiles<cr>
+
+" Code Commenting - gc<Motion> -> toggle comment, gcu -> uncomment commented
+Plugin 'tpope/vim-commentary'
+" Automatic code block closing (if ... end, etc)
+Plugin 'tpope/vim-endwise'
+" Auto-Closing for symbols
+Plugin 'Raimondi/delimitMate'
+au FileType mail,text,todotxt let b:delimitMate_autoclose = 0 " delimitMate: disable in regular text
+" Color parentheses and other surroundings
+Plugin 'kien/rainbow_parentheses.vim'
+au VimEnter * RainbowParenthesesToggle    " RainbowParentheses: everywhere
+
+" Git integration
+Plugin 'tpope/vim-fugitive'
+" Gitk clone within vim (fugitive-extension)
+Plugin 'gregsexton/gitv'
+" See changed lines within file (:GitGutterToggle)
+Plugin 'airblade/vim-gitgutter'
+
+" Generate view of tasks with XXX/FIXME/TODO with <leader>t
+Plugin 'vim-scripts/TaskList.vim'
+" Syntax checking for vim. Close error window with lclose show with Errors
+Plugin 'scrooloose/syntastic'
+let g:syntastic_enable_signs=1    "mark syntax errors with :signs
+let g:syntastic_auto_jump=0       "automatically jump to the error when saving the file
+let g:syntastic_auto_loc_list=1   "show the error list automatically
+let g:syntastic_quiet_messages = {'level': 'warnings'} " No warnings
+let g:syntastic_haskell_checkers = ['hdevtools','hlint']
+
+" slime-like repl interaction for tmux
+Plugin 'epeli/slimux'
+map <leader>s :SlimuxREPLSendLine<CR>
+vmap <leader>s :SlimuxREPLSendSelection<CR>

@@ -1,0 +1,234 @@
+" Anton Pirogov's base vimrc
+" ======================
+let mapleader = ","            " Set leader key for keybindings (default: \)
+colorscheme lucius
+
+" General
+set nocompatible               " prevent vi emulation
+set backspace=indent,eol,start " Sane backspace behaviour
+set encoding=utf-8             " set default encoding
+set fileformats=unix,dos,mac   " set ordered list of supported file fmts
+set shell=/bin/bash            " Shell used by :sh
+set history=100                " number of lines of command line history
+" Tell vim to remember certain things when we exit
+"  '10  :  marks will be remembered for up to 10 previously edited files
+"  "100 :  will save up to 100 lines for each register
+"  :20  :  up to 20 lines of command-line history will be remembered
+"  %    :  saves and restores the buffer list
+"  n... :  where to save the viminfo files
+set viminfo='10,\"100,:20,%,n~/.viminfo
+
+set directory=~/.vim/tmp       " Dir for vim temp files
+set backupdir=~/.vim/tmp       " Dir for backups
+set nobackup                   " make no backups of files
+if has('persistent_undo')
+  set undodir=~/.vim/tmp         " Dir for undo files
+  set undofile                   " Enable persistent undo files
+endif
+
+" Mouse & keys
+set mouse=a                    " mouse in all modes
+set esckeys                    " cursor keys in insert mode
+
+" Search behaviour & Command completion & Parens matching
+set incsearch                  " Incremental search
+set hlsearch                   " highlight search matches
+set ignorecase                 " case insensitive matching
+set smartcase                  " override ignorecase if regex contains uppercase chars
+set magic                      " use 'magic' patterns (extended regular expressions)
+set showmatch                  " Show matching parens
+set infercase                  " adjust case of auto completed words
+set wildmenu                   " turn on wild menu (completition feature)
+set wildmode=list:longest,full " turn on long format
+" ignore some formats
+set wildignore=*.dll,*.o,*.obj,*.exe,*.so,*.swp,*.zip,*.jpg,*.png,*.gif,tmp/**,log/**,.git/**
+
+" Indentation & tabs
+set smarttab                   " Tab in front of line indents
+set smartindent                " enable intelligent guessing of indentation
+set tabstop=4                  " A real tab in a file is shown as n spaces
+set expandtab                  " replace tab press with correct number of spaces
+set softtabstop=2              " Insert n spaces when tab is pressed
+set shiftwidth=2               " Insert n spaces for an indent (e.g. <</>> cmds)
+set shiftround                 " Round indent to multiple of shiftwidth
+
+" Wrapping
+set nowrap                     " disable wrapping (cause its bad for coding)
+set showbreak=+                " show a + if a line is longer than the screen
+set linebreak                  " wrap on word boundaries (not in word middle)
+set textwidth=100              " after how many chars a break is made
+"set colorcolumn=+1             " Highlight that column (more annoying than useful)
+"set cpoptions+=n               " show break char between line numbers
+
+" Folding
+set foldmethod=syntax          " fold mode - by syntax. control: zo, zc
+set foldnestmax=5              " max. nested folds
+set foldenable                 " enable autofolding
+set foldlevel=5                " Level from which autofold
+set foldcolumn=1               " columns for fold markers
+"set foldopen-=search          " don't unfold while searching
+"set foldopen-=undo            " don't unfold when undo sth.
+
+" Improvement & tweaks
+set ttimeout
+set ttimeoutlen=50
+set display+=lastline          " Keep last line while scrolling
+set ttyfast                    " we have a fast terminal connection -> smoothness
+set lazyredraw                 " no window redraw while running macros (faster)
+set autoread                   " Automatically read file on external changes
+set undolevels=1000            " number of undo levels
+set tabpagemax=20              " maximum number of tabs to create
+set nostartofline              " don't jump to first char with page commands
+set nojoinspaces               " don't insert 2 spaces after .?! if 2 lines get j.
+set nrformats-=octal           " C-A/C-X work as dec even for nums starting with leading 0
+set confirm                    " confirm actions
+set gdefault                   " set 'g' flag by default with :s/foo/bar/
+set autowrite                  " automatically save before :next, :make etc.
+set report=0                   " if lines got changed - always notify
+set listchars=tab:⇥\ ,trail:·,extends:>,precedes:<,nbsp:+ " Show these non-printables
+set list                       " Show special chars
+
+" Scrolling
+set scrolloff=8                " keep n lines context vertically
+set sidescrolloff=15           " keep n lines context horizontally
+set sidescroll=1
+
+if has("syntax")
+set t_Co=256                   " Number of colors in terminal
+  syntax on
+  set popt+=syntax:y           " Syntax highlighting also when printing
+endif
+
+" Status line & appearance
+set background=light           " terminal background
+set laststatus=2               " Always show statusline
+set ruler                      " Show current position
+set showcmd                    " Show partial command in statusline
+set cmdheight=1                " command bar is 1 high
+set showmode                   " show current mode
+set number                     " show line number
+
+if has("gui_running")          " GVim
+  set cursorline               " highlight current line
+  set guifont=Inconsolata-g\ 9 " Font for GVim
+  set guioptions-=T            " Remove toolbar
+  set guioptions-=e            " Remove GUI tabs (use console tabs)
+  set guioptions-=r            " Remove right-hand scrollbar
+else
+  set t_Co=256                   " Number of colors in terminal
+endif
+
+" Anti Annoyance
+set vb t_vb=                   " prevent annoying beeps, flash screen instead
+set novisualbell               " don't blink
+set noerrorbells               " no beeps
+set shortmess=aoOstI           " shortens messages to avoid "press a key" prompt
+" set clipboard+=unnamedplus
+set clipboard=unnamed,unnamedplus      " yank & copy to X clipboard (+ register, *=selection reg.)
+
+" Filetype-specific general settings
+" ----------------------------------
+au BufNewFile,BufRead todo.txt set filetype=todotxt
+au FileType xml,html setlocal matchpairs+=<:>
+au FileType haskell setlocal expandtab omnifunc=necoghc#omnifunc
+au FileType ruby setlocal expandtab shiftwidth=2 softtabstop=2
+au FileType python setlocal expandtab shiftwidth=4 softtabstop=4
+au FileType c,cpp,java setlocal noexpandtab shiftwidth=4 softtabstop=4
+
+" General keybindings
+" -------------------
+" Tab keybindings
+map <C-t> :tabnew<CR>
+nnoremap <A-Left> :tabprev<CR>
+nnoremap <A-Right> :tabnext<CR>
+nnoremap <silent> <A-Up> :execute 'silent! tabmove ' . (tabpagenr()-2)<CR>
+nnoremap <silent> <A-Down> :execute 'silent! tabmove ' . tabpagenr()<CR>
+" Toggle tabs
+" let notabs = 1
+" nnoremap <silent> <F9> :let notabs=!notabs<Bar>:if notabs<Bar>:tabo<Bar>:else<Bar>:tab ball<Bar>:tabn<Bar>:endif<CR>
+
+" Resize splits
+nnoremap <C-Left> <C-w><
+nnoremap <C-Right> <C-w>>
+nnoremap <C-Up> <C-w>-
+nnoremap <C-Down> <C-w>+
+
+" Arrow keys (indent and move lines)
+nmap <Left> <<
+nmap <Right> >>
+vmap <Left> <gv
+vmap <Right> >gv
+nmap <Up> ddkkp
+nmap <Down> ddp
+
+" Quick macro execution
+nmap Q @q
+" Toggle conceal mode
+map <leader>cc :if &cole==0<Bar>:set cole=2<Bar>:else<Bar>:set cole=0<Bar>:endif<cr>
+"Wrap on/off
+map <leader>w :set wrap!<cr>
+"apply ruby one liner to a range ($_ = current line)
+map <leader>r :rubydo $_ = 
+" Disable highlight of last search
+map <leader>/ :nohlsearch<cr>
+"Take rest of line and put above (reversed split)
+nmap <leader>j d$O<esc>p
+"Add beautiful line out of minus signs of correct length in code comments
+nmap <leader>l zzpwv$r-
+
+" Misc. independent improvements
+" ------------------------------
+"Write to file without previous write access (asks password)
+cmap w!! %!sudo tee > /dev/null %
+" Switch current directory to that of the file
+cmap cwd lcd %:p:h
+
+" Fix Modifier+Arrow combinations within tmux
+if &term =~ '^screen'
+    " tmux will send xterm-style keys when its xterm-keys option is on
+    execute "set <xUp>=\e[1;*A"
+    execute "set <xDown>=\e[1;*B"
+    execute "set <xRight>=\e[1;*C"
+    execute "set <xLeft>=\e[1;*D"
+endif
+
+"Highlight tabs
+" syntax match Tab /\t/
+" hi Tab guifg=grey ctermbg=grey
+
+" when we reload, tell vim to restore the cursor to the saved position
+au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g`\"" | endif
+
+" Remove trailing whitespace from code files on save
+fun! <SID>StripTrailingWhitespaces()
+    let l = line(".")
+    let c = col(".")
+    %s/\s\+$//e
+    call cursor(l, c)
+endfun
+au FileType c,cpp,java,php,ruby,python,tex,haskell,clojure au BufWritePre <buffer> :call <SID>StripTrailingWhitespaces()
+
+" Include completion for filetypes with custom lists
+au FileType * exec("setlocal dictionary+=".$HOME."/.vim/dict/".expand('<amatch>'))
+set complete+=k
+
+" ---------- Memos ------------
+"Tip: Macros
+"Record: q<some key>, "<edit one line and move to the next>, q
+"Play: @<some key>, @@ (play last macro), 100@<some key> repeat macro 100 times
+"Tip: Increment/Decrement number: C-A/C-X
+"Tip: Revert file state to some time: :earlier <time, e.g. 15m>
+"     or :later <time> to reverse it back (all based on undo)
+"Tip: Convert file to hex editor output: :%!xxd, revert with :!xxd -r
+"Tip: Find non-ascii: /[^\x00-\xff]
+"Tip: !cmd runs external commands, r! cmd -> paste output into buffer
+"Tip: dis,das delete in/around sentence (modifiers a and i, object s)
+"Tip: zz = center around cursor,zt=cursor top, ZZ = :wq, D = d$
+"Tip: look g commands - eg. gv reselects last visual selection
+"Tip: g~<motion> toggle case
+"Tip: :%TOhtml -> render file to html
+"Tip: Move cursor to old/new pos C-o/C-i
+"Tip: gq/gw to format a paragraph on line width
+"Tip: <range>rubydo $_ = stuff <- changes lines with ruby code
+"Tip: Open file at specific line or search position with: vim +line file or vim +/search file
+"     same works with :e within

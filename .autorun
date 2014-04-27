@@ -1,7 +1,7 @@
 #!/bin/sh
 /home/admin/.lightsOn.sh 120 &  #prevent screensaver on fullscreen
 
-#xcompmgr &  #To fix vboxvideo problem with xmonad -> adds problem with borders..
+#xcompmgr &  #To fix vboxvideo problem with xmonad -> adds problem with borders
 #sudo nm-applet & #network manager -> now using netctl
 #blueman-applet & #bluetooth manager
 

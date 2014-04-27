@@ -1,0 +1,7 @@
+" Latex -> :Latexmk/:LatexView
+Plugin 'LaTeX-Box-Team/LaTeX-Box'
+
+" Compile a pdf from latex
+" au BufRead,BufNewFile *.tex     map <F8>  :w<cr>:cd %:p:h<cr>:!lualatex *.tex<cr><cr>
+au BufRead,BufNewFile *.tex     map <F8>  :w<cr>:Latexmk<cr>
+au BufRead,BufNewFile *.tex     map <F7>  :w<cr>:LatexView<cr>

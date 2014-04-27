@@ -1,0 +1,30 @@
+" Some good colorschemes
+Plugin 'tomasr/molokai'
+Plugin 'vim-scripts/tir_black'
+Plugin 'sjl/badwolf'
+Plugin 'vim-scripts/jellybeans.vim'
+Plugin 'vim-scripts/wombat256.vim'
+Plugin 'altercation/vim-colors-solarized'
+Plugin 'w0ng/vim-hybrid'
+Plugin 'vim-scripts/Lucius'
+Plugin 'john2x/flatui.vim'
+Plugin 'vim-scripts/summerfruit256.vim'
+Plugin 'vim-scripts/pyte'
+
+" Approximate GVim themes in terminal
+Plugin 'godlygeek/csapprox'
+
+" Colorscheme switcher
+Plugin 'xolox/vim-misc'
+Plugin 'xolox/vim-colorscheme-switcher'
+
+" Colorscheme switcher and colorscheme settings
+let g:colorscheme_switcher_define_mappings = 0
+let g:colorscheme_switcher_exclude = ['blue','darkblue','default','delek','desert','elflord','evening','industry','koehler','morning','murphy','pablo','peachpuff','ron','shine','slate','torte','zellner']
+if !has("gui_running") " Terminal vim can't take all colorschemes
+  let g:solarized_termcolors=256
+  let g:rehash256 = 1 " For molokai
+endif
+
+map <silent> <F12> :NextColorScheme<cr>
+map <silent> <S-F12> :PrevColorScheme<cr>

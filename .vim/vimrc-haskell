@@ -1,0 +1,23 @@
+" Haskell plugins and config
+" --------------------------
+
+" Replace operators with corresponding unicode symbols
+Plugin 'vim-scripts/Haskell-Conceal'
+" type checking and lint (:Hdevtools* commands, install hdevtools first, faster than GHC-Mod)
+Plugin 'bitc/vim-hdevtools'
+" Haskell tab completion with ghc-mod
+Plugin 'eagletmt/neco-ghc'
+" Haskell ctags for tagbar (install lushtags and ghc-mod with cabal)
+Plugin 'bitc/lushtags'
+" Hoogle interface from vim (see :help hoogle)
+Plugin 'Twinside/vim-hoogle'
+
+" type info for Haskell
+au FileType haskell nnoremap <buffer> <silent> <F1> :HdevtoolsType<CR>
+au FileType haskell nnoremap <buffer> <silent> <S-F1> :HdevtoolsInfo<CR>
+au FileType haskell nnoremap <buffer> <silent> <F2> :HdevtoolsClear<CR>
+
+" Compile a standalone haskell script
+au BufRead,BufNewFile *.hs      map <F8>  :w<cr>:!rm -rf /tmp/*.o; ghc -fwarn-name-shadowing -hidir=/tmp -odir=/tmp -O -o a.out % && ./a.out<cr>
+" Load into GHCI
+au BufRead,BufNewFile *.hs      map <F7>  :w<cr>:!ghci %<cr>
