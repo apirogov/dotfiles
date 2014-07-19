@@ -1,19 +1,19 @@
 #Anton Pirogov's .bashrc
 . /etc/profile
 
-# If not running interactively, don't do anything
-[ -z "$PS1" ] && return
-
 # Add Cabal to $PATH.
 if [ -d ~/.cabal/bin ] ; then
  PATH=~/.cabal/bin:$PATH
 fi
 #Add gem path
-if [ -d /home/admin/.gem/ruby/2.1.0/bin ] ; then
- PATH=/home/admin/.gem/ruby/2.1.0/bin:$PATH
+if [ -d ~/.gem/ruby/2.1.0/bin ] ; then
+ PATH=~/.gem/ruby/2.1.0/bin:$PATH
 fi
 #Add own binaries
 PATH=~/bin:~/bin/matlab/bin:$PATH
+
+# If not running interactively, don't do anything
+[ -z "$PS1" ] && return
 
 #X Terminal titles
 export PROMPT_COMMAND=""
@@ -85,8 +85,7 @@ export HISTCONTROL="ignorespace:erasedups" #No duplicates in history, no cmds pr
 export HISTIGNORE="&:ls:ll:la:pwd:exit:clear"	#Never log these
 export HISTSIZE="9999"	#Lines saved in one session
 export HISTFILESIZE="999999"	#Lines total
-#export HISTTIMEFORMAT='%F %T '
-export PROMPT_COMMAND+="history -a; history -n"
+export PROMPT_COMMAND+="history -a; history -n" #share history between terminals
 
 export BROWSER="firefox"
 export EDITOR="vim"
@@ -129,7 +128,6 @@ alias cleanhistory="tac ~/.bash_history | awk '!seen[$0]++' | tac > newhist"
 alias top10size='find . -printf "%s %p\n"|sort -nr|head'
 alias showswap='cat /proc/swaps'
 alias listd="systemctl list-unit-files --type=service" #show all daemons run on startup
-#alias resizescreen='xrandr -s 1 && xrandr -s 0' #reset screen resolution to default
 
 #SSH key
 alias initsshkeys='eval `keychain --eval --nogui -Q -q id_rsa`'
@@ -137,9 +135,12 @@ alias ssh='initsshkeys && ssh'
 
 #Misc. Programs
 alias xp='xprop | grep "WM_WINDOW_ROLE\|WM_CLASS" && echo "WM_CLASS(STRING) = \"NAME\", \"CLASS\"";xwininfo'
-alias xephyr='Xephyr :1 -ac -reset -screen 1440x900 2>&1 >/dev/null'
 alias tmux='tmux -2'
 alias t='todo.sh'
+alias tcrypt='sudo ~/.tcrypt.sh'
+
+#Map my cheap generic gamepad to XBox controller API
+alias fakexbox='xboxdrv --evdev-absmap ABS_RX=X2,ABS_RZ=Y2,ABS_X=X1,ABS_Y=Y1,ABS_HAT0X=dpad_x,ABS_HAT0Y=dpad_y --axismap -Y1=Y1,-Y2=Y2 --evdev-keymap BTN_THUMB2=a,BTN_THUMB=b,BTN_TOP=x,BTN_TRIGGER=y,BTN_BASE4=start,BTN_BASE3=back,BTN_TOP2=lt,BTN_BASE=lb,BTN_PINKIE=rt,BTN_BASE2=rb --deadzone 10% --mimic-xpad --silent --evdev '
 
 #Compiler settings
 alias hc='rm -rf /tmp/*.o; ghc -Wall -fwarn-name-shadowing -fwarn-incomplete-patterns -hidir=/tmp -odir=/tmp -O' #"script compile" shortie
@@ -151,11 +152,9 @@ alias pingl='ping6 ff02::1%eth0'  #ping local
 alias getip="wget -O - -q http://checkip.dyndns.org/index.html|sed -e 's/.* //' -e 's/<.*//'"
 alias speedtest='wget -O /dev/null http://speedtest.wdc01.softlayer.com/downloads/test10.zip'
 
-#Filesystem, Truecrypt
+#Filesystem
 alias mkisofs='mkisofs -v -r -J -o'	#Usage: mkisofs target.img /src/path
 alias mirror="rsync -auv --delete"
-alias tcmount='sudo truecrypt -t --fs-options=users,uid=$(id -u),gid=$(id -g),fmask=0113,dmask=0002 --mount'
-alias tcumount='sudo truecrypt -t -d'
 
 #PDF
 alias joinpdf='gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=join.pdf ' #requires ghostscript, convert also works!
@@ -163,17 +162,13 @@ alias makepdf='pdflatex *.tex && evince *.pdf' #shortie for iterations with late
 
 #Uni
 alias pushpoolprint='initsshkeys; ssh sshgate mv ./print/*.pdf ./print/old; scp *.pdf sshgate:./print/ ; echo "Inhalt print:" ; ssh sshgate ls print'
-alias reversessh='ssh -l pirogov -nNT -R 1337:localhost:2200 sshgate.informatik.uni-luebeck.de' #dann auf ssh-gate: ssh admin@localhost -p 1337
+alias sshfs='sshfs -o idmap=user'
 
 #Music
 alias setmp3chmod='find -name "*.mp3" -print0 | xargs -0 chmod 644'
 alias fixmusicdir='chmod -R u+rwX,go+rX,go-w ./'  #set files to 644, dirs to 755
 alias m4a2mp3='for a in *.m4a; do faad -f 2 -w "$a"  | lame -r - "$a.mp3"; done'
 alias normalizevolume='find /home/admin/myfiles/music/ -type f -iname "*.mp3" -exec mp3gain -p -r -k -s i -d 6.0 "{}" \;'
-
-#My Wifi Network
-alias getconnectedmacs='ssh root@10.130.118.1 "iw dev wlan0 station dump" | grep Station | awk "{print \$2}"'
-alias capturetraf='ssh root@10.130.118.1 tcpdump -i br-freifunk -w - > capture.cap'
 
 #mediacenter - using ssh/sshfs/rsync/mpd/ncmpcpp
 #use to: backup folders, mount remote data, control music
@@ -197,14 +192,18 @@ alias center.stream="mplayer -nocache http://$MEDIAHOST:8000"
 #alias to access best accessible mpd -> mediaserver or fallback localhost
 SMARTMPD='$(if ping -c 1 -w 1 $MEDIAHOST > /dev/null; then echo $MEDIAHOST; else echo localhost; fi)'
 alias music="ncmpcpp -h $SMARTMPD"
-alias musickrtek="ncmpcpp -h clubmate42@krtek"
 
 #Hardware control
 alias cdo='eject sr0'	#CD Open
 alias cdc='eject -t sr0' 	#CD Close
 alias togglepad='killall syndaemon; synclient TouchpadOff=$(synclient -l | grep -c "TouchpadOff.*=.*0")'
+alias setlayout='setxkbmap us cz_sk_de -option caps:escape' #quick restore if something fucks it up
+#alias resizescreen='xrandr -s 1 && xrandr -s 0' #reset screen resolution to default
 
-#MISC FUNCTIONS
+#Set keyboard layout for keyboard with given name
+function setxkbmapFor() {
+  setxkbmap -device $(xinput list | grep "$1" | awk '{print$4}' | sed 's/id=//') ${@:2}
+}
 
 #https://superuser.com/questions/611538/is-there-a-way-to-display-a-countdown-or-stopwatch-timer-in-a-terminal
 function countdown(){
@@ -222,21 +221,36 @@ function stopwatch(){
    done
 }
 
-#Homework assignments
-#--------------------
-#Change to current semester directory (highest number)
-cdsem() {
-  if [ $# -eq 0 ]  #no arguments -> latest
-  then
-    cd $(find ~/myfiles/documents/uni/ -maxdepth 1 -name "Bachelor*" | sort | tail -n 1)
-  else #specified no
-    cd ~/myfiles/documents/uni/Bachelor$1
-  fi
+#https://stackoverflow.com/questions/5566310/how-to-recursively-find-and-list-the-latest-modified-files-in-a-directory-with-s
+function find_recently_changed() {
+  find $1 -type f -print0 | xargs -0 stat --format '%Y :%y %n' | sort -nr | cut -d: -f2- | head
 }
 
-#Go to ranger mark
+#VNC and nested X stuff
+function xephyr(){
+  Xephyr $1 -ac -dpi 96 -reset -screen $2 2>&1 >/dev/null &
+  pid=$!
+  DISPLAY=$1 $3 &
+  sh -c "trap 'kill $pid; exit' INT; while [ 1 -lt 2 ] ; do sleep 5 ; done"
+}
+
+function vnckill() {
+  vncserver -kill :1
+}
+function vncserve() {
+  if [ $# -eq 0 ]; then GEO="1200x730"; else GEO="$1"; fi
+  vnckill; vncserver -geometry $GEO -alwaysshared -localhost -SecurityTypes None :1
+}
+
+#Homework assignments
+#--------------------
+#Go to ranger bookmark
 cdmark() {
-  cd $(grep "^$1" ~/.config/ranger/bookmarks | sed "s/^$1://")
+  if [[ "$1" = "" ]]; then
+    cat ~/.config/ranger/bookmarks
+  else
+    cd $(grep "^$1" ~/.config/ranger/bookmarks | sed "s/^$1://")
+  fi
 }
 
 #Copy tex file into subdir
@@ -277,7 +291,7 @@ repdf() {
     PASSWORDARG="-sPDFPassword=$3"
   fi
   #add -dPDFSETTINGS=/screen for lower quality, ebook=middle, printer=good, prepress=best
-  gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dNOPAUSE -dQUIET -dBATCH $PASSWORDARG -sOutputFile=$2 $1
+  gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dAutoRotatePages=/None -dNOPAUSE -dQUIET -dBATCH $PASSWORDARG -sOutputFile=$2 $1
 }
 #--------------------
 
@@ -289,6 +303,9 @@ poolpc() { ssh sshgate ping -c 1 $1 | head -n 1 | awk '{print$3}' | sed 's/[()]/
 
 #Create socks proxy to uni lübeck intranet for usage with tsocks etc running on port 7070
 uniconnect() { ssh -N -D7070 sshgate;}
+
+#Reverse tunnel to $1:$2
+reversetunnel() { autossh -M 0 -o "ServerAliveInterval 30" -o "ServerAliveCountMax 2" -N -R $2:localhost:2200 $1; }
 
 # Cool History Summerizer - most used commands
 top10cmds(){ history|awk '{a[$2]++}END{for(i in a){printf"%5d\t%s\n",a[i],i}}'|sort -nr|head;}
@@ -346,12 +363,4 @@ $(Set256Color 33)    /##,-,##\     \__,_|_|  \___|_| |_|_|_|_| |_|\__,_/_/\_\\
    /##(   )##\`   \e[0;33m\t$(uname -o) Kernel $(uname -r)
 \e[0;36m$(Set256Color 27)  /#.--   --.#\  \e[0;32m$(date "+%a, %e. %B %Y %H:%M:%S"), uptime:$(uptime|head -c 18|tail -c 5)
 \e[0;36m$(Set256Color 27) /\`           \`\ "
-
-#setxkbmap de neo -option   #set neo keyboard layout
-#set Scroll-lock key to switch QWERTZ (default) and NEO
-#setxkbmap -layout de,de -variant nodeadkeys,neo -option -option grp:sclk_toggle -option grp_led:scroll
-#set Scroll-lock key to switch NEO (default) and QUERTZ
-#setxkbmap -layout de,de -variant neo,nodeadkeys -option -option grp:sclk_toggle -option grp_led:scroll
-#Modified US Layout with Umlauts on AltGr
-#setxkbmap us cz_sk_de
 

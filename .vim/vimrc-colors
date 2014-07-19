@@ -6,10 +6,10 @@ Plugin 'vim-scripts/jellybeans.vim'
 Plugin 'vim-scripts/wombat256.vim'
 Plugin 'altercation/vim-colors-solarized'
 Plugin 'w0ng/vim-hybrid'
-Plugin 'vim-scripts/Lucius'
 Plugin 'john2x/flatui.vim'
 Plugin 'vim-scripts/summerfruit256.vim'
 Plugin 'vim-scripts/pyte'
+Plugin 'jonathanfilip/vim-lucius'
 
 " Approximate GVim themes in terminal
 Plugin 'godlygeek/csapprox'

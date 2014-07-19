@@ -1,5 +1,2 @@
-if [[ -z "$DISPLAY" ]] && [[ $(tty) = /dev/tty1 ]]; then
-	exec startx
-fi
-
 . $HOME/.bashrc
+[[ -z $DISPLAY && $XDG_VTNR -eq 1 ]] && exec startx

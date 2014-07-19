@@ -1,10 +1,10 @@
 " Anton Pirogov's base vimrc
 " ======================
 let mapleader = ","            " Set leader key for keybindings (default: \)
-colorscheme lucius
 
 " General
 set nocompatible               " prevent vi emulation
+set hidden                     " Allow hidden buffers
 set backspace=indent,eol,start " Sane backspace behaviour
 set encoding=utf-8             " set default encoding
 set fileformats=unix,dos,mac   " set ordered list of supported file fmts
@@ -22,8 +22,8 @@ set directory=~/.vim/tmp       " Dir for vim temp files
 set backupdir=~/.vim/tmp       " Dir for backups
 set nobackup                   " make no backups of files
 if has('persistent_undo')
-  set undodir=~/.vim/tmp         " Dir for undo files
-  set undofile                   " Enable persistent undo files
+  set undodir=~/.vim/tmp       " Dir for undo files
+  set undofile                 " Enable persistent undo files
 endif
 
 " Mouse & keys
@@ -58,7 +58,6 @@ set showbreak=+                " show a + if a line is longer than the screen
 set linebreak                  " wrap on word boundaries (not in word middle)
 set textwidth=100              " after how many chars a break is made
 "set colorcolumn=+1             " Highlight that column (more annoying than useful)
-"set cpoptions+=n               " show break char between line numbers
 
 " Folding
 set foldmethod=syntax          " fold mode - by syntax. control: zo, zc
@@ -77,7 +76,6 @@ set ttyfast                    " we have a fast terminal connection -> smoothnes
 set lazyredraw                 " no window redraw while running macros (faster)
 set autoread                   " Automatically read file on external changes
 set undolevels=1000            " number of undo levels
-set tabpagemax=20              " maximum number of tabs to create
 set nostartofline              " don't jump to first char with page commands
 set nojoinspaces               " don't insert 2 spaces after .?! if 2 lines get j.
 set nrformats-=octal           " C-A/C-X work as dec even for nums starting with leading 0
@@ -100,7 +98,7 @@ set t_Co=256                   " Number of colors in terminal
 endif
 
 " Status line & appearance
-set background=light           " terminal background
+set background=dark            " terminal background
 set laststatus=2               " Always show statusline
 set ruler                      " Show current position
 set showcmd                    " Show partial command in statusline
@@ -130,23 +128,13 @@ set clipboard=unnamed,unnamedplus      " yank & copy to X clipboard (+ register,
 " ----------------------------------
 au BufNewFile,BufRead todo.txt set filetype=todotxt
 au FileType xml,html setlocal matchpairs+=<:>
-au FileType haskell setlocal expandtab omnifunc=necoghc#omnifunc
+au FileType haskell setlocal expandtab
 au FileType ruby setlocal expandtab shiftwidth=2 softtabstop=2
 au FileType python setlocal expandtab shiftwidth=4 softtabstop=4
 au FileType c,cpp,java setlocal noexpandtab shiftwidth=4 softtabstop=4
 
 " General keybindings
 " -------------------
-" Tab keybindings
-map <C-t> :tabnew<CR>
-nnoremap <A-Left> :tabprev<CR>
-nnoremap <A-Right> :tabnext<CR>
-nnoremap <silent> <A-Up> :execute 'silent! tabmove ' . (tabpagenr()-2)<CR>
-nnoremap <silent> <A-Down> :execute 'silent! tabmove ' . tabpagenr()<CR>
-" Toggle tabs
-" let notabs = 1
-" nnoremap <silent> <F9> :let notabs=!notabs<Bar>:if notabs<Bar>:tabo<Bar>:else<Bar>:tab ball<Bar>:tabn<Bar>:endif<CR>
-
 " Resize splits
 nnoremap <C-Left> <C-w><
 nnoremap <C-Right> <C-w>>
@@ -174,7 +162,7 @@ map <leader>/ :nohlsearch<cr>
 "Take rest of line and put above (reversed split)
 nmap <leader>j d$O<esc>p
 "Add beautiful line out of minus signs of correct length in code comments
-nmap <leader>l zzpwv$r-
+nmap <leader>l yypwv$r-
 
 " Misc. independent improvements
 " ------------------------------
@@ -192,10 +180,6 @@ if &term =~ '^screen'
     execute "set <xLeft>=\e[1;*D"
 endif
 
-"Highlight tabs
-" syntax match Tab /\t/
-" hi Tab guifg=grey ctermbg=grey
-
 " when we reload, tell vim to restore the cursor to the saved position
 au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g`\"" | endif
 
@@ -211,6 +195,15 @@ au FileType c,cpp,java,php,ruby,python,tex,haskell,clojure au BufWritePre <buffe
 " Include completion for filetypes with custom lists
 au FileType * exec("setlocal dictionary+=".$HOME."/.vim/dict/".expand('<amatch>'))
 set complete+=k
+
+" Open url under cursor in dwb
+map <leader>mo "1yiW:!dwb -x tabopen_url "<c-r>1"<cr><cr>
+" Insert bookmark for current dwb tab
+map <leader>ma :read !dwbremote -a get uri<cr>:read !dwbremote -a get title<cr>kJ
+" hide URL, highlight comments
+au BufNewFile,BufRead bookmarks setlocal filetype=text conceallevel=2 nowrap
+au BufNewFile,BufRead bookmarks syntax match URLstr /^http\S\+/ conceal cchar=>
+au BufNewFile,BufRead bookmarks syntax match Comment /^#.\+/
 
 " ---------- Memos ------------
 "Tip: Macros
@@ -229,6 +222,8 @@ set complete+=k
 "Tip: :%TOhtml -> render file to html
 "Tip: Move cursor to old/new pos C-o/C-i
 "Tip: gq/gw to format a paragraph on line width
+"Tip: gg=G indent complete file with current indentation settings
+"Tip: */# over a word -> search  this word
 "Tip: <range>rubydo $_ = stuff <- changes lines with ruby code
 "Tip: Open file at specific line or search position with: vim +line file or vim +/search file
 "     same works with :e within

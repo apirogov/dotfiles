@@ -44,6 +44,9 @@ source ~/.vim/vimrc-haskell
 " Lots of colorschemes
 source ~/.vim/vimrc-colors
 
+colorscheme hybrid
+hi Normal ctermbg=NONE
+
 " Vundle finalize {{{
 " ---------------
 " call vundle#end()
@@ -55,3 +58,4 @@ if iCanHazVundle == 0
   :BundleInstall
 endif
 " }}}
+

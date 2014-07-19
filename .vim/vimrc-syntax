@@ -1,13 +1,17 @@
 " (Better) syntax support
+
+Plugin 'sideshowcoder/vimtodotxt'
+
 Plugin 'Processing'
 Plugin 'sudar/vim-arduino-syntax'
+
 Plugin 'hail2u/vim-css3-syntax'
 Plugin 'othree/html5-syntax.vim'
-Plugin 'kchmck/vim-coffee-script'
-Plugin 'sideshowcoder/vimtodotxt'
 Plugin 'tpope/vim-markdown'
 Plugin 'nelstrom/vim-markdown-folding'
+
 Plugin 'gberenfield/cljfold.vim'
+
 Plugin 'vim-scripts/haskell.vim'
 Plugin 'Twinside/vim-syntax-haskell-cabal'
 Plugin 'Twinside/vim-haskellFold'

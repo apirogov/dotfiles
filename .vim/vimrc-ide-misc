@@ -75,13 +75,17 @@ map <silent><F11> :TagbarToggle<cr>
 " Project and session management
 " ------------------------------
 " Async compiling
-Plugin 'tpope/vim-dispatch'
+" Plugin 'tpope/vim-dispatch'
 " Allow project-local vim config (.lvimrc)
 Plugin 'embear/vim-localvimrc'
+let g:localvimrc_persistent = 1 " Remember decisions in file
+
 " Automatically switch to project root with <leader>cd
 Plugin 'airblade/vim-rooter'
 let g:rooter_manual_only = 1
-" Better session management with :Save/OpenSession
-" Plugin 'xolox/vim-session'
-" let g:session_autosave = 'no'             " Disable asking about saving sessions
-" let g:session_autoload = 'no'
+
+" Sesssion management :Obsess(!) / vim -S Session.vim
+Plugin 'tpope/vim-obsession'
+
+" Async compiling
+Plugin 'tpope/vim-dispatch'

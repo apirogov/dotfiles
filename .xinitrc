@@ -12,7 +12,7 @@ fi
 
 #Stuff before WM
 
-#xset m 1 0 #set mouse sensitivity
+# xset m 3 0 #set mouse sensitivity
 # xmodmap -e "pointer = 3 2 1" #invert mouse for left hand
 
 #fix repetition of arrow keys (some weird Xorg regression bug)
@@ -21,12 +21,18 @@ fi
 
 #Set cursor
 xsetroot -cursor_name left_ptr
+#Disable trackpoint
+xinput set-prop "TPPS/2 IBM TrackPoint" "Device Enabled" 0
 
+setxkbmap us cz_sk_de -option caps:escape #US layout with Umlauts on AltGr and capslock=esc
+#alternative: -option ctrl:nocaps #caps lock = another ctrl
+#Other layouts:
 #setxkbmap de nodeadkeys      #set default layout
-setxkbmap us cz_sk_de         #US layout with Umlauts on AltGr
-
-#setxkbmap -option ctrl:nocaps #caps lock = another ctrl
-setxkbmap -option caps:escape #caps lock = another esc
+#setxkbmap de neo -option #set neo keyboard layout
+#set Scroll-lock key to switch QWERTZ (default) and NEO
+#setxkbmap -layout de,de -variant nodeadkeys,neo -option -option grp:sclk_toggle -option grp_led:scroll
+#set Scroll-lock key to switch NEO (default) and QUERTZ
+#setxkbmap -layout de,de -variant neo,nodeadkeys -option -option grp:sclk_toggle -option grp_led:scroll
 
 screens -d  #use my custom screen toggle script to set dualscreen
 
@@ -61,10 +67,8 @@ case "$1" in
 	  exec openbox-session ;;
   xmonad)
     exec dbus-launch xmonad ;;
-  i3)
-    exec dbus-launch i3 ;;
   *)  #default
-    exec xmonad ;;
+    exec dbus-launch xmonad ;;
 esac
 
 #Run parallel xservers with: startx [parameter] -- :[N]

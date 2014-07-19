@@ -47,6 +47,7 @@ URL_s = firefox 'https://startpage.com/do/search?q=%s'
 URL_duckg = firefox 'https://duckduckgo.com/?q=%s'
 URL_wikie = firefox 'http://en.wikipedia.org/w/index.php?title=Special%3ASearch&search=%s' 
 URL_wikid = firefox 'http://de.wikipedia.org/w/index.php?title=Spezial%3ASuche&search=%s' 
+URL_x = sh -c 'DISPLAY=:7 %s'
 
 
 # extension handlers
