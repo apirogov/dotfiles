@@ -10,12 +10,12 @@ Plugin 'kshenoy/vim-signature'
 Plugin 'vim-scripts/IndexedSearch'
 " Creates directories automatically
 Plugin 'dockyard/vim-easydir'
-" tmux/vim interop: C-hjkl to move between splits and also tmux panes
-Plugin 'christoomey/vim-tmux-navigator'
 " C-a/C-x for dates
 Plugin 'tpope/vim-speeddating'
 " Show detailed info about characters with ga
 Plugin 'tpope/vim-characterize'
+" repeat with . hook for plugins
+Plugin 'tpope/vim-repeat'
 
 " Useful text objects and movement operators
 " (New a*/i* mappings, indent=i/I, function=f
@@ -33,12 +33,11 @@ Plugin 'wellle/targets.vim'
 
 " Exchange places with cx<movement> cxx=line, X=in visual mode, cxc=clear
 Plugin 'tommcdo/vim-exchange'
-" repeat with . hook for plugins
-Plugin 'tpope/vim-repeat'
+
 " Manage surroundings with [dcy]s<motion><surrounding>
 Plugin 'tpope/vim-surround'
 " Add surrounding #{ ... } (ruby string var. interpolation)
-let g:surround_35 = "#{\r}" " #
+let g:surround_{char2nr('#')}= "#{\r}"
 " ysiwc cmd -> \cmd{bla} for latex
 let g:surround_{char2nr('c')} = "\\\1command\1{\r}"
 " Easier change inside surroundings with ,ci/,cas
@@ -46,8 +45,6 @@ Plugin 'briandoll/change-inside-surroundings.vim'
 
 " Tabularize verb (gl/L textobj align char or /regex)
 Plugin 'tommcdo/vim-lion'
-" Emacs-like scratch buffer with :Scratch
-Plugin 'vim-scripts/scratch.vim'
 " Ag (the silver searcher) search (awesome fast code grep with :Ag)
 Plugin 'rking/ag.vim'
 
@@ -58,6 +55,7 @@ Plugin 'tpope/vim-unimpaired'
 " Undo tree visualization with :UndotreeToggle
 Plugin 'mbbill/undotree'
 map <leader>u :UndotreeToggle<CR>
+
 " Status line on steroids
 " Plugin 'bling/vim-airline'
 " let g:airline_theme='powerlineish'
@@ -65,12 +63,6 @@ let g:airline_left_sep=''
 let g:airline_right_sep=''
 let g:airline_section_z='%4l,%3c' " Only line,col
 let g:airline#extensions#tabline#enabled = 1
-" Smooth scrolling with C-D,C-U,C-B,C-F
-" Plugin 'terryma/vim-smooth-scroll'
-" noremap <silent> <c-u> :call smooth_scroll#up(&scroll, 10, 2)<CR>
-" noremap <silent> <c-d> :call smooth_scroll#down(&scroll, 10, 2)<CR>
-" noremap <silent> <c-b> :call smooth_scroll#up(&scroll*2, 20, 4)<CR>
-" noremap <silent> <c-f> :call smooth_scroll#down(&scroll*2, 20, 4)<CR>
 
 " Open files, mru and buffers with fuzzy search with C-p
 Plugin 'Shougo/unite.vim'
@@ -121,9 +113,16 @@ let g:syntastic_enable_signs=1    "mark syntax errors with :signs
 let g:syntastic_auto_jump=0       "automatically jump to the error when saving the file
 let g:syntastic_auto_loc_list=1   "show the error list automatically
 let g:syntastic_quiet_messages = {'level': 'warnings'} " No warnings
-let g:syntastic_haskell_checkers = ['ghc-mod','hlint']
 
 " slime-like repl interaction for tmux
 Plugin 'epeli/slimux'
 map <leader>s :SlimuxREPLSendLine<CR>
 vmap <leader>s :SlimuxREPLSendSelection<CR>
+
+" Tmux and splits, seamless
+Plugin 'christoomey/vim-tmux-navigator'
+let g:tmux_navigator_no_mappings = 1
+nnoremap <silent> <M-Left> :TmuxNavigateLeft<cr>
+nnoremap <silent> <M-Down> :TmuxNavigateDown<cr>
+nnoremap <silent> <M-Up> :TmuxNavigateUp<cr>
+nnoremap <silent> <M-Right> :TmuxNavigateRight<cr>

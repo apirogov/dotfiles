@@ -2,23 +2,26 @@
 -- Copyright © 2014 Anton Pirogov
 -- requires trayer + dzen2 + conky + acpi + xmonad-contrib
 ---------------------------------------------------------------
-
 import System.IO (hPutStrLn)
 import XMonad hiding (Tall)
 import qualified XMonad.StackSet as W
 
--- actions
 import XMonad.Actions.PerWorkspaceKeys
-import XMonad.Actions.GridSelect
 import XMonad.Actions.UpdatePointer
+import XMonad.Actions.CycleWS
+import XMonad.Actions.Navigation2D
 
--- hooks
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.ManageDocks
 import XMonad.Hooks.SetWMName
 import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.UrgencyHook
 import XMonad.Hooks.WallpaperSetter
+
+import XMonad.Util.Run (spawnPipe)
+import XMonad.Util.EZConfig (additionalKeys)
+import XMonad.Util.WorkspaceCompare (getSortByXineramaRule)
+import XMonad.Util.NamedScratchpad
 
 -- base layouts
 import XMonad.Layout.HintedTile
@@ -28,22 +31,16 @@ import XMonad.Layout.Spiral
 
 -- layout modifiers
 import XMonad.Layout.PerWorkspace
-import XMonad.Layout.Named
+import XMonad.Layout.Renamed
 import XMonad.Layout.Reflect
 import XMonad.Layout.NoBorders
+import XMonad.Layout.TrackFloating
 
 -- layout combinators
 import XMonad.Layout.IM
 import XMonad.Layout.ComboP
 
--- other stuff
-import XMonad.Util.Run (spawnPipe)
-import XMonad.Util.EZConfig (additionalKeys)
-import XMonad.Util.WorkspaceCompare (getSortByXineramaRule)
-import XMonad.Util.Scratchpad
-
 ---------------------------------------------------------------
-
 -- The preferred terminal program, which is used in a binding below and by
 -- certain contrib modules.
 myTerminal      = "lxterminal"
@@ -69,23 +66,22 @@ myWorkspaces    = ["1:main","2:web","3:dev","4:docs","5:media","6:misc"]
 -- If you change layout bindings be sure to use 'mod-shift-space' after
 -- restarting (with 'mod-q') to reset your layout state.
 
-myLayout = avoidStruts $ smartBorders
-           (   (named "Def" $ defaultPerWorkspace)
-           ||| (named "Spi" $ mySpiral)
-           ||| (named "Tal" $ hintedTile Tall)
-           ||| (named "Wid" $ hintedTile Wide)
-           ||| (named "Grd" $ Grid)
-           ||| (named "Tab" $ tabbedLayout)
-           ||| (named "Ful" $ Full)
+myLayout = trackFloating $ avoidStruts $ smartBorders
+           (   (renamed [Replace "Def"] $ defaultPerWorkspace)
+           ||| (renamed [Replace "Spi"] $ mySpiral)
+           ||| (renamed [Replace "Tal"] $ hintedTile Tall)
+           ||| (renamed [Replace "Wid"] $ hintedTile Wide)
+           ||| (renamed [Replace "Grd"] $ Grid)
+           ||| (renamed [Replace "Tab"] $ tabbedLayout)
+           ||| (renamed [Replace "Ful"] $ Full)
            )
   where
      mySpiral = spiral 0.618
 
-     defaultPerWorkspace = named "Def"
-                         $ onWorkspace "1:main"  (imLayout mySpiral)
+     defaultPerWorkspace = onWorkspace "1:main"  (imLayout mySpiral)
                          $ onWorkspace "2:web"   tabbedLayout
-                         $ onWorkspace "3:dev"   tabbedLayout
-                         $ onWorkspace "4:docs"  mySpiral
+                         $ onWorkspace "3:dev"   (hintedTile Tall)
+                         $ onWorkspace "4:docs"  Grid
                          $ onWorkspace "5:media" (noBorders Full)
                          $ onWorkspace "6:misc"  Grid
                          $ hintedTile Tall       -- for all the others
@@ -110,11 +106,17 @@ myLayout = avoidStruts $ smartBorders
 
      -- combined workspace layout for usage with instant messenger
      -- (keeping the Pidgin buddy list always on the right and reserving some space for the conversation window)
-     imLayout n = nameTail $ nameTail $ nameTail
-                  $ reflectHoriz $ withIM (1/8) (ClassName "Pidgin" `And` Role "buddy_list"
+     imLayout n = reflectHoriz $ withIM (1/8) (ClassName "Pidgin" `And` Role "buddy_list"
                   `Or` ClassName "Gajim" `And` Role "roster"
                   `Or` ClassName "Skype" `And` (Not $ (Role "ConversationsWindow" `Or` Role "CallWindow")))
                   $ withIM (2/5) (ClassName "Pidgin" `And` Role "conversation" `Or`ClassName "Skype" `And` Role "ConversationsWindow") n
+
+scratchpads = [
+  NS "scratchpad" "urxvt -name scratchpad +sb -e bash -c 'tmux attach -t scratch || tmux new -s scratch'"
+     (resource =? "scratchpad") (customFloating $ (W.RationalRect 0 0 1.0 0.5)),
+  NS "neoview" "feh --title neoview ~/.xmonad/neo-druckvorlage.png"
+     (title =? "neoview") (customFloating $ (W.RationalRect 0 0 1.0 0.33))
+  ]
 
 ------------------------------------------------------------------------
 -- Execute arbitrary actions and WindowSet manipulations when managing
@@ -127,9 +129,8 @@ myLayout = avoidStruts $ smartBorders
 -- others: e.g. stringProperty "WM_WINDOW_ROLE" to access it.
 myManageHook = composeAll [
       className =? "Vlc"            --> doFloat
-    , className =? "Pidgin"         --> doShift "1:msg"
-    , className =? "Gajim"          --> doShift "1:msg"
-    , className =? "Skype"          --> doShift "1:msg"
+    , className =? "Pidgin"         --> doShift "1:main"
+    , className =? "Skype"          --> doShift "1:main"
     , className =? "Firefox"        --> doShift "2:web"
     , className =? "Dwb"            --> doShift "2:web"
     , className =? "Thunderbird"    --> doShift "2:web"
@@ -140,16 +141,13 @@ myManageHook = composeAll [
     , className =? "Dolphin-emu"    --> doShift "5:media"
     , className =? "Gimp"           --> doShift "6:misc"
     ]
-    <+> scratchpadManageHook (W.RationalRect 0.0 0.0 1.0 0.5)
-    <+> manageDocks
+    <+> namedScratchpadManageHook scratchpads <+> manageDocks
 
 -- Whether focus follows the mouse pointer.
 myFocusFollowsMouse = True
 
 -- Perform an arbitrary action each time xmonad starts or is restarted with mod-q.
-myStartupHook = do
-    spawn myTrayerCommand
-    return ()
+myStartupHook = spawn myTrayerCommand
 
 -- the handle event hook to be used with xmonad
 myHandleEventHook = ewmhDesktopsEventHook <+> fullscreenEventHook <+> docksEventHook
@@ -159,9 +157,9 @@ myHandleEventHook = ewmhDesktopsEventHook <+> fullscreenEventHook <+> docksEvent
 myTrayerCommand = "trayer --monitor primary --edge top --align right --SetDockType true --expand true --transparent true --tint 0x000000 --alpha 0 --height 16 --widthtype pixel --width 100"
 
 -- command line calls to my dzen2 instances:
--- when using DZen2, use version with Xinerama, XFT and XPM (Option 7 in config.mk)
+-- use DZen2 version with Xinerama, XFT and XPM (Option 7 in config.mk)
 myDZenXMBar = "dzen2 -e '' -xs 1 -h 16 -w 500 -fn 'Inconsolata:size=10' -ta l"
-myDZenSTBar = "conky | dzen2 -e '' -fn 'Inconsolata:size=10' -xs 1 -ta r -x 500 -h 16 -w 1000"
+myDZenSTBar = "conky -c ~/.xmonad/conkyrc | dzen2 -e '' -fn 'Inconsolata:size=10' -xs 1 -ta r -x 500 -h 16 -w 1000"
 
 -- log hook for usage with dzen2
 myDzenLogHook h = dynamicLogWithPP $ defaultPP {
@@ -184,7 +182,7 @@ myDzenLogHook h = dynamicLogWithPP $ defaultPP {
                                   "Ful" -> "#b00000"
                                   _     -> "#b0b0b0"
                                 ) "" x)
-                  , ppSort    = fmap (.scratchpadFilterOutWorkspace) $ getSortByXineramaRule
+                  , ppSort    = fmap (.namedScratchpadFilterOutWorkspace) getSortByXineramaRule
                   }
 
 ---------------------------------------------------------------
@@ -212,6 +210,18 @@ defaults = defaultConfig {
         handleEventHook    = myHandleEventHook
     }
 
+-- If Layout has the description string s, execute f, else g
+onLayout :: String -> X () -> X () -> X ()
+onLayout s f g = do
+  XState { windowset = wset} <- get
+  let ws = head $ filter (\(W.Workspace i _ _) -> i==W.currentTag wset) $ W.workspaces wset
+  if (description . W.layout) ws == s then f else g
+
+-- Hack to make WindowNavigation2D work with my tabbed layouts
+onTabbed f g = bindOn [ ("2:web", onDefTab),("", onTab) ]
+  where onDefTab = onLayout "Def" f onTab
+        onTab    = onLayout "Tab" f g
+
 ------------------------------------------------------------------------
 -- Now run xmonad with all the defaults we set up.
 --
@@ -220,7 +230,10 @@ main = do
   rightBar <- spawnPipe myDZenSTBar
   bar <- spawnPipe myDZenXMBar
 
-  xmonad $ withUrgencyHook NoUrgencyHook $ ewmh $ defaults {
+  xmonad $ withNavigation2DConfig defaultNavigation2DConfig {
+             layoutNavigation   = [("Full", centerNavigation)]
+           , unmappedWindowRect = [("Full", singleWindowRect)]
+         } $ withUrgencyHook NoUrgencyHook $ ewmh $ defaults {
     logHook = do
                 setWMName "LG3D"
                 ewmhDesktopsLogHook
@@ -235,37 +248,57 @@ main = do
       ((myModMask, xK_q), spawn "killall trayer conky dzen2; xmonad --recompile && xmonad --restart")
     -- Screenshot
     , ((0, xK_Print), spawn "scrot -q 95 %Y-%m-%d_%H%M%S.jpg")
-    -- Home key
-    -- , ((0, 0x1008ff18), spawn "echo not set")
-    -- Audio keys
+    -- change keyboard layout
+    , ((0, xK_Scroll_Lock), spawn "setxkbmap -v | grep 'us('; if [[ \"$?\" == '0' ]]; then setxkbmap de neo -option; else setxkbmap us cz_sk_de -option -option caps:escape; fi")
+
+    -- Easy navigation, binding with Neo2 layer 4 arrows
+    , ((controlMask .|. mod3Mask, xK_e), onTabbed (windows W.focusDown) (windowGo R True))
+    , ((controlMask .|. mod3Mask, xK_i), onTabbed (windows W.focusUp) (windowGo L True))
+    , ((controlMask .|. mod3Mask, xK_l), windowGo U True)
+    , ((controlMask .|. mod3Mask, xK_a), windowGo D True)
+    , ((myModMask .|. mod3Mask,  xK_e), onTabbed (windows W.swapDown) (windowSwap R True))
+    , ((myModMask .|. mod3Mask,  xK_i), onTabbed (windows W.swapUp) (windowSwap L True))
+    , ((myModMask .|. mod3Mask,  xK_l), windowSwap U True)
+    , ((myModMask .|. mod3Mask,  xK_a), windowSwap D True)
+    -- CycleWS
+    , ((myModMask,               xK_z), toggleWS)
+    , ((myModMask,               xK_w), prevScreen)
+    , ((myModMask,               xK_e), nextScreen)
+    , ((myModMask .|. shiftMask, xK_w), shiftPrevScreen)
+    , ((myModMask .|. shiftMask, xK_e), shiftNextScreen)
+    -- toggle dock spacing
+    , ((myModMask, xK_b), sendMessage ToggleStruts)
+    -- scratchpad
+    , ((myModMask, xK_BackSpace), namedScratchpadAction scratchpads "scratchpad")
+    , ((myModMask, xK_Delete), windows W.focusDown <+> namedScratchpadAction scratchpads "neoview" <+> windows W.focusUp)
+
+    -- Fn Media keys which do not work automatically
+    -- , ((0, 0x1008ff18), spawn "echo not set")            -- Home key
+    , ((0, 0x1008ff41), spawn "synclient TouchpadOff=$(synclient -l | grep -c 'TouchpadOff.*=.*0')") -- black launch key Thinkvantage
+    , ((0, 0x1008ff2d), spawn "xscreensaver-command -lock") -- lock key on thinkpad
+    , ((0, 0xff25),     spawn "xscreensaver-command -lock") -- Fn-Esc on truly
+    , ((0, 0x1008ff2f), spawn "sudo systemctl suspend")     -- suspend media key
+    , ((0, 0x1008ff8f), spawn "skype")                      -- key with headphones and camera
+    , ((0, 0x1008ff59), spawn "screens")                    -- key with projector
+
+    -- Volume keys
     , ((0, 0x1008ff12), spawn "amixer set Master toggle")  -- speaker mute
     , ((0, 0x1008ff11), spawn "amixer set Master 4%-")     -- volume up + down
     , ((0, 0x1008ff13), spawn "amixer set Master 4%+")
     , ((0, 0x1008ffb2), spawn "amixer set Capture toggle") -- mic mute
-    , ((0, 0x1008ff41), spawn "synclient TouchpadOff=$(synclient -l | grep -c 'TouchpadOff.*=.*0')") -- black launch key Thinkvantage
-    -- Fn Media keys which do not work automatically
-    , ((0, 0x1008ff2d), spawn "xscreensaver-command -lock")
-    , ((0, 0x1008ff8f), spawn "skype")
-    , ((0, 0x1008ff59), spawn "screens")
+
+    -- Prev/Next/Pause keys
     , ((0, 0x1008ff14), spawn "mpc toggle")
     , ((0, 0x1008ff17), spawn "mpc next")
     , ((0, 0x1008ff16), spawn "mpc prev")
-    -- MPD specific hotkeys
-    , ((myModMask .|. controlMask, xK_bracketright), spawn "mpc volume +10")
-    , ((myModMask .|. controlMask, xK_slash), spawn "mpc volume -10")
+    -- MPD specific volume
+    , ((myModMask, 0x1008ff11), spawn "mpc volume -10")
+    , ((myModMask, 0x1008ff13), spawn "mpc volume +10")
     -- For media center music control
-    , ((controlMask, 0x1008ff14), spawn $ "mpc -h " ++ mediahost ++ " toggle")
-    , ((controlMask, 0x1008ff17), spawn $ "mpc -h " ++ mediahost ++ " next")
-    , ((controlMask, 0x1008ff16), spawn $ "mpc -h " ++ mediahost ++ " prev")
-    , ((myModMask .|. controlMask, xK_Prior), spawn $ "mpc -h " ++ mediahost ++  " volume +10")
-    , ((myModMask .|. controlMask, xK_Next), spawn $ "mpc -h " ++ mediahost ++  " volume -10")
-    -- per workspace keys
-    , ((myModMask, xK_s), bindOn [
-         ("3:dev", spawn $ myTerminal ++ " -t dev -e 'tmux attach'")
-        ,("",      spawn "notify-send \"not specified\"")
-        ])
-    , ((myModMask, xK_g), goToSelected defaultGSConfig)  -- grid selector
-    , ((myModMask, xK_b), sendMessage ToggleStruts)      -- toggle dock spacing
-    -- scratchpad
-    , ((myModMask .|. controlMask, xK_Return),  scratchpadSpawnActionTerminal "urxvt -name scratchpad +sb -e bash -c 'tmux attach -t scratch || tmux new -s scratch'")
+    , ((controlMask, 0x1008ff14), spawn $ "mpc -h $(cat .mpdpwd)@" ++ mediahost ++ " toggle")
+    , ((controlMask, 0x1008ff17), spawn $ "mpc -h $(cat .mpdpwd)@" ++ mediahost ++ " next")
+    , ((controlMask, 0x1008ff16), spawn $ "mpc -h $(cat .mpdpwd)@" ++ mediahost ++ " prev")
+    , ((controlMask, 0x1008ff11), spawn $ "mpc -h $(cat .mpdpwd)@" ++ mediahost ++  " volume -10")
+    , ((controlMask, 0x1008ff13), spawn $ "mpc -h $(cat .mpdpwd)@" ++ mediahost ++  " volume +10")
     ]
+

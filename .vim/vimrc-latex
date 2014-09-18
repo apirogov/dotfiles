@@ -1,8 +1,9 @@
 " Latex -> :Latexmk/:LatexView
 Plugin 'LaTeX-Box-Team/LaTeX-Box'
 let g:LatexBox_viewer='zathura'
-
-" Compile a pdf from latex
-" au BufRead,BufNewFile *.tex     map <F8>  :w<cr>:cd %:p:h<cr>:!lualatex *.tex<cr><cr>
+" let g:LatexBox_latexmk_options='-lualatex'
 au BufRead,BufNewFile *.tex     map <F8>  :w<cr>:Latexmk<cr>
 au BufRead,BufNewFile *.tex     map <F7>  :w<cr>:LatexView<cr>
+
+" Compile a pdf from latex (without latex box)
+" au BufRead,BufNewFile *.tex     map <F8>  :w<cr>:cd %:p:h<cr>:!lualatex *.tex<cr><cr>

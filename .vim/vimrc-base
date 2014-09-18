@@ -135,22 +135,12 @@ au FileType c,cpp,java setlocal noexpandtab shiftwidth=4 softtabstop=4
 
 " General keybindings
 " -------------------
-" Resize splits
-nnoremap <C-Left> <C-w><
-nnoremap <C-Right> <C-w>>
-nnoremap <C-Up> <C-w>-
-nnoremap <C-Down> <C-w>+
+" Navigate splits
+nnoremap <M-Left> <C-w>h
+nnoremap <M-Right> <C-w>l
+nnoremap <M-Up> <C-w>k
+nnoremap <M-Down> <C-w>j
 
-" Arrow keys (indent and move lines)
-nmap <Left> <<
-nmap <Right> >>
-vmap <Left> <gv
-vmap <Right> >gv
-nmap <Up> ddkkp
-nmap <Down> ddp
-
-" Quick macro execution
-nmap Q @q
 " Toggle conceal mode
 map <leader>cc :if &cole==0<Bar>:set cole=2<Bar>:else<Bar>:set cole=0<Bar>:endif<cr>
 "Wrap on/off

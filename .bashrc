@@ -1,16 +1,15 @@
 #Anton Pirogov's .bashrc
 . /etc/profile
 
-# Add Cabal to $PATH.
-if [ -d ~/.cabal/bin ] ; then
- PATH=~/.cabal/bin:$PATH
-fi
-#Add gem path
-if [ -d ~/.gem/ruby/2.1.0/bin ] ; then
- PATH=~/.gem/ruby/2.1.0/bin:$PATH
-fi
 #Add own binaries
-PATH=~/bin:~/bin/matlab/bin:$PATH
+#Global cabal sandbox only for recent cabal-install and xmonad
+paths=(~/bin ~/bin/matlab/bin ~/.cabal/bin ~/bin/sandboxes/*/bin ~/.gem/ruby/*/bin)
+
+for bindir in ${paths[@]}; do
+    if [ -d $bindir ]; then
+        PATH=$PATH:${bindir}
+    fi
+done
 
 # If not running interactively, don't do anything
 [ -z "$PS1" ] && return
@@ -30,6 +29,7 @@ shopt -s cdspell	# This will correct minor spelling errors in a cd command.
 shopt -s histappend	# Append to history rather than overwrite
 shopt -s checkwinsize	# Check window after each command
 shopt -s dotglob	# files beginning with . to be returned in the results of path-name expansion.
+shopt -s extglob    # allows e.g. negative pattern matching !(*foo)
 
 ## SET OPTIONS
 set -o ignoreeof    # stops ctrl+d from logging me out
@@ -92,7 +92,6 @@ export EDITOR="vim"
 export VISUAL="gvim"
 export PAGER="less"
 export LESS="-iMn -F -X -R"
-export SHELL="bash"
 
 #ALIASES
 #navigation
@@ -179,6 +178,7 @@ alias normalizevolume='find /home/admin/myfiles/music/ -type f -iname "*.mp3" -e
 #and connect to localhost to these ports
 MEDIAUSER=admin       #user for ssh connection
 MEDIAHOST=mediacenter #declared hostname or IP
+MPDPWDFILE=~/.mpdpwd
 MEDIASSHP=2200  #SSH port
 MEDIALOGIN=$MEDIAUSER@$MEDIAHOST
 alias center.ssh="ssh -p $MEDIASSHP $MEDIALOGIN"
@@ -190,20 +190,14 @@ alias center.mpc="ncmpcpp -h $MEDIAHOST"
 alias center.stream="mplayer -nocache http://$MEDIAHOST:8000"
 
 #alias to access best accessible mpd -> mediaserver or fallback localhost
-SMARTMPD='$(if ping -c 1 -w 1 $MEDIAHOST > /dev/null; then echo $MEDIAHOST; else echo localhost; fi)'
+SMARTMPD='$(if ping -c 1 -w 1 $MEDIAHOST > /dev/null; then echo $(cat $MPDPWDFILE)@$MEDIAHOST; else echo localhost; fi)'
 alias music="ncmpcpp -h $SMARTMPD"
 
 #Hardware control
 alias cdo='eject sr0'	#CD Open
 alias cdc='eject -t sr0' 	#CD Close
 alias togglepad='killall syndaemon; synclient TouchpadOff=$(synclient -l | grep -c "TouchpadOff.*=.*0")'
-alias setlayout='setxkbmap us cz_sk_de -option caps:escape' #quick restore if something fucks it up
 #alias resizescreen='xrandr -s 1 && xrandr -s 0' #reset screen resolution to default
-
-#Set keyboard layout for keyboard with given name
-function setxkbmapFor() {
-  setxkbmap -device $(xinput list | grep "$1" | awk '{print$4}' | sed 's/id=//') ${@:2}
-}
 
 #https://superuser.com/questions/611538/is-there-a-way-to-display-a-countdown-or-stopwatch-timer-in-a-terminal
 function countdown(){
@@ -352,6 +346,11 @@ assignProxy(){
 }
 clrProxy(){
   assignProxy "" # This is what 'unset' does.
+}
+
+#Dump transactions to file
+getBankingCSV(){
+  aqbanking-cli request --transactions -a "$1" | aqbanking-cli listtrans > "$2"
 }
 
 #GREETING (Distribution, Kernel Version, Date+Time, Uptime)

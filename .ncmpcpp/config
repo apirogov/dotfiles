@@ -100,7 +100,7 @@ autocenter_mode = "yes"
 #default_tag_editor_pattern = "%n - %t"
 header_visibility = "yes"
 statusbar_visibility = "yes"
-fancy_scrolling = "yes"
+#fancy_scrolling = "yes"
 cyclic_scrolling = "yes"
 follow_now_playing_lyrics = "yes"
 #ncmpc_like_songs_adding = "no" (enabled - add/remove, disabled - always add)
@@ -126,7 +126,7 @@ enable_window_title = "yes"
 ## - 2 - lyricsplugin.com
 ##
 #
-lyrics_database = "2"
+#lyrics_database = "2"
 external_editor = "vim"
 # (set to yes, if your editor is console app)
 use_console_editor = "yes"
