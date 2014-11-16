@@ -27,4 +27,4 @@ if !has("gui_running") " Terminal vim can't take all colorschemes
 endif
 
 map <silent> <F12> :NextColorScheme<cr>
-map <silent> <S-F12> :PrevColorScheme<cr>
+map <silent> <C-F12> :PrevColorScheme<cr>

@@ -92,6 +92,7 @@ export EDITOR="vim"
 export VISUAL="gvim"
 export PAGER="less"
 export LESS="-iMn -F -X -R"
+export TEXMFHOME="~/.texmf"
 
 #ALIASES
 #navigation
@@ -102,24 +103,24 @@ alias ll='ls -lhtA'
 #Package Management - Pacman
 alias ygl='pacman -Qqne'      #List of installed packages
 alias ygf='pacman -Qqme'      #List foreign/AUR packages
-alias ysi='pacman -Si'				#Search Info about packages
-alias yss='yaourt -Ss'				#Search for packages
-alias yip='sudo pacman -U'		#Install local Package
-alias yin='sudo pacman -S --needed'	#Install package from database
-alias yrm='sudo pacman -Ruscn'		#Recursive remove
-alias yup='yaourt -Syu --aur'		#Dist upgrade
+alias ysi='pacman -Si'        #Search Info about packages
+alias yss='yaourt -Ss'        #Search for packages
+alias yip='sudo pacman -U'    #Install local Package
+alias yin='sudo pacman -S --needed' #Install package from database
+alias yrm='sudo pacman -Ruscn'      #Recursive remove
+alias yup='yaourt -Syu --aur'       #Dist upgrade
 
 #file operation/standard tools
 alias ..='cd ..'
 alias q='exit'
-alias df='df -hT'		#-h : Human readable
+alias df='df -hT'       #-h : Human readable
 alias du='du -sh'
 alias duf='du -sk * | sort -n | perl -ne '\''($s,$f)=split(m{\t});for (qw(K M G)) {if($s<1024) {printf("%.1f",$s);print "$_\t$f"; last};$s=$s/1024}'\' #readable + sorted
-alias rm='rm -iv'		#safety - ask before delete/overwrite
+alias rm='rm -iv'       #safety - ask before delete/overwrite
 alias cp='cp -iv'
 alias mv='mv -iv'
-alias mkdir='mkdir -p -v'	#Allow multiple levels at once
-alias sym='ln -s'		#Symlink
+alias mkdir='mkdir -p -v' #Allow multiple levels at once
+alias sym='ln -s'       #Symlink
 alias ps='ps -e -o pid,comm,args,vsize,pcpu' #Tweaked process list
 alias findfile='find . -name'
 alias findtext="grep -ri" #better use ag when installed
@@ -187,7 +188,7 @@ alias center.mount="mkdir ~/media; sshfs -p $MEDIASSHP $MEDIALOGIN:/media/DATA ~
 alias center.umount="fusermount -u ~/media; rmdir ~/media"
 alias center.updatebackup="rsync --delete -avue 'ssh -p $MEDIASSHP' ~/myfiles $MEDIALOGIN:/media/DATA" #mirror local -> remote external
 alias center.mpc="ncmpcpp -h $MEDIAHOST"
-alias center.stream="mplayer -nocache http://$MEDIAHOST:8000"
+alias center.stream="mpv http://$MEDIAHOST:8000"
 
 #alias to access best accessible mpd -> mediaserver or fallback localhost
 SMARTMPD='$(if ping -c 1 -w 1 $MEDIAHOST > /dev/null; then echo $(cat $MPDPWDFILE)@$MEDIAHOST; else echo localhost; fi)'

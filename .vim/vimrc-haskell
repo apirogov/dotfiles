@@ -15,17 +15,16 @@ Plugin 'eagletmt/neco-ghc'
 " type checking and lint (:Hdevtools* commands)
 " original repo from bitc, type info and checking, is mod for hsimport
 Plugin 'dan-t/vim-hdevtools'
-au FileType haskell nnoremap <buffer> <silent> <F1> :HdevtoolsInfo<CR>
-au FileType haskell nnoremap <buffer> <silent> <F2> :HdevtoolsClear<CR>
+au FileType haskell nnoremap <buffer> <silent> <F1> :HdevtoolsType<CR>
+au FileType haskell nnoremap <buffer> <silent> <F2> :HdevtoolsInfo<CR>
+au FileType haskell nnoremap <buffer> <silent> <F3> :HdevtoolsClear<CR>
 
 " Auto import - cabal install hsimport cabal-cargs
 Plugin 'dan-t/vim-hsimport'
-au FileType haskell nmap <silent> <F3> :silent update <bar> HsimportModule<CR>
 au FileType haskell nmap <silent> <F4> :silent update <bar> HsimportSymbol<CR>
 au FileType haskell setlocal omnifunc=necoghc#omnifunc
 
-
-let g:syntastic_haskell_checkers = ['hdevtools','hlint'] " ghc_mod also possible but slower
+let g:syntastic_haskell_checkers = ['ghc_mod','hlint']
 
 " lushtags is not maintained.. hasktags works better
 if executable('hasktags')
@@ -66,3 +65,57 @@ endif
 au BufRead,BufNewFile *.hs      map <F8>  :w<cr>:!rm -rf /tmp/*.o; ghc -fwarn-name-shadowing -hidir=/tmp -odir=/tmp -O -o a.out % && ./a.out<cr>
 " Load into GHCI
 au BufRead,BufNewFile *.hs      map <F7>  :w<cr>:!ghci %<cr>
+
+" sandbox-aware hdevtools
+" -----------------------
+function! s:CabalCargs(args)
+   let l:output = system('cabal-cargs ' . a:args)
+   if v:shell_error != 0
+      let l:lines = split(l:output, '\n')
+      echohl ErrorMsg
+      echomsg 'args: ' . a:args
+      for l:line in l:lines
+         echomsg l:line
+      endfor
+      echohl None
+      return ''
+   endif
+   return l:output
+endfunction
+
+function! s:HdevtoolsOptions()
+    let l:params = '--format=hdevtools --sourcefile=' . shellescape(expand('%'))
+    let l:cargs  = s:CabalCargs(l:params . ' ' . '--ignore=build_depends')
+    let l:deps   = s:CabalCargs(l:params . ' ' . '--allsections --only=build_depends')
+    return l:cargs . ' ' . '-g-hide-all-packages' . ' ' . l:deps
+endfunction
+
+function! s:HsimportSrcDir()
+   let l:output  = s:CabalCargs('--format=pure --only=hs_source_dirs --sourcefile=' . shellescape(expand('%')))
+   let l:srcDirs = split(l:output, ' ')
+   if len(l:srcDirs) == 0
+      return ''
+   endif
+   return l:srcDirs[0]
+endfunction
+
+autocmd Bufenter *.hs :call s:InitHaskellVars()
+
+function! s:InitHaskellVars()
+   if filereadable(expand('%'))
+      let g:syntastic_haskell_hdevtools_args = s:HdevtoolsOptions()
+      let g:hsimport_src_dir  = s:HsimportSrcDir()
+   endif
+endfunction
+
+" ---
+
+function! FindCabalSandboxRoot()
+    return finddir('.cabal-sandbox', './;')
+endfunction
+
+function! FindCabalSandboxRootPackageConf()
+    return glob(FindCabalSandboxRoot().'/*-packages.conf.d')
+endfunction
+
+let g:hdevtools_options = '-g-ilib -g-isrc -g-i. -g-idist/build/autogen -g-Wall -g-package-conf='.FindCabalSandboxRootPackageConf()

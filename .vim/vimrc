@@ -44,8 +44,8 @@ source ~/.vim/vimrc-haskell
 " Lots of colorschemes
 source ~/.vim/vimrc-colors
 
-colorscheme hybrid
-hi Normal ctermbg=NONE
+colorscheme hybrid-light
+" hi Normal ctermbg=NONE "only for dark themes
 
 " Vundle finalize {{{
 " ---------------

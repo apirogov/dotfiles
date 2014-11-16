@@ -23,9 +23,9 @@ if v:version > 703 && has('lua')
   inoremap <expr><TAB>  pumvisible() ? "\<C-n>" : "\<TAB>"
   " <C-h>, <BS>: close popup and delete backword char.
   inoremap <expr><C-h> neocomplete#smart_close_popup()."\<C-h>"
- " inoremap <expr><BS>  neocomplete#smart_close_popup()."\<C-h>"
-  inoremap <expr><C-y> neocomplete#close_popup()
-  inoremap <expr><C-e> neocomplete#cancel_popup()
+  "inoremap <expr><BS> neocomplete#smart_close_popup()."\<C-h>" "breaks delimitMate
+  inoremap <expr><C-y>  neocomplete#close_popup()
+  inoremap <expr><C-e>  neocomplete#cancel_popup()
   " }}}
 else
   Plugin 'Shougo/neocomplcache'
@@ -64,10 +64,6 @@ xmap <C-k>     <Plug>(neosnippet_expand_target)
 " endif
 " }}}
 
-" Code browsing
-" -------------
-" Automatic ctags file updates for tagbar with :UpdateTags
-" Plugin 'xolox/vim-easytags'
 " Code browser
 Plugin 'majutsushi/tagbar'
 map <silent><F11> :TagbarToggle<cr>
@@ -88,4 +84,4 @@ let g:rooter_manual_only = 1
 Plugin 'tpope/vim-obsession'
 
 " Async compiling
-Plugin 'tpope/vim-dispatch'
+" Plugin 'tpope/vim-dispatch'

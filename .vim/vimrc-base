@@ -45,6 +45,7 @@ set wildignore=*.dll,*.o,*.obj,*.exe,*.so,*.swp,*.zip,*.jpg,*.png,*.gif,tmp/**,l
 
 " Indentation & tabs
 set smarttab                   " Tab in front of line indents
+set autoindent                 " enable intelligent guessing of indentation
 set smartindent                " enable intelligent guessing of indentation
 set tabstop=4                  " A real tab in a file is shown as n spaces
 set expandtab                  " replace tab press with correct number of spaces
@@ -186,8 +187,8 @@ au FileType c,cpp,java,php,ruby,python,tex,haskell,clojure au BufWritePre <buffe
 au FileType * exec("setlocal dictionary+=".$HOME."/.vim/dict/".expand('<amatch>'))
 set complete+=k
 
-" Open url under cursor in dwb
-map <leader>mo "1yiW:!dwb -x tabopen_url "<c-r>1"<cr><cr>
+" Open url under cursor
+map <leader>mo "1yiW:!firefox -new-tab "<c-r>1"<cr><cr>
 " Insert bookmark for current dwb tab
 map <leader>ma :read !dwbremote -a get uri<cr>:read !dwbremote -a get title<cr>kJ
 " hide URL, highlight comments
@@ -217,3 +218,4 @@ au BufNewFile,BufRead bookmarks syntax match Comment /^#.\+/
 "Tip: <range>rubydo $_ = stuff <- changes lines with ruby code
 "Tip: Open file at specific line or search position with: vim +line file or vim +/search file
 "     same works with :e within
+"Tip: !ipcolumn -t to align paragraph without additional plugins

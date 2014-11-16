@@ -1,6 +1,6 @@
 #Homework
 snippet hw
-	\documentclass[maincolor=black,sheet=${1:NO},${2:prefix}]{exercise}
+	\documentclass[sheet=${1:NO},${2:prefix}]{exercise}
 	\setgroup{Gruppe ${3:GROUPNO}}
 	\settitle[${4:CLASS} Übungsblatt \thesheet]{}
 	\addstudent[616847]{Anton Pirogov}
@@ -15,3 +15,5 @@ snippet frame
 	\begin{frame}{${1:TITLE}}
 		${0}
 	\end{frame}
+snippet frac
+    \frac{${1}}{${2}}${0}

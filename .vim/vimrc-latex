@@ -1,7 +1,8 @@
 " Latex -> :Latexmk/:LatexView
 Plugin 'LaTeX-Box-Team/LaTeX-Box'
+let g:LatexBox_custom_indent=0 " conflicts with neocomplete
 let g:LatexBox_viewer='zathura'
-" let g:LatexBox_latexmk_options='-lualatex'
+let g:LatexBox_latexmk_options='-lualatex -latexoption="--shell-escape"'
 au BufRead,BufNewFile *.tex     map <F8>  :w<cr>:Latexmk<cr>
 au BufRead,BufNewFile *.tex     map <F7>  :w<cr>:LatexView<cr>
 

@@ -1,6 +1,6 @@
--- xmonad config used by Anton Pirogov
+-- xmonad config
 -- Copyright © 2014 Anton Pirogov
--- requires trayer + dzen2 + conky + acpi + xmonad-contrib
+-- requires trayer + dzen2 + conky + xmonad-contrib
 ---------------------------------------------------------------
 import System.IO (hPutStrLn)
 import XMonad hiding (Tall)
@@ -17,6 +17,7 @@ import XMonad.Hooks.SetWMName
 import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.UrgencyHook
 import XMonad.Hooks.WallpaperSetter
+import Data.Monoid ((<>))
 
 import XMonad.Util.Run (spawnPipe)
 import XMonad.Util.EZConfig (additionalKeys)
@@ -132,7 +133,6 @@ myManageHook = composeAll [
     , className =? "Pidgin"         --> doShift "1:main"
     , className =? "Skype"          --> doShift "1:main"
     , className =? "Firefox"        --> doShift "2:web"
-    , className =? "Dwb"            --> doShift "2:web"
     , className =? "Thunderbird"    --> doShift "2:web"
     , className =? "Eclipse"        --> doShift "3:dev"
     , className =? "net-minecraft-LauncherFrame" --> doShift "4:media"
@@ -152,14 +152,12 @@ myStartupHook = spawn myTrayerCommand
 -- the handle event hook to be used with xmonad
 myHandleEventHook = ewmhDesktopsEventHook <+> fullscreenEventHook <+> docksEventHook
 
--- startup for trayer
---myTrayerCommand = "trayer --monitor primary --edge top --align right --SetDockType true --expand true --transparent true --tint 0x000000 --alpha 0 --height 16 --widthtype request"
-myTrayerCommand = "trayer --monitor primary --edge top --align right --SetDockType true --expand true --transparent true --tint 0x000000 --alpha 0 --height 16 --widthtype pixel --width 100"
-
 -- command line calls to my dzen2 instances:
 -- use DZen2 version with Xinerama, XFT and XPM (Option 7 in config.mk)
-myDZenXMBar = "dzen2 -e '' -xs 1 -h 16 -w 500 -fn 'Inconsolata:size=10' -ta l"
+myDZenXMBar = "dzen2 -e '' -fn 'Inconsolata:size=10' -xs 1 -ta l -h 16 -w 500"
 myDZenSTBar = "conky -c ~/.xmonad/conkyrc | dzen2 -e '' -fn 'Inconsolata:size=10' -xs 1 -ta r -x 500 -h 16 -w 1000"
+-- startup for trayer
+myTrayerCommand = "trayer --monitor primary --edge top --align right --SetDockType true --expand true --transparent true --tint 0x000000 --alpha 0 --height 16 --widthtype pixel --width 100"
 
 -- log hook for usage with dzen2
 myDzenLogHook h = dynamicLogWithPP $ defaultPP {
@@ -240,8 +238,8 @@ main = do
                 myDzenLogHook bar
                 updatePointer (Relative 0.5 0.5)
                 wallpaperSetter defWallpaperConf {
-                    wallpapers=defWPNames myWorkspaces
-                                          `modWPList` [("1:main",WallpaperDir "random")] }
+                    wallpapers = defWPNames myWorkspaces
+                              <> WallpaperList [("1:main",WallpaperDir "random")] }
 
   } `additionalKeys` [  -- Key bindings --
     -- override default xmonad restart binding (to kill dzen2)
@@ -275,9 +273,11 @@ main = do
     -- Fn Media keys which do not work automatically
     -- , ((0, 0x1008ff18), spawn "echo not set")            -- Home key
     , ((0, 0x1008ff41), spawn "synclient TouchpadOff=$(synclient -l | grep -c 'TouchpadOff.*=.*0')") -- black launch key Thinkvantage
+    , ((0, 0x1008ff02), spawn "xbacklight -inc 10")
+    , ((0, 0x1008ff03), spawn "xbacklight -dec 10")
     , ((0, 0x1008ff2d), spawn "xscreensaver-command -lock") -- lock key on thinkpad
     , ((0, 0xff25),     spawn "xscreensaver-command -lock") -- Fn-Esc on truly
-    , ((0, 0x1008ff2f), spawn "sudo systemctl suspend")     -- suspend media key
+    -- , ((0, 0x1008ff2f), spawn "sudo systemctl suspend")     -- suspend media key (systemd takes care already)
     , ((0, 0x1008ff8f), spawn "skype")                      -- key with headphones and camera
     , ((0, 0x1008ff59), spawn "screens")                    -- key with projector
 

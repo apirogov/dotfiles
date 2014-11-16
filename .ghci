@@ -1,2 +1,5 @@
-:set prompt "\ESC[1;37m%s\n\ESC[1;34mλ> \ESC[m"
-:m + Control.Applicative Control.Monad
+import Control.Applicative
+import Control.Monad hiding (forM,forM_,mapM,mapM_,msum,sequence,sequence_)
+-- :set -XOverloadedStrings
+-- :set prompt "\ESC[1;37m%s\n\ESC[1;34mλ> \ESC[m"
+:set prompt "λ> "
