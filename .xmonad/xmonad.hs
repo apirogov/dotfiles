@@ -29,6 +29,7 @@ import XMonad.Layout.HintedTile
 import XMonad.Layout.Tabbed
 import XMonad.Layout.Grid
 import XMonad.Layout.Spiral
+import XMonad.Layout.TwoPane
 
 -- layout modifiers
 import XMonad.Layout.PerWorkspace
@@ -75,6 +76,7 @@ myLayout = trackFloating $ avoidStruts $ smartBorders
            ||| (renamed [Replace "Grd"] $ Grid)
            ||| (renamed [Replace "Tab"] $ tabbedLayout)
            ||| (renamed [Replace "Ful"] $ Full)
+           ||| (renamed [Replace "Two"] $ TwoPane (2/100) (1/2))
            )
   where
      mySpiral = spiral 0.618
@@ -171,13 +173,13 @@ myDzenLogHook h = dynamicLogWithPP $ defaultPP {
                   , ppSep     = " "
                   , ppTitle   = dzenColor "#ffffff" ""
                   , ppLayout  = (\x -> dzenColor (case x of
-                                  "Def" -> "#800080"
-                                  "Spi" -> "#2020b0"
-                                  "Tal" -> "#008080"
-                                  "Wid" -> "#00b000"
-                                  "Grd" -> "#b0b000"
-                                  "Tab" -> "#b08000"
-                                  "Ful" -> "#b00000"
+                                  "Def" -> "#b000b0"
+                                  "Spi" -> "#4040ff"
+                                  "Tal" -> "#00d0d0"
+                                  "Wid" -> "#00f000"
+                                  "Grd" -> "#f0f000"
+                                  "Tab" -> "#ffa000"
+                                  "Ful" -> "#ff0000"
                                   _     -> "#b0b0b0"
                                 ) "" x)
                   , ppSort    = fmap (.namedScratchpadFilterOutWorkspace) getSortByXineramaRule
@@ -246,7 +248,7 @@ main = do
       ((myModMask, xK_q), spawn "killall trayer conky dzen2; xmonad --recompile && xmonad --restart")
     -- Screenshot
     , ((0, xK_Print), spawn "scrot -q 95 %Y-%m-%d_%H%M%S.jpg")
-    -- change keyboard layout
+    -- change keyboard layout (ScrollLock on L530 = Fn+K)
     , ((0, xK_Scroll_Lock), spawn "setxkbmap -v | grep 'us('; if [[ \"$?\" == '0' ]]; then setxkbmap de neo -option; else setxkbmap us cz_sk_de -option -option caps:escape; fi")
 
     -- Easy navigation, binding with Neo2 layer 4 arrows

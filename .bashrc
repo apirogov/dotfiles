@@ -20,16 +20,15 @@ case "$TERM" in
  xterm*|rxvt*)
   PROMPT_COMMAND='echo -ne "\033]0;${USER}@${HOSTNAME}: ${PWD/$HOME/~}\007";'
   ;;
- *)
-  ;;
 esac
 
 ## SHOPT OPTIONS
-shopt -s cdspell	# This will correct minor spelling errors in a cd command.
-shopt -s histappend	# Append to history rather than overwrite
-shopt -s checkwinsize	# Check window after each command
-shopt -s dotglob	# files beginning with . to be returned in the results of path-name expansion.
+shopt -s cdspell    # This will correct minor spelling errors in a cd command.
+shopt -s histappend # Append to history rather than overwrite
+shopt -s checkwinsize   # Check window after each command
+shopt -s dotglob    # files beginning with . to be returned in the results of path-name expansion.
 shopt -s extglob    # allows e.g. negative pattern matching !(*foo)
+shopt -s autocd     # auto-cd if entering a path
 
 ## SET OPTIONS
 set -o ignoreeof    # stops ctrl+d from logging me out
@@ -40,6 +39,10 @@ set -o ignoreeof    # stops ctrl+d from logging me out
 ## BIND OPTIONS
 bind 'set completion-ignore-case on'
 bind 'set show-all-if-ambiguous on'
+
+#COMPLETION
+complete -cf sudo    #complete stuff after sudo
+complete -f -X '*.@(aux|fdb_latexmk|fls|pdf|out|log|class|o)' vim #don't complete these files for vim
 
 #XTerm Escape Sequences for text color + attributes
 #Change color: \e[Nm
@@ -81,8 +84,8 @@ export LANG="de_DE.UTF-8"
 export LC_ALL="de_DE.UTF-8"
 export TZ="Europe/Berlin"
 
-export HISTCONTROL="ignorespace:erasedups" #No duplicates in history, no cmds preceded by space
-export HISTIGNORE="&:ls:ll:la:pwd:exit:clear"	#Never log these
+export HISTCONTROL="ignorespace:ignoredups:erasedups" #No duplicates in history, no cmds preceded by space
+export HISTIGNORE="&:ls:ll:la:q:pwd:exit:clear"	#Never log these
 export HISTSIZE="9999"	#Lines saved in one session
 export HISTFILESIZE="999999"	#Lines total
 export PROMPT_COMMAND+="history -a; history -n" #share history between terminals
@@ -92,7 +95,7 @@ export EDITOR="vim"
 export VISUAL="gvim"
 export PAGER="less"
 export LESS="-iMn -F -X -R"
-export TEXMFHOME="~/.texmf"
+export TEXMFHOME="~/.texmf"   #custom packages
 
 #ALIASES
 #navigation
@@ -120,7 +123,6 @@ alias rm='rm -iv'       #safety - ask before delete/overwrite
 alias cp='cp -iv'
 alias mv='mv -iv'
 alias mkdir='mkdir -p -v' #Allow multiple levels at once
-alias sym='ln -s'       #Symlink
 alias ps='ps -e -o pid,comm,args,vsize,pcpu' #Tweaked process list
 alias findfile='find . -name'
 alias findtext="grep -ri" #better use ag when installed
@@ -130,14 +132,17 @@ alias showswap='cat /proc/swaps'
 alias listd="systemctl list-unit-files --type=service" #show all daemons run on startup
 
 #SSH key
-alias initsshkeys='eval `keychain --eval --nogui -Q -q id_rsa`'
+alias initsshkeys='eval `keychain --eval --nogui -Q -q id_rsa 2>/dev/null`'
 alias ssh='initsshkeys && ssh'
+alias sshfs='sshfs -o idmap=user'
 
 #Misc. Programs
 alias xp='xprop | grep "WM_WINDOW_ROLE\|WM_CLASS" && echo "WM_CLASS(STRING) = \"NAME\", \"CLASS\"";xwininfo'
 alias tmux='tmux -2'
 alias t='todo.sh'
 alias tcrypt='sudo ~/.tcrypt.sh'
+alias cleantex='find . -regex ".*\(aux\|bbl\|blg\|brf|\idx\|ilg\|ind\|lof\|log\|lol\|lot\|out\|nav\|out\|snm\|tdo\|toc\|fls\|fdb_latexmk\)$" -exec rm -i {} \;'
+alias joinpdf='gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=join.pdf ' #requires ghostscript, convert also works!
 
 #Map my cheap generic gamepad to XBox controller API
 alias fakexbox='xboxdrv --evdev-absmap ABS_RX=X2,ABS_RZ=Y2,ABS_X=X1,ABS_Y=Y1,ABS_HAT0X=dpad_x,ABS_HAT0Y=dpad_y --axismap -Y1=Y1,-Y2=Y2 --evdev-keymap BTN_THUMB2=a,BTN_THUMB=b,BTN_TOP=x,BTN_TRIGGER=y,BTN_BASE4=start,BTN_BASE3=back,BTN_TOP2=lt,BTN_BASE=lb,BTN_PINKIE=rt,BTN_BASE2=rb --deadzone 10% --mimic-xpad --silent --evdev '
@@ -155,14 +160,6 @@ alias speedtest='wget -O /dev/null http://speedtest.wdc01.softlayer.com/download
 #Filesystem
 alias mkisofs='mkisofs -v -r -J -o'	#Usage: mkisofs target.img /src/path
 alias mirror="rsync -auv --delete"
-
-#PDF
-alias joinpdf='gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=join.pdf ' #requires ghostscript, convert also works!
-alias makepdf='pdflatex *.tex && evince *.pdf' #shortie for iterations with latex homeworks
-
-#Uni
-alias pushpoolprint='initsshkeys; ssh sshgate mv ./print/*.pdf ./print/old; scp *.pdf sshgate:./print/ ; echo "Inhalt print:" ; ssh sshgate ls print'
-alias sshfs='sshfs -o idmap=user'
 
 #Music
 alias setmp3chmod='find -name "*.mp3" -print0 | xargs -0 chmod 644'
@@ -215,7 +212,6 @@ function stopwatch(){
     echo -ne "$(date -u --date @$((`date +%s` - $date1)) +%H:%M:%S)\r";
    done
 }
-
 #https://stackoverflow.com/questions/5566310/how-to-recursively-find-and-list-the-latest-modified-files-in-a-directory-with-s
 function find_recently_changed() {
   find $1 -type f -print0 | xargs -0 stat --format '%Y :%y %n' | sort -nr | cut -d: -f2- | head
@@ -228,46 +224,71 @@ function xephyr(){
   DISPLAY=$1 $3 &
   sh -c "trap 'kill $pid; exit' INT; while [ 1 -lt 2 ] ; do sleep 5 ; done"
 }
-
-function vnckill() {
-  vncserver -kill :1
-}
 function vncserve() {
   if [ $# -eq 0 ]; then GEO="1200x730"; else GEO="$1"; fi
   vnckill; vncserver -geometry $GEO -alwaysshared -localhost -SecurityTypes None :1
 }
+function vnckill() { vncserver -kill :1; }
 
 #Homework assignments
 #--------------------
 #Go to ranger bookmark
-cdmark() {
-  if [[ "$1" = "" ]]; then
-    cat ~/.config/ranger/bookmarks
+cdm() { if [[ "$1" != "" ]]; then cd $(grep "^$1" ~/.config/ranger/bookmarks | sed "s/^$1://"); fi; }
+#Same as bash completion - cdm <letter><TAB>
+_cdm() {
+  local cur=${COMP_WORDS[COMP_CWORD]}
+  if [[ "$cur" = "" ]]; then
+    COMPREPLY=($(cat ~/.config/ranger/bookmarks | sed "s/:\/.\+//"))
   else
-    cd $(grep "^$1" ~/.config/ranger/bookmarks | sed "s/^$1://")
+    local p=$(grep "^$cur" ~/.config/ranger/bookmarks | sed "s/^$cur://")
+    if [[ "$p" = "" ]]; then
+      COMPREPLY=()
+    else
+      COMPREPLY=("; cd $p/")
+    fi
   fi
 }
+complete -o nospace -F _cdm cdm
+
+# Up wraps cd, autocompletion removes one dir for each <TAB>-press, cycling
+# To move forward again, append a / and <TAB>
+function up() { cd $1; }
+function _up() {
+  local cur=${COMP_WORDS[COMP_CWORD]}
+  local lastchr=${cur: -1}
+  local esc='s/ /\\ /g'
+  if [[ "$cur" = "/" ]]; then
+    COMPREPLY=("$(pwd | sed "$esc")")
+  elif [[ "$cur" = "" ]]; then
+    COMPREPLY=("$(cd ..; echo $(pwd | sed "$esc"))")
+  elif [[ "$lastchr" = "/" ]]; then
+    COMPREPLY=("; cd $(echo $cur)")
+  else
+    local unescur=$(echo $cur | sed 's/\\ / /g')
+    if [[ -d "$unescur" ]]; then
+      COMPREPLY=("$(cd "$unescur/.."; echo $(pwd | sed "$esc"))")
+    else
+      COMPREPLY=()
+    fi
+  fi
+}
+complete -o nospace -F _up up
 
 #Copy tex file into subdir
-#requires to have a whatever_base.tex file with placeholder NUM
+#requires to have a whatever_base.tex file with placeholder NUM in current directory
 hwtex() {
-  if [ $# -eq 0 ]  #no arguments
-  then
-    echo "No number given!"
-    return 1
-  fi
-
+  if [ $# -eq 0 ]; then echo "No number given!"; return 1; fi
   num=$(printf "%02d" $1)
+  exists=0
+  if [ -d "L$num" ]; then echo "Opening existing..."; exists=1; fi
   match=$(find ./ -name "*_base.tex"|sort|tail -n 1)
-  if [ -z "$match" ] #no file found
-  then
-    echo "No base file (ending with _base.tex) found!"
-    return 1
+  if [ -z "$match" ]; then echo "No base file (ending with _base.tex) found!"; return 1; fi
+  file=$(sed "s/base/$num/" <<< $match)
+  if [ $exists -eq 0 ]; then
+    mkdir L$num; cat $match | sed "s/NUM/$num/" > L$num/$file
   fi
-
-  mkdir L$num
-  cat $match | sed "s/NUM/$num/" > L$num/$(sed "s/base/$num/" <<< $match)
   cd L$num
+  vim $file +Latexmk +LatexView
 }
 
 #Recursive javac in root source directory (poor man's build system)
@@ -290,20 +311,36 @@ repdf() {
 }
 #--------------------
 
+#Ruby calculator
+calc(){ ruby -e "require 'mathn'; puts $1";}
+#String escape method into hex, usage: escape STRING ESCPREFIX(like % or 0x)
+escape(){ echo "puts '$2'+'$1'.split(//).map{|x| x.slice(0).ord.to_s(16)}.join('$2')"|ruby; }
 #say over google tts
-say() { mplayer "http://translate.google.com/translate_tts?ie=UTF-8&tl=en&q=$1";}
-
-#Resolve Uni Lübeck pc pool hostname to IP using ssh-gate
-poolpc() { ssh sshgate ping -c 1 $1 | head -n 1 | awk '{print$3}' | sed 's/[()]//g';}
+say() { mpv "http://translate.google.com/translate_tts?ie=UTF-8&tl=de&q=$(escape "$1" %)";}
+# Cool History Summerizer - most used commands
+top10cmds(){ history|awk '{a[$2]++}END{for(i in a){printf"%5d\t%s\n",a[i],i}}'|sort -nr|head;}
+#German-English translation... via dict.cc, requires curl, grep and ruby
+translate(){ curl --silent http://www.dict.cc/?s=$1|grep c[12]Arr | ruby -e "arr=[gets.split('\",\"'),gets.split('\",\"')]; arr[0].shift; arr[1].shift; arr.each{|x| x[-1]=x[-1][0..-5] }; 0.upto(arr[0].length-1){|n| puts arr[0][n]+' <-> '+arr[1][n] }"; }
 
 #Create socks proxy to uni lübeck intranet for usage with tsocks etc running on port 7070
 uniconnect() { ssh -N -D7070 sshgate;}
-
 #Reverse tunnel to $1:$2
 reversetunnel() { autossh -M 0 -o "ServerAliveInterval 30" -o "ServerAliveCountMax 2" -N -R $2:localhost:2200 $1; }
-
-# Cool History Summerizer - most used commands
-top10cmds(){ history|awk '{a[$2]++}END{for(i in a){printf"%5d\t%s\n",a[i],i}}'|sort -nr|head;}
+#Resolve Uni Lübeck pc pool hostname to IP using ssh-gate
+poolpc() { ssh sshgate ping -c 1 $1 | head -n 1 | awk '{print$3}' | sed 's/[()]//g';}
+#Push to Pool to Print
+ppp() {
+  list() { echo "PDFs in ~:"; ssh sshgate 'ls *.pdf'; unset -f list; }
+  initsshkeys
+  if [[ "$1" == "" ]]; then list; return; fi
+  if [[ "$(ssh sshgate "md5sum $1 2>/dev/null")" == "$(md5sum $1)" ]]; then
+    echo "Already up to date!"; list; return; fi
+  scp $1 sshgate:~; echo -n "MD5: "
+  if [[ "$(ssh sshgate "md5sum $1 2>/dev/null")" == "$(md5sum $1)" ]]; then
+    echo "Success!"; else echo "Failure!"; fi
+  list
+}
+complete -f -X '!*.@(pdf)' ppp #complete only pdf files
 
 #Make sure ssh-agent is running with keychain before using git push
 git() {
@@ -316,43 +353,23 @@ git() {
 
 #Handy batch imagemagick foto modification shortcut
 #example: batchconv -resize 33%
-batchconv() {
-  mkdir modified
-  find . -iname "*.jpg" -o -iname "*.png" | xargs -l -i convert "$@" {} ./modified/{}
-}
-
+batchconv() { mkdir modified; find . -iname "*.jpg" -o -iname "*.png" | xargs -l -i convert "$@" {} ./modified/{}; }
 shrinkimg() { convert -resize 33% "$1" "$1.jpg";}
 
 #My vnc shortie: vnc host password other_options
 vnc(){ echo $2|vncviewer -compresslevel 9 -quality 7 -autopass $3 $1; }
 
-#Ruby calculator
-calc(){ ruby -e "require 'mathn'; puts $1";}
-
-#String escape method into hex, usage: escape STRING ESCPREFIX(like % or 0x)
-escape(){ echo "puts '$2'+'$1'.split(//).map{|x| x.slice(0).ord.to_s(16)}.join('$2')"|ruby; }
-
-#German-English translation... via dict.cc, requires curl, grep and ruby
-translate(){ curl --silent http://www.dict.cc/?s=$1|grep c[12]Arr | ruby -e "arr=[gets.split('\",\"'),gets.split('\",\"')]; arr[0].shift; arr[1].shift; arr.each{|x| x[-1]=x[-1][0..-5] }; 0.upto(arr[0].length-1){|n| puts arr[0][n]+' <-> '+arr[1][n] }"; }
-
 #set 256 color color
-Set256Color(){ if [ "$TERM" != "linux" ];then echo -e "\e[38;5;$1m";fi;}
+Set256Color(){ if [ "$TERM" != "linux" ];then echo -e "\e[38;5;$1m";fi; }
 
 assignProxy(){
   PROXY_ENV="http_proxy ftp_proxy https_proxy all_proxy HTTP_PROXY HTTPS_PROXY FTP_PROXY ALL_PROXY"
-  for envar in $PROXY_ENV
-  do
-    export $envar=$1
-  done
+  for envar in $PROXY_ENV; do export $envar=$1; done
 }
-clrProxy(){
-  assignProxy "" # This is what 'unset' does.
-}
+clrProxy(){ assignProxy ""; } # This is what 'unset' does.
 
 #Dump transactions to file
-getBankingCSV(){
-  aqbanking-cli request --transactions -a "$1" | aqbanking-cli listtrans > "$2"
-}
+getBankingCSV(){ aqbanking-cli request --transactions -a "$1" | aqbanking-cli listtrans > "$2"; }
 
 #GREETING (Distribution, Kernel Version, Date+Time, Uptime)
 echo -e "\e[1;36m$(Set256Color 51)        ,                        _     _ _
@@ -361,6 +378,6 @@ $(Set256Color 45)      ,###\       / _\` | '__/ __| '_ \| | | '_ \| | | \ \/ /
 \e[0;36m$(Set256Color 39)     /#####\     | (_| | | | (__| | | | | | | | | |_| |>  <
 $(Set256Color 33)    /##,-,##\     \__,_|_|  \___|_| |_|_|_|_| |_|\__,_/_/\_\\
    /##(   )##\`   \e[0;33m\t$(uname -o) Kernel $(uname -r)
-\e[0;36m$(Set256Color 27)  /#.--   --.#\  \e[0;32m$(date "+%a, %e. %B %Y %H:%M:%S"), uptime:$(uptime|head -c 18|tail -c 5)
+\e[0;36m$(Set256Color 27)  /#.--   --.#\  \e[0;32m$(date "+%a, %e. %B %Y %H:%M:%S"), uptime:$(uptime|head -c 17|tail -c 5)
 \e[0;36m$(Set256Color 27) /\`           \`\ "
 

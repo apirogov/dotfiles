@@ -142,6 +142,16 @@ nnoremap <M-Right> <C-w>l
 nnoremap <M-Up> <C-w>k
 nnoremap <M-Down> <C-w>j
 
+" Move row-wise instead of line-wise (difference if wrapped)
+nnoremap j gj
+nnoremap k gk
+nnoremap gj j
+nnoremap gk k
+" Disable Ex-mode
+nnoremap Q <nop>
+" Unfold on next search match
+nnoremap n nzzzv
+
 " Toggle conceal mode
 map <leader>cc :if &cole==0<Bar>:set cole=2<Bar>:else<Bar>:set cole=0<Bar>:endif<cr>
 "Wrap on/off

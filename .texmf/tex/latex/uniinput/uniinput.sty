@@ -28,6 +28,32 @@
 \RequirePackage{marvosym}
 \RequirePackage{amsmath}
 
+\RequirePackage{iftex}
+\ifLuaTeX
+\RequirePackage{luacode}
+\begin{luacode*}
+  -- As parameter pass hexadecimal unicode code point and replacement string
+  function cmdutf(c, cmd)
+    local sym = unicode.utf8.char(tonumber(c,16))
+    local str = "\\providecommand\\" .. sym .. "{" .. cmd .. "}"
+    tex.print(str)
+    -- texio.write_nl(str)
+    tex.print("\\renewcommand\\" .. sym .. "{" .. cmd .. "}")
+  end
+  function letutf(c)
+    local sym = unicode.utf8.char(tonumber(c,16))
+    local str = "\\let" .. sym .. "\\" .. sym
+    -- texio.write_nl(str)
+    tex.print(str)
+  end
+\end{luacode*}
+\def\DeclareUnicodeCharacter#1#2{%
+\catcode"#1=\active
+\directlua{cmdutf("#1",[[\unexpanded{#2}]])}
+\directlua{letutf("#1")}
+}
+\fi
+
 \DeclareUnicodeCharacter{03B1}{\ensuremath{\alpha}}
 \DeclareUnicodeCharacter{03B9}{\ensuremath{\iota}}
 \DeclareUnicodeCharacter{03B2}{\ensuremath{\beta}}

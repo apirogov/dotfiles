@@ -9,8 +9,10 @@
 DEFAULT_OUTPUT='LVDS1' # your notebook monitor
 OUTPUTS='VGA1 HDMI1'   # outputs to toggle if connected
 BRIGHT=$(cat /sys/class/backlight/acpi_video0/brightness)  # save current brightness
-EXT_OPTS="--auto --right-of $DEFAULT_OUTPUT --rotate left" # Actual settings for external monitor
-AFTER_EXEC="--pos 0x1020"                                  # after-adjustment (optional)
+EXT_OPTS="--auto --above $DEFAULT_OUTPUT" # Actual settings for external monitor
+
+#EXT_OPTS="--auto --right-of $DEFAULT_OUTPUT --rotate left" # Actual settings for external monitor
+#AFTER_EXEC="--pos 0x1020"                                  # after-adjustment (optional)
 
 XRANDR=`xrandr` #get info
 EXECUTE="" #xrandr execution string (to be built)
