@@ -3,7 +3,7 @@
 " ---------------------------------------
 " Completion engine (tab completion / supertab replacement)
 if v:version > 703 && has('lua')
-  Plugin 'Shougo/neocomplete'
+  Plug 'Shougo/neocomplete'
   " neocomplete settings {{{
   let g:neocomplete#enable_at_startup = 1
   let g:neocomplete#enable_smart_case = 1
@@ -28,7 +28,7 @@ if v:version > 703 && has('lua')
   inoremap <expr><C-e>  neocomplete#cancel_popup()
   " }}}
 else
-  Plugin 'Shougo/neocomplcache'
+  Plug 'Shougo/neocomplcache'
   " neocomplcache settings {{{
   let g:neocomplcache_enable_at_startup = 1
   let g:neocomplcache_enable_smart_case = 1
@@ -48,9 +48,9 @@ else
 endif
 
 " Code snippets (complete with C-k) / snipmate replacement
-Plugin 'Shougo/neosnippet.vim'
-Plugin 'Shougo/neosnippet-snippets'
-Plugin 'honza/vim-snippets'
+Plug 'Shougo/neosnippet.vim'
+Plug 'Shougo/neosnippet-snippets'
+Plug 'honza/vim-snippets'
 " neosnippet settings {{{
 let g:neosnippet#enable_snipmate_compatibility = 1    " Use own snipmate snippets from .vim/snippets
 let g:tex_flavor = 'latex'                            " All .tex files detected as LaTeX (for snips)
@@ -65,7 +65,7 @@ xmap <C-k>     <Plug>(neosnippet_expand_target)
 " }}}
 
 " Code browser
-Plugin 'majutsushi/tagbar'
+Plug 'majutsushi/tagbar'
 map <silent><F11> :TagbarToggle<cr>
 
 " Project and session management
@@ -73,15 +73,15 @@ map <silent><F11> :TagbarToggle<cr>
 " Async compiling
 " Plugin 'tpope/vim-dispatch'
 " Allow project-local vim config (.lvimrc)
-Plugin 'embear/vim-localvimrc'
+Plug 'embear/vim-localvimrc'
 let g:localvimrc_persistent = 1 " Remember decisions in file
 
 " Automatically switch to project root with <leader>cd
-Plugin 'airblade/vim-rooter'
+Plug 'airblade/vim-rooter'
 let g:rooter_manual_only = 1
 
 " Sesssion management :Obsess(!) / vim -S Session.vim
-Plugin 'tpope/vim-obsession'
+Plug 'tpope/vim-obsession'
 
 " Async compiling
 " Plugin 'tpope/vim-dispatch'

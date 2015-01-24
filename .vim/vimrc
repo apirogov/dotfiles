@@ -4,25 +4,14 @@
 " Basic settings
 source ~/.vim/vimrc-base
 
-" Vundle init {{{
-" ------------------
-" Setting up Vundle - the vim plugin bundler
-let iCanHazVundle=1
-let vundle_readme=expand('~/.vim/bundle/vundle/README.md')
-if !filereadable(vundle_readme)
-  echo "Installing Vundle.."
-  echo ""
-  silent !mkdir -p ~/.vim/bundle
-  silent !git clone https://github.com/gmarik/vundle ~/.vim/bundle/vundle
-  let iCanHazVundle=0
+" Load vim-plug
+if empty(glob('~/.vim/autoload/plug.vim'))
+  silent !mkdir -p ~/.vim/autoload
+  silent !curl -fLo ~/.vim/autoload/plug.vim
+    \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+  autocmd VimEnter * PlugInstall
 endif
-
-filetype off                   " required!
-set rtp+=~/.vim/bundle/vundle/
-call vundle#rc()
-" let Vundle manage Vundle, required!
-Plugin 'gmarik/vundle'
-" }}}
+call plug#begin('~/.vim/bundle')
 
 " Universally useful
 source ~/.vim/vimrc-essential
@@ -44,18 +33,9 @@ source ~/.vim/vimrc-haskell
 " Lots of colorschemes
 source ~/.vim/vimrc-colors
 
+" Finalize vim-plug
+call plug#end()
+
 colorscheme hybrid-light
 " hi Normal ctermbg=NONE "only for dark themes
-
-" Vundle finalize {{{
-" ---------------
-" call vundle#end()
-filetype plugin indent on " required!
-
-if iCanHazVundle == 0
-  echo "Installing Bundles, please ignore key map error messages"
-  echo ""
-  :BundleInstall
-endif
-" }}}
 

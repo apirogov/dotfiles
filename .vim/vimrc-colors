@@ -1,22 +1,22 @@
 " Some good colorschemes
-Plugin 'tomasr/molokai'
-Plugin 'vim-scripts/tir_black'
-Plugin 'sjl/badwolf'
-Plugin 'vim-scripts/jellybeans.vim'
-Plugin 'vim-scripts/wombat256.vim'
-Plugin 'altercation/vim-colors-solarized'
-Plugin 'w0ng/vim-hybrid'
-Plugin 'john2x/flatui.vim'
-Plugin 'vim-scripts/summerfruit256.vim'
-Plugin 'vim-scripts/pyte'
-Plugin 'jonathanfilip/vim-lucius'
+Plug 'tomasr/molokai'
+Plug 'vim-scripts/tir_black'
+Plug 'sjl/badwolf'
+Plug 'vim-scripts/jellybeans.vim'
+Plug 'vim-scripts/wombat256.vim'
+Plug 'altercation/vim-colors-solarized'
+Plug 'w0ng/vim-hybrid'
+Plug 'john2x/flatui.vim'
+Plug 'vim-scripts/summerfruit256.vim'
+Plug 'vim-scripts/pyte'
+Plug 'jonathanfilip/vim-lucius'
 
 " Approximate GVim themes in terminal
-Plugin 'godlygeek/csapprox'
+Plug 'godlygeek/csapprox'
 
 " Colorscheme switcher
-Plugin 'xolox/vim-misc'
-Plugin 'xolox/vim-colorscheme-switcher'
+Plug 'xolox/vim-misc'
+Plug 'xolox/vim-colorscheme-switcher'
 
 " Colorscheme switcher and colorscheme settings
 let g:colorscheme_switcher_define_mappings = 0

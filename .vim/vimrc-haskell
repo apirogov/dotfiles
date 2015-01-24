@@ -3,28 +3,28 @@
 "  Better install all necessary cabal stuff into a sandbox!
 
 " Replace operators with corresponding unicode symbols
-Plugin 'vim-scripts/Haskell-Conceal'
+Plug 'vim-scripts/Haskell-Conceal'
 
 " Hoogle interface from vim (see :help hoogle)
-Plugin 'Twinside/vim-hoogle'
+Plug 'Twinside/vim-hoogle'
 
 " Haskell tab completion with ghc-mod (cabal install ghc-mod)
-Plugin 'eagletmt/ghcmod-vim'
-Plugin 'eagletmt/neco-ghc'
+" Plug 'eagletmt/ghcmod-vim'
+Plug 'eagletmt/neco-ghc'
 
 " type checking and lint (:Hdevtools* commands)
 " original repo from bitc, type info and checking, is mod for hsimport
-Plugin 'dan-t/vim-hdevtools'
+Plug 'dan-t/vim-hdevtools'
 au FileType haskell nnoremap <buffer> <silent> <F1> :HdevtoolsType<CR>
 au FileType haskell nnoremap <buffer> <silent> <F2> :HdevtoolsInfo<CR>
 au FileType haskell nnoremap <buffer> <silent> <F3> :HdevtoolsClear<CR>
 
 " Auto import - cabal install hsimport cabal-cargs
-Plugin 'dan-t/vim-hsimport'
+Plug 'dan-t/vim-hsimport'
 au FileType haskell nmap <silent> <F4> :silent update <bar> HsimportSymbol<CR>
 au FileType haskell setlocal omnifunc=necoghc#omnifunc
 
-let g:syntastic_haskell_checkers = ['ghc_mod','hlint']
+let g:syntastic_haskell_checkers = ['hdevtools','hlint']
 
 " lushtags is not maintained.. hasktags works better
 if executable('hasktags')

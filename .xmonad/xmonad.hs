@@ -279,7 +279,7 @@ main = do
     , ((0, 0x1008ff03), spawn "xbacklight -dec 10")
     , ((0, 0x1008ff2d), spawn "xscreensaver-command -lock") -- lock key on thinkpad
     , ((0, 0xff25),     spawn "xscreensaver-command -lock") -- Fn-Esc on truly
-    -- , ((0, 0x1008ff2f), spawn "sudo systemctl suspend")     -- suspend media key (systemd takes care already)
+    -- , ((0, 0x1008ff2f), spawn "sudo systemctl suspend")     -- suspend media key (systemd takes care already (logind.conf))
     , ((0, 0x1008ff8f), spawn "skype")                      -- key with headphones and camera
     , ((0, 0x1008ff59), spawn "screens")                    -- key with projector
 

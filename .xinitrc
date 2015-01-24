@@ -58,7 +58,7 @@ screens -d  #use my custom screen toggle script to set dualscreen
 
 #Daemons
 #----
-#pulseaudio --start &
+pulseaudio --start & #autospawn is disabled for reasons
 /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
 /usr/lib/notification-daemon-1.0/notification-daemon &
 xscreensaver -nosplash &

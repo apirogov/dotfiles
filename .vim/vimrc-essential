@@ -1,63 +1,63 @@
 " Universally useful vim plugins, Vundle initialization
 
 " Improved %
-Plugin 'matchit.zip'
+Plug 'matchit.zip'
 " f with 2 chars + vim-easymotion alternative
-Plugin 'justinmk/vim-sneak'
+Plug 'justinmk/vim-sneak'
 " Show marks. Toggle mark with mN, `N -> goto mark N, m<space> remove all
-Plugin 'kshenoy/vim-signature'
+Plug 'kshenoy/vim-signature'
 " Search with number of matches
-Plugin 'vim-scripts/IndexedSearch'
+Plug 'vim-scripts/IndexedSearch'
 " Creates directories automatically
-Plugin 'dockyard/vim-easydir'
+Plug 'dockyard/vim-easydir'
 " C-a/C-x for dates
-Plugin 'tpope/vim-speeddating'
+Plug 'tpope/vim-speeddating'
 " Show detailed info about characters with ga
-Plugin 'tpope/vim-characterize'
+Plug 'tpope/vim-characterize'
 " repeat with . hook for plugins
-Plugin 'tpope/vim-repeat'
+Plug 'tpope/vim-repeat'
 
 " Useful text objects and movement operators
 " (New a*/i* mappings, indent=i/I, function=f
 " entire=e, underscore=_, camelcase=,w/,b/,e
-Plugin 'kana/vim-textobj-user'
-Plugin 'kana/vim-textobj-indent'
-Plugin 'kana/vim-textobj-function'
-Plugin 'kana/vim-textobj-entire'
-Plugin 'lucapette/vim-textobj-underscore'
-Plugin 'vim-scripts/camelcasemotion'
+Plug 'kana/vim-textobj-user'
+Plug 'kana/vim-textobj-indent'
+Plug 'kana/vim-textobj-function'
+Plug 'kana/vim-textobj-entire'
+Plug 'lucapette/vim-textobj-underscore'
+Plug 'vim-scripts/camelcasemotion'
 " <,/>,=shift args, [,/], move between args, textobjs a,/i,
-Plugin 'PeterRincker/vim-argumentative'
+Plug 'PeterRincker/vim-argumentative'
 " Override default text obj to work on next found left/right
-Plugin 'wellle/targets.vim'
+Plug 'wellle/targets.vim'
 
 " Exchange places with cx<movement> cxx=line, X=in visual mode, cxc=clear
-Plugin 'tommcdo/vim-exchange'
+Plug 'tommcdo/vim-exchange'
 
 " Manage surroundings with [dcy]s<motion><surrounding>
-Plugin 'tpope/vim-surround'
+Plug 'tpope/vim-surround'
 " Add surrounding #{ ... } (ruby string var. interpolation)
 let g:surround_{char2nr('#')}= "#{\r}"
 " ysiwc cmd -> \cmd{bla} for latex
 let g:surround_{char2nr('c')} = "\\\1command\1{\r}"
 " Easier change inside surroundings with ,ci/,cas
-Plugin 'briandoll/change-inside-surroundings.vim'
+Plug 'briandoll/change-inside-surroundings.vim'
 
 " Tabularize verb (gl/L textobj align char or /regex)
-Plugin 'tommcdo/vim-lion'
+Plug 'tommcdo/vim-lion'
 " Ag (the silver searcher) search (awesome fast code grep with :Ag)
-Plugin 'rking/ag.vim'
+Plug 'rking/ag.vim'
 
 " NetRW+ (- to move from buffer to containing dir
-Plugin 'tpope/vim-vinegar'
+Plug 'tpope/vim-vinegar'
 " Useful pair bindings
-Plugin 'tpope/vim-unimpaired'
+Plug 'tpope/vim-unimpaired'
 " Undo tree visualization with :UndotreeToggle
-Plugin 'mbbill/undotree'
+Plug 'mbbill/undotree'
 map <leader>u :UndotreeToggle<CR>
 
 " Status line on steroids
-" Plugin 'bling/vim-airline'
+" Plug 'bling/vim-airline'
 " let g:airline_theme='powerlineish'
 let g:airline_left_sep=''
 let g:airline_right_sep=''
@@ -65,62 +65,62 @@ let g:airline_section_z='%4l,%3c' " Only line,col
 let g:airline#extensions#tabline#enabled = 1
 
 " Open files, mru and buffers with fuzzy search with C-p
-Plugin 'Shougo/unite.vim'
-Plugin 'Shougo/vimproc.vim'
-Plugin 'Shougo/neomru.vim'
-"Unite settings
-call unite#filters#matcher_default#use(['matcher_fuzzy'])
-call unite#filters#sorter_default#use(['sorter_rank'])
-"call unite#custom#source('file_rec/async','sorters','sorter_rank', )
-" replacing unite with ctrl-p
-let g:unite_data_directory='~/.vim/.cache/unite'
-let g:unite_enable_start_insert=1
-let g:unite_source_history_yank_enable=1
-let g:unite_prompt='» '
-let g:unite_split_rule = 'botright'
-if executable('ag')
-  let g:unite_source_grep_command='ag'
-  let g:unite_source_grep_default_opts='--nocolor --nogroup -S -C4'
-  let g:unite_source_grep_recursive_opt=''
-endif
-nnoremap <silent> <leader>pp :Unite -auto-resize file file_mru file_rec<cr>
-nnoremap <silent> <leader>pb :Unite -auto-resize buffer<cr>
+Plug 'Shougo/unite.vim'
+Plug 'Shougo/vimproc.vim'
+" Plug 'Shougo/neomru.vim'
+" "Unite settings
+" " call unite#filters#matcher_default#use(['matcher_fuzzy'])
+" " call unite#filters#sorter_default#use(['sorter_rank'])
+" "call unite#custom#source('file_rec/async','sorters','sorter_rank', )
+" " replacing unite with ctrl-p
+" let g:unite_data_directory='~/.vim/.cache/unite'
+" let g:unite_enable_start_insert=1
+" let g:unite_source_history_yank_enable=1
+" let g:unite_prompt='» '
+" let g:unite_split_rule = 'botright'
+" if executable('ag')
+"   let g:unite_source_grep_command='ag'
+"   let g:unite_source_grep_default_opts='--nocolor --nogroup -S -C4'
+"   let g:unite_source_grep_recursive_opt=''
+" endif
+" nnoremap <silent> <leader>pp :Unite -auto-resize file file_mru file_rec<cr>
+" nnoremap <silent> <leader>pb :Unite -auto-resize buffer<cr>
 
 " Code Commenting - gc<Motion> -> toggle comment, gcu -> uncomment commented
-Plugin 'tpope/vim-commentary'
+Plug 'tpope/vim-commentary'
 " Automatic code block closing (if ... end, etc)
-Plugin 'tpope/vim-endwise'
+Plug 'tpope/vim-endwise'
 " Auto-Closing for symbols
-Plugin 'Raimondi/delimitMate'
+Plug 'Raimondi/delimitMate'
 au FileType mail,text,todotxt let b:delimitMate_autoclose = 0 " delimitMate: disable in regular text
 " Color parentheses and other surroundings
-Plugin 'kien/rainbow_parentheses.vim'
+Plug 'kien/rainbow_parentheses.vim'
 au VimEnter * RainbowParenthesesToggle    " RainbowParentheses: everywhere
 
 " Git integration
-Plugin 'tpope/vim-fugitive'
+Plug 'tpope/vim-fugitive'
 " Gitk clone within vim (fugitive-extension)
-Plugin 'gregsexton/gitv'
+Plug 'gregsexton/gitv'
 " See changed lines within file (:GitGutterToggle)
-Plugin 'airblade/vim-gitgutter'
+Plug 'airblade/vim-gitgutter'
 let g:gitgutter_realtime = 0      "possibly fix keystroke glitches
 
 " Generate view of tasks with XXX/FIXME/TODO with <leader>t
-Plugin 'vim-scripts/TaskList.vim'
+Plug 'vim-scripts/TaskList.vim'
 " Syntax checking for vim. Close error window with lclose show with Errors
-Plugin 'scrooloose/syntastic'
+Plug 'scrooloose/syntastic'
 let g:syntastic_enable_signs=1    "mark syntax errors with :signs
 let g:syntastic_auto_jump=0       "automatically jump to the error when saving the file
 let g:syntastic_auto_loc_list=1   "show the error list automatically
 let g:syntastic_quiet_messages = {'level': 'warnings'} " No warnings
 
 " slime-like repl interaction for tmux
-Plugin 'epeli/slimux'
+Plug 'epeli/slimux'
 map <leader>s :SlimuxREPLSendLine<CR>
 vmap <leader>s :SlimuxREPLSendSelection<CR>
 
 " Tmux and splits, seamless
-Plugin 'christoomey/vim-tmux-navigator'
+Plug 'christoomey/vim-tmux-navigator'
 let g:tmux_navigator_no_mappings = 1
 nnoremap <silent> <M-Left> :TmuxNavigateLeft<cr>
 nnoremap <silent> <M-Down> :TmuxNavigateDown<cr>

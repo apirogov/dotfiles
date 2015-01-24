@@ -316,7 +316,7 @@ calc(){ ruby -e "require 'mathn'; puts $1";}
 #String escape method into hex, usage: escape STRING ESCPREFIX(like % or 0x)
 escape(){ echo "puts '$2'+'$1'.split(//).map{|x| x.slice(0).ord.to_s(16)}.join('$2')"|ruby; }
 #say over google tts
-say() { mpv "http://translate.google.com/translate_tts?ie=UTF-8&tl=de&q=$(escape "$1" %)";}
+say() { mpv "http://translate.google.com/translate_tts?ie=UTF-8&tl=en&q=$(escape "$1" %)";}
 # Cool History Summerizer - most used commands
 top10cmds(){ history|awk '{a[$2]++}END{for(i in a){printf"%5d\t%s\n",a[i],i}}'|sort -nr|head;}
 #German-English translation... via dict.cc, requires curl, grep and ruby
@@ -370,6 +370,8 @@ clrProxy(){ assignProxy ""; } # This is what 'unset' does.
 
 #Dump transactions to file
 getBankingCSV(){ aqbanking-cli request --transactions -a "$1" | aqbanking-cli listtrans > "$2"; }
+
+pulsekill(){ echo autospawn = no > $HOME/.config/pulse/client.conf; pulseaudio --kill; rm $HOME/.config/pulse/client.conf; }
 
 #GREETING (Distribution, Kernel Version, Date+Time, Uptime)
 echo -e "\e[1;36m$(Set256Color 51)        ,                        _     _ _

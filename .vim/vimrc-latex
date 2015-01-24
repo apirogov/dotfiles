@@ -1,5 +1,6 @@
 " Latex -> :Latexmk/:LatexView
-Plugin 'LaTeX-Box-Team/LaTeX-Box'
+Plug 'LaTeX-Box-Team/LaTeX-Box'
+
 let g:LatexBox_viewer='zathura'
 let g:LatexBox_latexmk_options='-lualatex -latexoption="--shell-escape"'
 let g:LatexBox_custom_indent=0 " conflicts with neocomplete
