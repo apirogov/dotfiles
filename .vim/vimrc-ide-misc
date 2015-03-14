@@ -53,7 +53,6 @@ Plug 'Shougo/neosnippet-snippets'
 Plug 'honza/vim-snippets'
 " neosnippet settings {{{
 let g:neosnippet#enable_snipmate_compatibility = 1    " Use own snipmate snippets from .vim/snippets
-let g:tex_flavor = 'latex'                            " All .tex files detected as LaTeX (for snips)
 " Plugin key-mappings.
 imap <C-k>     <Plug>(neosnippet_expand_or_jump)
 smap <C-k>     <Plug>(neosnippet_expand_or_jump)
@@ -64,24 +63,16 @@ xmap <C-k>     <Plug>(neosnippet_expand_target)
 " endif
 " }}}
 
-" Code browser
-Plug 'majutsushi/tagbar'
-map <silent><F11> :TagbarToggle<cr>
-
 " Project and session management
 " ------------------------------
 " Async compiling
-" Plugin 'tpope/vim-dispatch'
+Plug 'tpope/vim-dispatch'
+" Sesssion management :Obsess(!) / vim -S Session.vim
+Plug 'tpope/vim-obsession'
 " Allow project-local vim config (.lvimrc)
 Plug 'embear/vim-localvimrc'
 let g:localvimrc_persistent = 1 " Remember decisions in file
-
 " Automatically switch to project root with <leader>cd
 Plug 'airblade/vim-rooter'
 let g:rooter_manual_only = 1
 
-" Sesssion management :Obsess(!) / vim -S Session.vim
-Plug 'tpope/vim-obsession'
-
-" Async compiling
-" Plugin 'tpope/vim-dispatch'

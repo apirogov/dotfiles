@@ -6,6 +6,7 @@ source ~/.vim/vimrc-base
 
 " Load vim-plug
 if empty(glob('~/.vim/autoload/plug.vim'))
+  silent !mkdir -p ~/.vim/tmp
   silent !mkdir -p ~/.vim/autoload
   silent !curl -fLo ~/.vim/autoload/plug.vim
     \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
@@ -15,23 +16,38 @@ call plug#begin('~/.vim/bundle')
 
 " Universally useful
 source ~/.vim/vimrc-essential
-" Syntax highlighting / language-specific folding
-source ~/.vim/vimrc-syntax
 " General omnicomplete + snippets + tags + project management
 source ~/.vim/vimrc-ide-misc
-
-" Filetype-specific keybindings scheme:
-" F1-F4 = Freely ft dependent
-" F7 = Load into REPL/interactive
-" F8 = Compile this single file and run executable / Run with interpreter
-
 " filetype specific (plugins, bindings)
 source ~/.vim/vimrc-ft-misc
-source ~/.vim/vimrc-latex
-source ~/.vim/vimrc-haskell
 
-" Lots of colorschemes
-source ~/.vim/vimrc-colors
+" (Better) syntax support
+Plug 'sideshowcoder/vimtodotxt'
+Plug 'sudar/vim-arduino-syntax'
+Plug 'hail2u/vim-css3-syntax'
+Plug 'othree/html5-syntax.vim'
+Plug 'tpope/vim-markdown'
+Plug 'nelstrom/vim-markdown-folding'
+Plug 'gberenfield/cljfold.vim'
+Plug 'vim-scripts/haskell.vim'
+Plug 'Twinside/vim-syntax-haskell-cabal'
+Plug 'Twinside/vim-haskellFold'
+
+" Some good colorschemes
+Plug 'tomasr/molokai'
+Plug 'sjl/badwolf'
+Plug 'vim-scripts/jellybeans.vim'
+Plug 'vim-scripts/wombat256.vim'
+Plug 'altercation/vim-colors-solarized'
+Plug 'w0ng/vim-hybrid'
+Plug 'john2x/flatui.vim'
+Plug 'vim-scripts/summerfruit256.vim'
+Plug 'vim-scripts/pyte'
+Plug 'jonathanfilip/vim-lucius'
+if !has("gui_running") " Terminal vim can't take all colorschemes
+  let g:rehash256 = 1 " For molokai
+  let g:solarized_termcolors=256
+endif
 
 " Finalize vim-plug
 call plug#end()

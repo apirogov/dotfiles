@@ -14,6 +14,10 @@ Plug 'dockyard/vim-easydir'
 Plug 'tpope/vim-speeddating'
 " Show detailed info about characters with ga
 Plug 'tpope/vim-characterize'
+" NetRW+ (- to move from buffer to containing dir
+Plug 'tpope/vim-vinegar'
+" Useful pair bindings
+Plug 'tpope/vim-unimpaired'
 " repeat with . hook for plugins
 Plug 'tpope/vim-repeat'
 
@@ -30,7 +34,6 @@ Plug 'vim-scripts/camelcasemotion'
 Plug 'PeterRincker/vim-argumentative'
 " Override default text obj to work on next found left/right
 Plug 'wellle/targets.vim'
-
 " Exchange places with cx<movement> cxx=line, X=in visual mode, cxc=clear
 Plug 'tommcdo/vim-exchange'
 
@@ -48,43 +51,15 @@ Plug 'tommcdo/vim-lion'
 " Ag (the silver searcher) search (awesome fast code grep with :Ag)
 Plug 'rking/ag.vim'
 
-" NetRW+ (- to move from buffer to containing dir
-Plug 'tpope/vim-vinegar'
-" Useful pair bindings
-Plug 'tpope/vim-unimpaired'
-" Undo tree visualization with :UndotreeToggle
+" Undo tree visualization
 Plug 'mbbill/undotree'
 map <leader>u :UndotreeToggle<CR>
-
-" Status line on steroids
-" Plug 'bling/vim-airline'
-" let g:airline_theme='powerlineish'
-let g:airline_left_sep=''
-let g:airline_right_sep=''
-let g:airline_section_z='%4l,%3c' " Only line,col
-let g:airline#extensions#tabline#enabled = 1
-
-" Open files, mru and buffers with fuzzy search with C-p
-Plug 'Shougo/unite.vim'
-Plug 'Shougo/vimproc.vim'
-" Plug 'Shougo/neomru.vim'
-" "Unite settings
-" " call unite#filters#matcher_default#use(['matcher_fuzzy'])
-" " call unite#filters#sorter_default#use(['sorter_rank'])
-" "call unite#custom#source('file_rec/async','sorters','sorter_rank', )
-" " replacing unite with ctrl-p
-" let g:unite_data_directory='~/.vim/.cache/unite'
-" let g:unite_enable_start_insert=1
-" let g:unite_source_history_yank_enable=1
-" let g:unite_prompt='» '
-" let g:unite_split_rule = 'botright'
-" if executable('ag')
-"   let g:unite_source_grep_command='ag'
-"   let g:unite_source_grep_default_opts='--nocolor --nogroup -S -C4'
-"   let g:unite_source_grep_recursive_opt=''
-" endif
-" nnoremap <silent> <leader>pp :Unite -auto-resize file file_mru file_rec<cr>
-" nnoremap <silent> <leader>pb :Unite -auto-resize buffer<cr>
+" Code browser
+Plug 'majutsushi/tagbar'
+map <leader>t :TagbarToggle<cr>
+" Generate view of tasks with XXX/FIXME/TODO
+map <leader>T <Plug>TaskList
+Plug 'vim-scripts/TaskList.vim'
 
 " Code Commenting - gc<Motion> -> toggle comment, gcu -> uncomment commented
 Plug 'tpope/vim-commentary'
@@ -99,14 +74,10 @@ au VimEnter * RainbowParenthesesToggle    " RainbowParentheses: everywhere
 
 " Git integration
 Plug 'tpope/vim-fugitive'
-" Gitk clone within vim (fugitive-extension)
-Plug 'gregsexton/gitv'
 " See changed lines within file (:GitGutterToggle)
 Plug 'airblade/vim-gitgutter'
 let g:gitgutter_realtime = 0      "possibly fix keystroke glitches
 
-" Generate view of tasks with XXX/FIXME/TODO with <leader>t
-Plug 'vim-scripts/TaskList.vim'
 " Syntax checking for vim. Close error window with lclose show with Errors
 Plug 'scrooloose/syntastic'
 let g:syntastic_enable_signs=1    "mark syntax errors with :signs
@@ -126,3 +97,4 @@ nnoremap <silent> <M-Left> :TmuxNavigateLeft<cr>
 nnoremap <silent> <M-Down> :TmuxNavigateDown<cr>
 nnoremap <silent> <M-Up> :TmuxNavigateUp<cr>
 nnoremap <silent> <M-Right> :TmuxNavigateRight<cr>
+

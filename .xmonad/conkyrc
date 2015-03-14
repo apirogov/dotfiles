@@ -15,7 +15,7 @@ ${exec mpc|tail -n 1|sed 's/volume://'|awk '{print$1}'} ${exec mpc|sed '2q;d'|aw
 $endif$endif \
 ^fg(\#ffffff)C:${cpu cpu0}% R:$memperc% S:$swapperc% \
 ^fg(\#40f0f0)/:${fs_used_perc /}% /home:${fs_used_perc /home}% \
-^fg(\#a0ffa0)↓${downspeedf wlan0}KB/s ↑${upspeedf wlan0}KB/s \
+^fg(\#a0ffa0)↓${downspeedf wlan1}KB/s ↑${upspeedf wlan0}KB/s \
 ^fg(\#ffff00)${exec amixer get Master | awk '/%/{ gsub(/\[|\]/,""); print $5 }' |head -n 1} \
 ^fg(\#ff8080)${exec acpi -b | awk '{print$5}'}[${exec acpi -b | awk '{print $4}'|cut -b -3}] \
 ^fg(\#ffffb0)${time %R}\

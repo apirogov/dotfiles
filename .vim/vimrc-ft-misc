@@ -1,5 +1,15 @@
-" C/C++ -> toggle between header and source file
-Plug 'a.vim'
+" Latex -> :Latexmk/:LatexView
+Plug 'LaTeX-Box-Team/LaTeX-Box'
+let g:LatexBox_viewer='zathura'
+let g:LatexBox_latexmk_options='-lualatex -latexoption="--shell-escape"'
+let g:LatexBox_custom_indent=0 " conflicts with neocomplete
+" let g:LatexBox_quickfix=2 " don't steal focus
+" let g:LatexBox_latexmk_async=1 " auto rebuild on changes
+" let g:LatexBox_latexmk_preview_continuously=1 " auto rebuild on changes
+let g:syntastic_tex_checkers = ['chktex']
+au BufRead,BufNewFile *.tex     map <F8>  :w<cr>:Latexmk<cr>
+au BufRead,BufNewFile *.tex     map <F7>  :w<cr>:LatexView<cr>
+au BufRead,BufNewFile *.tex     map <F6>  :w<cr>:LatexErrors<cr>
 
 " Coq
 Plug 'def-lkb/vimbufsync'
@@ -9,17 +19,63 @@ au FileType coq call coquille#FNMapping()
 au FileType coq map <F7> :CoqLaunch<cr>
 au FileType coq map <silent> <C-F7> :CoqKill<cr><cr>
 
+" Haskell plugins and config
+" --------------------------
+"  Better install all necessary cabal stuff into a sandbox!
 
-" Language specific settings and keybindings
-" ------------------------------------------
+" Replace operators with corresponding unicode symbols
+Plug 'vim-scripts/Haskell-Conceal'
+" Hoogle interface from vim (see :help hoogle)
+Plug 'Twinside/vim-hoogle'
+" Haskell tab completion with ghc-mod (cabal install ghc-mod)
+" Plug 'eagletmt/ghcmod-vim'
+" Plug 'eagletmt/neco-ghc'
 
-" Save and compile without make file and run small C program (not useful on multifile project)
-au BufRead,BufNewFile  *.c,*.h  map <F8>  :w<cr>:!cc % && ./a.out<cr>
+" type checking and lint (:Hdevtools* commands)
+" original repo from bitc, type info and checking, is mod for hsimport
+" Plug 'dan-t/vim-hdevtools'
+" au FileType haskell nnoremap <buffer> <silent> <F1> :HdevtoolsType<CR>
+" au FileType haskell nnoremap <buffer> <silent> <F2> :HdevtoolsInfo<CR>
+" au FileType haskell nnoremap <buffer> <silent> <F3> :HdevtoolsClear<CR>
 
-" Save and run ruby interpreter
-au BufRead,BufNewFile  *.rb     map <F8>  :w<cr>:!ruby %<cr>
-" Load into IRB
-au BufRead,BufNewFile  *.rb     map <F7>  :w<cr>:!irb -r ./%<cr>
+" Auto import - cabal install hsimport cabal-cargs
+" Plug 'dan-t/vim-hsimport'
+" au FileType haskell nmap <silent> <F4> :silent update <bar> HsimportSymbol<CR>
+" au FileType haskell setlocal omnifunc=necoghc#omnifunc
 
-" Run with Matlab
-au BufRead,BufNewFile  *.m      map <F8>  :w<cr>::!matlab -nodesktop -nosplash -r "try, run %:p, pause, catch, end, quit" <CR><CR>
+let g:syntastic_haskell_checkers = ['hdevtools','hlint']
+
+" lushtags is not maintained.. hasktags works better
+if executable('hasktags')
+let g:tagbar_type_haskell = {
+    \ 'ctagsbin'  : 'hasktags',
+    \ 'ctagsargs' : '-x -c -o-',
+    \ 'kinds'     : [
+        \  'm:modules:0:1',
+        \  'd:data: 0:1',
+        \  'd_gadt: data gadt:0:1',
+        \  't:type names:0:1',
+        \  'nt:new types:0:1',
+        \  'c:classes:0:1',
+        \  'cons:constructors:1:1',
+        \  'c_gadt:constructor gadt:1:1',
+        \  'c_a:constructor accessors:1:1',
+        \  'ft:function types:1:1',
+        \  'fi:function implementations:0:1',
+        \  'o:others:0:1'
+    \ ],
+    \ 'sro'        : '.',
+    \ 'kind2scope' : {
+        \ 'm' : 'module',
+        \ 'c' : 'class',
+        \ 'd' : 'data',
+        \ 't' : 'type'
+    \ },
+    \ 'scope2kind' : {
+        \ 'module' : 'm',
+        \ 'class'  : 'c',
+        \ 'data'   : 'd',
+        \ 'type'   : 't'
+    \ }
+\ }
+endif

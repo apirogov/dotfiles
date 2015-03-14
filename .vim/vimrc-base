@@ -1,6 +1,6 @@
 " Anton Pirogov's base vimrc
 " ======================
-let mapleader = ","            " Set leader key for keybindings (default: \)
+let mapleader = "\<space>"     " Set leader key for keybindings (default: \)
 
 " General
 set nocompatible               " prevent vi emulation
@@ -132,7 +132,26 @@ au FileType xml,html setlocal matchpairs+=<:>
 au FileType haskell setlocal expandtab
 au FileType ruby setlocal expandtab shiftwidth=2 softtabstop=2
 au FileType python setlocal expandtab shiftwidth=4 softtabstop=4
-au FileType c,cpp,java setlocal noexpandtab shiftwidth=4 softtabstop=4
+au FileType java setlocal noexpandtab shiftwidth=4 softtabstop=4
+
+" Language specific settings and keybindings
+" ------------------------------------------
+
+" Save and compile without make file and run small C program (not useful on multifile project)
+au BufRead,BufNewFile  *.c,*.h  map <F8>  :w<cr>:!cc % && ./a.out<cr>
+" Save and run ruby interpreter
+au BufRead,BufNewFile  *.rb     map <F8>  :w<cr>:!ruby %<cr>
+" Load into IRB
+au BufRead,BufNewFile  *.rb     map <F7>  :w<cr>:!irb -r ./%<cr>
+" Run with Matlab
+au BufRead,BufNewFile  *.m      map <F8>  :w<cr>::!matlab -nodesktop -nosplash -r "try, run %:p, pause, catch, end, quit" <CR><CR>
+" Compile a pdf from latex
+au BufRead,BufNewFile *.tex     map <F8>  :w<cr>:cd %:p:h<cr>:!lualatex *.tex<cr><cr>
+" Load into GHCI
+au BufRead,BufNewFile *.hs      map <F7>  :w<cr>:!ghci %<cr>
+" Compile a standalone haskell script
+au BufRead,BufNewFile *.hs      map <F8>  :w<cr>:!rm -rf /tmp/*.o; ghc -fwarn-name-shadowing -hidir=/tmp -odir=/tmp -O -o a.out % && ./a.out<cr>
+
 
 " General keybindings
 " -------------------
@@ -154,10 +173,10 @@ nnoremap n nzzzv
 
 " Toggle conceal mode
 map <leader>cc :if &cole==0<Bar>:set cole=2<Bar>:else<Bar>:set cole=0<Bar>:endif<cr>
+" Toggle colorcolumn
+map <leader>w :if &cc==""<Bar>:set cc=+1<Bar>:else<Bar>:set cc=<Bar>:endif<cr>
 "Wrap on/off
-map <leader>w :set wrap!<cr>
-"apply ruby one liner to a range ($_ = current line)
-map <leader>r :rubydo $_ = 
+map <leader>W :set wrap!<cr>
 " Disable highlight of last search
 map <leader>/ :nohlsearch<cr>
 "Take rest of line and put above (reversed split)
@@ -165,8 +184,15 @@ nmap <leader>j d$O<esc>p
 "Add beautiful line out of minus signs of correct length in code comments
 nmap <leader>l yypwv$r-
 
+"Fast buffer switching
+nmap <leader>bb :ls<cr>:b<space>
+nmap <leader>bs :ls<cr>:sb<space>
+nmap <leader>bv :ls<cr>:vert sb<space>
+
 " Misc. independent improvements
 " ------------------------------
+let g:tex_flavor = 'latex'  " All .tex files detected as LaTeX (for snips)
+
 "Write to file without previous write access (asks password)
 cmap w!! %!sudo tee > /dev/null %
 " Switch current directory to that of the file
@@ -191,7 +217,7 @@ fun! <SID>StripTrailingWhitespaces()
     %s/\s\+$//e
     call cursor(l, c)
 endfun
-au FileType c,cpp,java,php,ruby,python,tex,haskell,clojure au BufWritePre <buffer> :call <SID>StripTrailingWhitespaces()
+au FileType * au BufWritePre <buffer> :call <SID>StripTrailingWhitespaces()
 
 " Include completion for filetypes with custom lists
 au FileType * exec("setlocal dictionary+=".$HOME."/.vim/dict/".expand('<amatch>'))
@@ -199,10 +225,8 @@ set complete+=k
 
 " Open url under cursor
 map <leader>mo "1yiW:!firefox -new-tab "<c-r>1"<cr><cr>
-" Insert bookmark for current dwb tab
-map <leader>ma :read !dwbremote -a get uri<cr>:read !dwbremote -a get title<cr>kJ
 " hide URL, highlight comments
-au BufNewFile,BufRead bookmarks setlocal filetype=text conceallevel=2 nowrap
+au BufNewFile,BufRead bookmarks setlocal filetype=text conceallevel=2 nowrap tw=0
 au BufNewFile,BufRead bookmarks syntax match URLstr /^http\S\+/ conceal cchar=>
 au BufNewFile,BufRead bookmarks syntax match Comment /^#.\+/
 

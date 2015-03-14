@@ -1,3 +1,6 @@
+-- allows ifdef constructions only for interpreter with CPP language pragma
+:set -DGHCI
+
 import Data.List
 import Data.Function (on)
 import Data.Ratio
@@ -5,13 +8,6 @@ import Data.Ratio
 import Control.Applicative
 import Control.Monad hiding (forM,forM_,mapM,mapM_,msum,sequence,sequence_)
 
-let mulgroup n = filter ((==1).(gcd n)) [1..(n-1)]
-let eea a b = if b==0 then (a,1,0) else (c,e,d-a `div` b*e) where (c,d,e) = eea b (a `mod` b)
-let minv a n = if gcd a n /= 1 then 0 else (x+n) `mod` n where (d,x,y)=eea a n
-let modexp a k n = foldl (\x (b,e) -> if e`mod`2==1 then x*b `mod` n else x) 1 $ zip (iterate (\x -> x^2 `mod` n) a) (takeWhile (/=0) $ iterate (\x->x`div`2) k)
-
 -- :set -XOverloadedStrings
-
-
-:set prompt "λ> "
 -- :set prompt "\ESC[1;37m%s\n\ESC[1;34mλ> \ESC[m"
+:set prompt "λ> "
