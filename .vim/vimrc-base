@@ -113,6 +113,7 @@ if has("gui_running")          " GVim
   set guioptions-=T            " Remove toolbar
   set guioptions-=e            " Remove GUI tabs (use console tabs)
   set guioptions-=r            " Remove right-hand scrollbar
+  set guiheadroom=0            " Fixes empty space with tiling WM
 else
   set t_Co=256                   " Number of colors in terminal
 endif
@@ -186,8 +187,12 @@ nmap <leader>l yypwv$r-
 
 "Fast buffer switching
 nmap <leader>bb :ls<cr>:b<space>
+nmap <leader>bB :b#<cr>
 nmap <leader>bs :ls<cr>:sb<space>
 nmap <leader>bv :ls<cr>:vert sb<space>
+
+" more consistent
+nnoremap Y y$
 
 " Misc. independent improvements
 " ------------------------------

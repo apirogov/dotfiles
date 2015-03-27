@@ -69,7 +69,7 @@ BLUE="\[\e[1;34m\]"
 CYAN="\[\e[1;36m\]"
 WHITE="\[\e[1;37m\]"
 BLUEBG="\[\e[44m\]"
-export PS1="$BLUEBG$WHITE[\t]$DEFAULT $([ "$EUID" != "0" ] && echo "$BLUE\u$RED@$CYAN" || echo "$RED\u@")\h$DEFAULT \W$WHITE \\$ $DEFAULT" 
+export PS1="$BLUEBG$WHITE[\t]$DEFAULT $([ "$EUID" != "0" ] && echo "$BLUE\u$RED@$CYAN" || echo "$RED\u@")\h$DEFAULT \W$WHITE \\$ $DEFAULT"
 
 ## EXPORTS
 export LANG="de_DE.UTF-8"
@@ -206,25 +206,19 @@ alias normalizevolume='find /home/admin/myfiles/music/ -type f -iname "*.mp3" -e
 #----
 #mediacenter - using ssh/sshfs/rsync/mpd/ncmpcpp
 #use to: backup folders, mount remote data, control music
-#requires to have MPD default port, MEDIAPORT for ssh and port 8000 for mpd streaming open on media server
-#MEDIAHOST "mediacenter" must be declared correctly in /etc/hosts on both machines
-#alternative with less available ports: use ssh tunnel like:
-#ssh -p MEDIAPORT -fN MEDIALOGIN -L LOCALPORT:MEDIAHOST:REMOTEPORT
-#and connect to localhost to these ports
+#requires to have MPD default port, MEDIASSHP for ssh and port 8000 for mpd streaming open on media server
 MEDIAUSER=admin       #user for ssh connection
-MEDIAHOST=mediacenter #declared hostname or IP
-MPDPWDFILE=~/.mpdpwd
-MEDIASSHP=2200  #SSH port
+MPDPWDFILE=~/.mpdpwd  #.mpdpwd, which should contain PWD@HOST per line
+MEDIASSHP=2200        #SSH port
+MEDIAHOST=$(head -n 1 $MPDPWDFILE | sed 's/.*@//') #takes first host from list for following aliases
 MEDIALOGIN=$MEDIAUSER@$MEDIAHOST
-alias center.ssh="ssh -p $MEDIASSHP $MEDIALOGIN"
-alias center.ping="ping -c 5 $MEDIAHOST"
 alias center.mount="mkdir ~/media; sshfs -p $MEDIASSHP $MEDIALOGIN:/media/DATA ~/media"
 alias center.umount="fusermount -u ~/media; rmdir ~/media"
 alias center.updatebackup="rsync --delete -avue 'ssh -p $MEDIASSHP' ~/myfiles $MEDIALOGIN:/media/DATA" #mirror local -> remote external
 alias center.mpc="ncmpcpp -h $MEDIAHOST"
 alias center.stream="mpv http://$MEDIAHOST:8000"
-#alias to access best accessible mpd -> mediaserver or fallback localhost
-SMARTMPD='$(if ping -c 1 -w 1 $MEDIAHOST > /dev/null; then echo $(cat $MPDPWDFILE)@$MEDIAHOST; else echo localhost; fi)'
+#alias to access either first mpd from .mpdpwd -> mediaserver, or fallback to localhost
+SMARTMPD='$(if ping -c 1 -w 1 $MEDIAHOST > /dev/null; then echo $(head -n 1 $MPDPWDFILE)@$MEDIAHOST; else echo localhost; fi)'
 alias music="ncmpcpp -h $SMARTMPD"
 #----
 

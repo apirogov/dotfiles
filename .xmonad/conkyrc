@@ -5,17 +5,31 @@ out_to_x no
 update_interval 1.0
 total_run_times 0
 use_spacer none
-mpd_host mediacenter
 
 #Für reines ALSA: ^fg(\#ffff00)${exec amixer get Master | awk '/%/{ gsub(/\[|\]/,""); print $4 }'} \
 TEXT
-^fg(\#0080ff)$if_mpd_playing$mpd_vol% [$mpd_status] ${mpd_smart 30} ($mpd_elapsed/$mpd_length)\
-$else${if_match ${exec mpc|wc -l}==3}\
-${exec mpc|tail -n 1|sed 's/volume://'|awk '{print$1}'} ${exec mpc|sed '2q;d'|awk '{print$1}'|head -c 3}] ${exec mpc|head -n 1|head -c 40} (${exec mpc|sed '2q;d'|awk '{print$3}'})\
+${if_existing /tmp/currmpd}^fg(\#0080ff)${if_match ${exec mpc -h $(cat /tmp/currmpd)|wc -l}==3}\
+^ca(1,cat /tmp/currmpd | xargs -Ihost mpc -h host volume +10)\
+^ca(3,cat /tmp/currmpd | xargs -Ihost mpc -h host volume -10)\
+${exec mpc -h $(cat /tmp/currmpd)|tail -n 1|sed 's/volume://'|awk '{print$1}'} \
+^ca()^ca()\
+^ca(1,cat /tmp/currmpd | xargs -Ihost mpc -h host toggle)\
+^ca(3,cat /tmp/currmpd | xargs -Ihost mpc -h host stop)\
+${exec mpc -h $(cat /tmp/currmpd)|sed '2q;d'|awk '{print$1}'|head -c 3}] \
+^ca()^ca()\
+^ca(1,cat /tmp/currmpd | xargs lxterminal -e ncmpcpp -h)\
+${exec mpc -h $(cat /tmp/currmpd)|head -n 1|head -c 40} \
+^ca()\
+^ca(1,cat /tmp/currmpd | xargs -Ihost mpc -h host next)\
+^ca(3,cat /tmp/currmpd | xargs -Ihost mpc -h host prev)\
+(${exec mpc -h $(cat /tmp/currmpd)|sed '2q;d'|awk '{print$3}'})\
+^ca()^ca()\
 $endif$endif \
 ^fg(\#ffffff)C:${cpu cpu0}% R:$memperc% S:$swapperc% \
 ^fg(\#40f0f0)/:${fs_used_perc /}% /home:${fs_used_perc /home}% \
-^fg(\#a0ffa0)↓${downspeedf wlan1}KB/s ↑${upspeedf wlan0}KB/s \
+^fg(\#a0ffa0)↓${downspeedf wlan1}KB/s ↑${upspeedf wlan1}KB/s \
+^ca(1,exec amixer set Master 5%+)^ca(3,exec amixer set Master 5%-)\
 ^fg(\#ffff00)${exec amixer get Master | awk '/%/{ gsub(/\[|\]/,""); print $5 }' |head -n 1} \
+^ca()^ca()\
 ^fg(\#ff8080)${exec acpi -b | awk '{print$5}'}[${exec acpi -b | awk '{print $4}'|cut -b -3}] \
 ^fg(\#ffffb0)${time %R}\

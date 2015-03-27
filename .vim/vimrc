@@ -52,6 +52,6 @@ endif
 " Finalize vim-plug
 call plug#end()
 
-colorscheme hybrid-light
+colorscheme lucius
 " hi Normal ctermbg=NONE "only for dark themes
 

@@ -44,6 +44,9 @@ xset -r 51 && xset -r 94 #no Mod3/4 key repeat - for Neo
 #fix repetition of arrow keys (some weird Xorg regression bug, seems gone)
 # xset r 113 && xset r 116
 
+#Force GTK to use XIM to read .Xcompose
+export GTK_IM_MODULE="xim"
+export XMODIFIERS="@im=none"
 #----
 
 screens -d  #use my custom screen toggle script to set dualscreen

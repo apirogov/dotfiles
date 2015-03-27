@@ -3,14 +3,14 @@
 xscreensaver -nosplash &        #mainly to provide screen locking
 
 # drop shadow etc. and may fix problems with vboxvideo
-compton -cCG -o 0.5 -t 0 -l 0 -r 3 -m 0.9 \
+compton -cCG -e 1.0 -o 0.5 -t 0 -l 0 -r 3 -m 0.9 \
   --xinerama-shadow-crop --shadow-ignore-shaped \
   --shadow-exclude '_GTK_FRAME_EXTENTS@:c' --shadow-exclude 'class_g = "dzen"' \
-  --backend glx -b
+  --backend glx -b &
 
 #Programs
 dropboxd &
-syncthing --no-browser &
+syncthing-gtk -s -m &
 # firefox &
 # synergy &
 # pidgin &

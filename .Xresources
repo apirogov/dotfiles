@@ -5,34 +5,6 @@
 !-------------------------------------------------------------------------------
 ! Misc
 
-! default terminal colors
-/*
-! Black + DarkGrey
-*color0:  #000000
-*color8:  #6a6a6a
-! DarkRed + Red
-*color1:  #e01010
-*color9:  #e83a3d
-! DarkGreen + Green
-*color2:  #20ad20
-*color10: #35e956
-! DarkYellow + Yellow
-*color3:  #d4c24f
-*color11: #ffff2f
-! DarkBlue + Blue
-*color4:  #231bb8
-*color12: #3a53f0
-! DarkMagenta + Magenta
-*color5:  #9c3885
-*color13: #e628ba
-!DarkCyan + Cyan (both not tango)
-*color6:  #1dbdb8
-*color14: #1cf5f5
-! LightGrey + White
-*color7:  #fefefe
-*color15: #ffffff
-*/
-
 dzen2.font: -*-fixed-*-*-*-*-10-*-*-*-*-*-*-*
 
 !-------------------------------------------------------------------------------
@@ -67,8 +39,7 @@ XTerm*toolBar              : false
 !------------------------------------------------------------------------------
 ! URxvt
 
-URxvt*geometry        : 80x24
-URxvt*font            : xft:Inconsolata-g:size=10:pixelsize=12:autohint=true
+URxvt*font            : xft:Inconsolata-g:size=10:antialias=false
 !URxvt*letterSpace     : -1
 
 URxvt.perl-ext-common : default,matcher
@@ -77,22 +48,23 @@ URxvt.matcher.button  : 1
 URxvt.matcher.pattern.1: \\bwww\\.[\\w-]\\.[\\w./?&@#-]*[\\w/-]
 
 URxvt*scrollBar       : false
-URxvt*scrollBar_right : true
 !URxvt.reverseVideo    : true
-
-URxvt*foreground: #cfcfcf
-URxvt*background: #000000
-
-URxvt*depth         : 32
-URxvt*transparent   : true
-URxvt*inheritPixmap : true
-!URxvt*tintColor    : Black
-URxvt*shading       : 20
-
-URxvt*saveLines       : 5000
 URxvt*BorderLess      : 1
 URxvt*internalBorder  : 0
 URxvt*urgentOnBell    : true
+URxvt*saveLines       : 5000
+
+URxvt*foreground: #cfcfcf
+URxvt*background: #000000
+! Use default blue color
+URxvt*color12: rgb:5c/5c/ff
+
+! Real transparency
+URxvt*depth         : 32
+URxvt.background    : [95]#000000
+! Pseudo transparency
+URxvt*transparent   : true
+URxvt*shading       : 10
 
 !----------------------------
 ! XFT settings
