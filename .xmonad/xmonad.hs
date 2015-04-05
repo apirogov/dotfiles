@@ -103,7 +103,7 @@ myLayout = trackFloating $ smartBorders $ avoidStruts $ mkToggle1 NBFULL $ mkTog
 myManageHook = namedScratchpadManageHook scratchpads <+> manageDocks
 
 -- Perform an arbitrary action each time xmonad starts or is restarted with mod-q.
-myStartupHook = spawn myTrayerCommand <+> spawn myDzenConky <+> updateConkyMPD
+myStartupHook = spawn myTrayerCommand <+>updateConkyMPD <+> spawn myDzenConky
 
 myHandleEventHook = ewmhDesktopsEventHook <+> fullscreenEventHook <+> docksEventHook
                 <+> serverModeEventHookF "GOTO_WS" goToWS

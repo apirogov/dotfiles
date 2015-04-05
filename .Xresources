@@ -11,6 +11,14 @@ dzen2.font: -*-fixed-*-*-*-*-10-*-*-*-*-*-*-*
 ! XTerm
 XTerm*faceName             : Inconsolata-g
 XTerm*faceSize             : 10
+XTerm*reverseVideo         : on
+
+XTerm*borderWidth          : 0
+XTerm*internalBorder       : 0
+XTerm*scrollBar            : false
+XTerm*toolBar              : false
+xterm*bellIsUrgent         : true
+XTerm*saveLines            : 2048
 
 XTerm*underLine            : on
 XTerm*colorMode            : on
@@ -18,27 +26,21 @@ XTerm*colorBD              : lightyellow
 XTerm*colorUL              : blue
 !XTerm*colorBDMode         : false
 !XTerm*colorULMode         : true
-
 XTerm*dynamicColors        : true
 XTerm*highlightSelection   : true
 
+XTerm*utf8                 : 2
 XTerm*eightBitInput        : true
+!XTerm*locale: true
 XTerm*metaSendsEscape      : true
 XTerm*charClass            : 33:48,35-38:48,39:43,42-47:48,58-59:48,61:48,63-64:48,126:48
 
 !XTerm*backarrowKeyIsErase : true
 !XTerm*backarrowKey        : true
-!XTerm*borderWidth         : 0 doesnt do anything
-XTerm*internalBorder       : 0
 !XTerm*modifier            : alt
-XTerm*saveLines            : 2048
-XTerm*scrollBar            : false
-XTerm*toolBar              : false
-!XTerm*titeInhibit         : true
 
 !------------------------------------------------------------------------------
 ! URxvt
-
 URxvt*font            : xft:Inconsolata-g:size=10:antialias=false
 !URxvt*letterSpace     : -1
 
@@ -69,11 +71,11 @@ URxvt*shading       : 10
 !----------------------------
 ! XFT settings
 !Xft.dpi       : 96
+Xft.antialias : true
+Xft.rgba:     : rgb
+Xft.hinting   : true
+Xft.hintstyle : hintfull
+!Xft.rgba      : none
 Xft.autohint  : 0
 Xft.lcdfilter : lcddefault
-Xft.hintstyle : hintfull
-Xft.hinting   : 1
-Xft.rgba:     : rgb
-Xft.antialias : true
-!Xft.rgba      : none
 

@@ -9,8 +9,8 @@ compton -cCG -e 1.0 -o 0.5 -t 0 -l 0 -r 3 -m 0.9 \
   --backend glx -b &
 
 #Programs
-dropboxd &
-syncthing-gtk -s -m &
+dropbox &
+syncthing-gtk -m &
 # firefox &
 # synergy &
 # pidgin &

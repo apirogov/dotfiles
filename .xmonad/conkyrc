@@ -17,7 +17,7 @@ ${exec mpc -h $(cat /tmp/currmpd)|tail -n 1|sed 's/volume://'|awk '{print$1}'} \
 ^ca(3,cat /tmp/currmpd | xargs -Ihost mpc -h host stop)\
 ${exec mpc -h $(cat /tmp/currmpd)|sed '2q;d'|awk '{print$1}'|head -c 3}] \
 ^ca()^ca()\
-^ca(1,cat /tmp/currmpd | xargs lxterminal -e ncmpcpp -h)\
+^ca(1,cat /tmp/currmpd | xargs urxvt -e ncmpcpp -h)\
 ${exec mpc -h $(cat /tmp/currmpd)|head -n 1|head -c 40} \
 ^ca()\
 ^ca(1,cat /tmp/currmpd | xargs -Ihost mpc -h host next)\
