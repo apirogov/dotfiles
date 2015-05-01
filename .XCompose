@@ -1,2 +1,0 @@
-include "%L" #Load default defs
-<Multi_key> <d> <a> : "↓" downarrow

@@ -31,6 +31,7 @@ syndaemon -t -K -i 1 -d
 
 #Keyboard:
 setxkbmap de neo -option #set neo keyboard layout
+xmodmap -e "keycode 105 = Multi_key" #Ctrl_R -> Multi_key
 #set Scroll-lock key to switch QWERTZ (default) and NEO
 #setxkbmap -layout de,de -variant nodeadkeys,neo -option -option grp:sclk_toggle -option grp_led:scroll
 #set Scroll-lock key to switch NEO (default) and QUERTZ
@@ -45,8 +46,14 @@ xset -r 51 && xset -r 94 #no Mod3/4 key repeat - for Neo
 # xset r 113 && xset r 116
 
 #Force GTK to use XIM to read .Xcompose
-export GTK_IM_MODULE="xim"
-export XMODIFIERS="@im=none"
+#export GTK_IM_MODULE="xim"
+#export XMODIFIERS="@im=none"
+
+#Use fcitx for unicode input
+export GTK_IM_MODULE=fcitx
+export QT_IM_MODULE=fcitx
+export XMODIFIERS=@im=fcitx
+fcitx
 #----
 
 screens -d  #use my custom screen toggle script to set dualscreen

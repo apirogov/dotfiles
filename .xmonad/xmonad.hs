@@ -21,6 +21,7 @@ import XMonad.Actions.UpdatePointer (updatePointer)
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.ManageDocks
+import XMonad.Hooks.Place
 import XMonad.Hooks.SetWMName
 import XMonad.Hooks.ServerMode
 import XMonad.Hooks.UrgencyHook
@@ -100,7 +101,11 @@ myLayout = trackFloating $ smartBorders $ avoidStruts $ mkToggle1 NBFULL $ mkTog
 -- resource/appName: first elem. of WM_CLASS
 -- className: second elem. title: WM_NAME
 -- others: e.g. stringProperty "WM_WINDOW_ROLE" to access it.
-myManageHook = namedScratchpadManageHook scratchpads <+> manageDocks
+myManageHook = placeHook simpleSmart
+             <+> composeAll [className =? "com-mathworks-util-PostVMInit" --> doFloat
+                            ,className =? "Vlc" --> doFloat
+                            ]
+             <+> namedScratchpadManageHook scratchpads <+> manageDocks
 
 -- Perform an arbitrary action each time xmonad starts or is restarted with mod-q.
 myStartupHook = spawn myTrayerCommand <+>updateConkyMPD <+> spawn myDzenConky

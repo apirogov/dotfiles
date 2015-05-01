@@ -107,7 +107,7 @@ alias findtext="grep --color=always -ri" #better use ag when installed
 alias findfile='find . -name'
 alias t='todo.sh'
 alias tmux='tmux -2'
-alias matlabrepl='matlab -nosplash -nodesktop -nojvm'
+alias matlabrepl='matlab -nosplash -nodesktop; stty echo' # -nojvm
 
 alias ping='ping -c 5'	#Limit ping number
 alias pingl='ping6 ff02::1%eth0'  #ping local devices
@@ -122,21 +122,27 @@ alias mirror="rsync -auv --delete"
 #Compiler settings
 alias hc='rm -rf /tmp/*.o; ghc -Wall -fwarn-name-shadowing -fwarn-incomplete-patterns -hidir=/tmp -odir=/tmp -O' #"script compile" shortie
 alias gcc='LANG="C" gcc -ansi -std=c99 -pedantic -Wall -Wextra -Wshadow -Wcast-qual -Wformat=2 -Wmissing-include-dirs -Wfloat-equal -Wswitch-enum -Wundef -Wwrite-strings -Wredundant-decls -fverbose-asm -pg -g '	#High standard level, many debugging opts
-#Recursive javac in root source directory with fixing UTF
+#Recursive javac in root source directory, fixing UTF and setting up dirs
 javacrec() {
-  find . -name "*.java" -exec sh -c 'iconv -f ISO-8859-15 -t UTF-8 "$1" > tmp; mv tmp "$1"' x {} \;
+  echo "convert to unicode.."
+  find -name "*.java" -exec sh -c 'iconv -f ISO-8859-15 -t UTF-8 "$1" > tmp; mv tmp "$1"' x {} \;
+  echo "create package structure.."
+  dir="grep package \$1 | sed 's/[\\t ]*package[\\t ]*\\([a-zA-Z0-9.]*\\)[\\t ]*;.*/\\1/' | sed 's/\\./\\//'"
+  find -name "*.java" -exec sh -c "dir=\$($dir); [ -n \"\$dir\" ] && mkdir -p \$dir && mv \$1 \$dir" x {} \;
+  echo "compile!"
   find -name "*.java" > .java_sources.txt; javac @.java_sources.txt; rm -f .java_sources.txt
 }
 
 #Package Management - Pacman
 if which pacman >/dev/null; then
-  alias yup='yaourt -Syu --aur' #Dist upgrade
-  alias yss='yaourt -Ss'        #Search for packages
-  alias yin='sudo pacman -S --needed' #Install package from database
-  alias yip='sudo pacman -U'    #Install local Package
-  alias yrm='sudo pacman -Ruscn' #Recursive remove
-  alias ygl='pacman -Qqne'      #List of installed packages
-  alias ygf='pacman -Qqme'      #List foreign/AUR packages
+  function pss(){ aura -Ss $1; aura -As $1; } #Search for packages
+  alias pup='sudo -- sh -c "aura -Syu; aura -Au"'   #Dist upgrade
+  alias pip='sudo pacman -S --needed' #Install package from database
+  alias prp='sudo pacman -Ruscn' #Recursive remove
+  alias pil='sudo pacman -U'     #Install local Package
+  alias pro='sudo aura -Oj'      #List and remove orphans
+  alias pgl='pacman -Qqne'       #List of installed packages
+  alias pgf='pacman -Qqme'       #List foreign/AUR packages
 fi
 if which systemctl >/dev/null; then
   alias listd="systemctl list-unit-files --type=service" #show all daemons run on startup
@@ -160,6 +166,7 @@ alias speedtest='wget -O /dev/null http://speedtest.wdc01.softlayer.com/download
 say() { mpv "http://translate.google.com/translate_tts?ie=UTF-8&tl=en&q=$(escape "$1" %)";} #say over google tts
 #German-English translation... via dict.cc, requires curl, grep and ruby
 translate(){ curl --silent http://www.dict.cc/?s=$1|grep c[12]Arr | ruby -e "arr=[gets.split('\",\"'),gets.split('\",\"')]; arr[0].shift; arr[1].shift; arr.each{|x| x[-1]=x[-1][0..-5] }; 0.upto(arr[0].length-1){|n| puts arr[0][n]+' <-> '+arr[1][n] }"; }
+getunicode(){ wget -O - http://www.fileformat.info$(wget -O - http://www.fileformat.info/info/unicode/char/$1/index.htm 2>/dev/null | grep $1 | grep img | sed 's/.*src="//' | sed 's/".*//') 2>/dev/null | display; }
 
 # Proxy
 assignProxy(){
@@ -218,7 +225,7 @@ alias center.updatebackup="rsync --delete -avue 'ssh -p $MEDIASSHP' ~/myfiles $M
 alias center.mpc="ncmpcpp -h $MEDIAHOST"
 alias center.stream="mpv http://$MEDIAHOST:8000"
 #alias to access either first mpd from .mpdpwd -> mediaserver, or fallback to localhost
-SMARTMPD='$(if ping -c 1 -w 1 $MEDIAHOST > /dev/null; then echo $(head -n 1 $MPDPWDFILE)@$MEDIAHOST; else echo localhost; fi)'
+SMARTMPD='$(if ping -c 1 -w 1 $MEDIAHOST > /dev/null; then echo $(head -n 1 $MPDPWDFILE); else echo localhost; fi)'
 alias music="ncmpcpp -h $SMARTMPD"
 #----
 
@@ -253,9 +260,25 @@ function vncserve() {
 #My vnc shortie: vnc host password other_options
 vnc(){ echo $2|vncviewer -compresslevel 9 -quality 7 -autopass $3 $1; }
 
-
 #Homework assignments
 #--------------------
+#Copy tex file into subdir - basically mini tex template automation
+#requires to have a whatever_base.tex file with placeholder NUM in current directory
+hwtex() {
+  if [ $# -eq 0 ]; then echo "No number given!"; return 1; fi
+  num=$(printf "%02d" $1)
+  exists=0
+  if [ -d "L$num" ]; then echo "Opening existing..."; exists=1; fi
+  match=$(find ./ -name "*_base.tex"|sort|tail -n 1)
+  if [ -z "$match" ]; then echo "No base file (ending with _base.tex) found!"; return 1; fi
+  file=$(sed "s/base/$num/" <<< $match)
+  if [ $exists -eq 0 ]; then
+    mkdir L$num; cat $match | sed "s/NUM/$num/" > L$num/$file
+  fi
+  cd L$num
+  vim $file +Latexmk +LatexView
+}
+
 # wraps cd, autocompletion removes one dir for each <TAB>-press, cycling
 # To move forward again, append a / and <TAB>
 function ..() { cd $1; }
@@ -297,23 +320,6 @@ _cdm() {
   fi
 }
 complete -o nospace -F _cdm cdm
-
-#Copy tex file into subdir - basically mini tex template automation
-#requires to have a whatever_base.tex file with placeholder NUM in current directory
-hwtex() {
-  if [ $# -eq 0 ]; then echo "No number given!"; return 1; fi
-  num=$(printf "%02d" $1)
-  exists=0
-  if [ -d "L$num" ]; then echo "Opening existing..."; exists=1; fi
-  match=$(find ./ -name "*_base.tex"|sort|tail -n 1)
-  if [ -z "$match" ]; then echo "No base file (ending with _base.tex) found!"; return 1; fi
-  file=$(sed "s/base/$num/" <<< $match)
-  if [ $exists -eq 0 ]; then
-    mkdir L$num; cat $match | sed "s/NUM/$num/" > L$num/$file
-  fi
-  cd L$num
-  vim $file +Latexmk +LatexView
-}
 #--------------------
 
 #Create socks proxy to uni lübeck intranet for usage with tsocks etc running on port 7070
@@ -334,17 +340,3 @@ ppp() {
 }
 complete -f -X '!*.@(pdf)' ppp #complete only pdf files
 
-# if [ -e "/etc/pacman.conf" ]; then
-if false; then
-#set 256 color color
-Set256Color(){ if [ "$TERM" != "linux" ];then echo -e "\e[38;5;$1m";fi; }
-#Archlinux greeting (Distribution, Kernel Version, Date+Time, Uptime)
-echo -e "\e[1;36m$(Set256Color 51)        ,                        _     _ _
-       /#\         __ _ _ __ ___| |__ | (_)_ __  _   ___  __
-$(Set256Color 45)      ,###\       / _\` | '__/ __| '_ \| | | '_ \| | | \ \/ /
-\e[0;36m$(Set256Color 39)     /#####\     | (_| | | | (__| | | | | | | | | |_| |>  <
-$(Set256Color 33)    /##,-,##\     \__,_|_|  \___|_| |_|_|_|_| |_|\__,_/_/\_\\
-   /##(   )##\`   \e[0;33m\t$(uname -o) Kernel $(uname -r)
-\e[0;36m$(Set256Color 27)  /#.--   --.#\  \e[0;32m$(date "+%a, %e. %B %Y %H:%M:%S"), uptime:$(uptime|head -c 17|tail -c 5)
-\e[0;36m$(Set256Color 27) /\`           \`\ "
-fi

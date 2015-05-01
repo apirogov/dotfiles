@@ -50,6 +50,8 @@ Plug 'briandoll/change-inside-surroundings.vim'
 Plug 'tommcdo/vim-lion'
 " Ag (the silver searcher) search (awesome fast code grep with :Ag)
 Plug 'rking/ag.vim'
+" Regex preview
+Plug 'osyo-manga/vim-over'
 
 " Undo tree visualization
 Plug 'mbbill/undotree'

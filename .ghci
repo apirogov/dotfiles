@@ -1,12 +1,8 @@
 -- allows ifdef constructions only for interpreter with CPP language pragma
 :set -DGHCI
 
-import Data.List
 import Data.Function (on)
 import Data.Ratio
-
-import Control.Applicative
-import Control.Monad hiding (forM,forM_,mapM,mapM_,msum,sequence,sequence_)
 
 -- :set -XOverloadedStrings
 -- :set prompt "\ESC[1;37m%s\n\ESC[1;34mλ> \ESC[m"
