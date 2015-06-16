@@ -109,7 +109,7 @@ set number                     " show line number
 
 if has("gui_running")          " GVim
   set cursorline               " highlight current line
-  set guifont=Inconsolata-g\ 9 " Font for GVim
+  set guifont=Inconsolata\ LGC\ 9 " Font for GVim
   set guioptions-=T            " Remove toolbar
   set guioptions-=e            " Remove GUI tabs (use console tabs)
   set guioptions-=r            " Remove right-hand scrollbar
@@ -133,26 +133,27 @@ au FileType xml,html setlocal matchpairs+=<:>
 au FileType haskell setlocal expandtab
 au FileType ruby setlocal expandtab shiftwidth=2 softtabstop=2
 au FileType python setlocal expandtab shiftwidth=4 softtabstop=4
+au FileType rust setlocal expandtab shiftwidth=4 softtabstop=4
 au FileType java setlocal noexpandtab shiftwidth=4 softtabstop=4
 
 " Language specific settings and keybindings
 " ------------------------------------------
 
 " Save and compile without make file and run small C program (not useful on multifile project)
-au BufRead,BufNewFile  *.c,*.h  map <F8>  :w<cr>:!cc % && ./a.out<cr>
+au BufRead,BufNewFile  *.c,*.h  map <buffer> <F8>  :w<cr>:!gcc -std=c99 -lm -Wall -fopenmp %<cr><cr>
+au BufRead,BufNewFile  *.c,*.h  map <buffer> <F7>  :!./a.out<space>
 " Save and run ruby interpreter
-au BufRead,BufNewFile  *.rb     map <F8>  :w<cr>:!ruby %<cr>
+au BufRead,BufNewFile  *.rb     map <buffer> <F8>  :w<cr>:!ruby %<cr>
 " Load into IRB
-au BufRead,BufNewFile  *.rb     map <F7>  :w<cr>:!irb -r ./%<cr>
+au BufRead,BufNewFile  *.rb     map <buffer> <F7>  :w<cr>:!irb -r ./%<cr>
 " Run with Matlab
-au BufRead,BufNewFile  *.m      map <F8>  :w<cr>::!matlab -nodesktop -nosplash -r "try, run %:p, pause, catch, end, quit" <CR><CR>
-" Compile a pdf from latex
-au BufRead,BufNewFile *.tex     map <F8>  :w<cr>:cd %:p:h<cr>:!lualatex *.tex<cr><cr>
+au BufRead,BufNewFile  *.m      map <buffer> <F8>  :w<cr>::!matlab -nodesktop -nosplash -r "try, run %:p, pause, catch, end, quit" <CR><CR>
 " Load into GHCI
-au BufRead,BufNewFile *.hs      map <F7>  :w<cr>:!ghci %<cr>
+au BufRead,BufNewFile *.hs      map <buffer> <F7>  :w<cr>:!ghci %<cr>
 " Compile a standalone haskell script
-au BufRead,BufNewFile *.hs      map <F8>  :w<cr>:!rm -rf /tmp/*.o; ghc -fwarn-name-shadowing -hidir=/tmp -odir=/tmp -O -o a.out % && ./a.out<cr>
-
+au BufRead,BufNewFile *.hs      map <buffer> <F8>  :w<cr>:!rm -rf /tmp/*.o; ghc -fwarn-name-shadowing -hidir=/tmp -odir=/tmp -O -o a.out % && ./a.out<cr>
+" Compile a pdf from latex
+au BufRead,BufNewFile *.tex     map <unique> <F8>  :w<cr>:cd %:p:h<cr>:!lualatex *.tex<cr><cr>
 
 " General keybindings
 " -------------------
@@ -161,7 +162,13 @@ nnoremap <M-Left> <C-w>h
 nnoremap <M-Right> <C-w>l
 nnoremap <M-Up> <C-w>k
 nnoremap <M-Down> <C-w>j
+nnoremap <M-S-Left> 2<C-w><
+nnoremap <M-S-Right> 2<C-w>>
+nnoremap <M-S-Up> 2<C-w>+
+nnoremap <M-S-Down> 2<C-w>-
 
+" more consistent
+nnoremap Y y$
 " Move row-wise instead of line-wise (difference if wrapped)
 nnoremap j gj
 nnoremap k gk
@@ -191,8 +198,6 @@ nmap <leader>bB :b#<cr>
 nmap <leader>bs :ls<cr>:sb<space>
 nmap <leader>bv :ls<cr>:vert sb<space>
 
-" more consistent
-nnoremap Y y$
 
 " Misc. independent improvements
 " ------------------------------
@@ -228,12 +233,12 @@ au FileType * au BufWritePre <buffer> :call <SID>StripTrailingWhitespaces()
 au FileType * exec("setlocal dictionary+=".$HOME."/.vim/dict/".expand('<amatch>'))
 set complete+=k
 
-" Open url under cursor
-map <leader>mo "1yiW:!firefox -new-tab "<c-r>1"<cr><cr>
-" hide URL, highlight comments
+" bookmarks file: hide URL, highlight comments
 au BufNewFile,BufRead bookmarks setlocal filetype=text conceallevel=2 nowrap tw=0
 au BufNewFile,BufRead bookmarks syntax match URLstr /^http\S\+/ conceal cchar=>
 au BufNewFile,BufRead bookmarks syntax match Comment /^#.\+/
+" Open url under cursor
+map <leader>mo "1yiW:!firefox -new-tab "<c-r>1"<cr><cr>
 
 " ---------- Memos ------------
 "Tip: Macros
@@ -258,3 +263,5 @@ au BufNewFile,BufRead bookmarks syntax match Comment /^#.\+/
 "Tip: Open file at specific line or search position with: vim +line file or vim +/search file
 "     same works with :e within
 "Tip: !ipcolumn -t to align paragraph without additional plugins
+"Tip: open multiple files in splits / tabs with -o / -O / -p parameters
+"Tip: Edit remote files over scp://user@host/path

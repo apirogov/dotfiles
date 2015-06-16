@@ -1,12 +1,14 @@
 {-# LANGUAGE DeriveDataTypeable, TypeSynonymInstances, MultiParamTypeClasses #-}
-{-# OPTIONS_GHC -W -fwarn-unused-imports -fno-warn-missing-signatures #-}
+{-# OPTIONS_GHC -W -fwarn-unused-imports -fno-warn-missing-signatures -fno-warn-type-defaults #-}
 -- xmonad config of Anton Pirogov
 -- requires trayer-srg-git + dzen2 + conky + xmonad-contrib-darcs
 ---------------------------------------------------------------
 import Data.List (elemIndex)
+import qualified Data.Map as M
 import Data.Maybe (fromMaybe)
-import Control.Applicative ((<$>))
 import Control.Monad (when)
+import System.Directory (setCurrentDirectory)
+import System.Posix.Env (getEnvDefault)
 
 import XMonad
 import qualified XMonad.StackSet as W
@@ -21,14 +23,13 @@ import XMonad.Actions.UpdatePointer (updatePointer)
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.ManageDocks
-import XMonad.Hooks.Place
 import XMonad.Hooks.SetWMName
 import XMonad.Hooks.ServerMode
 import XMonad.Hooks.UrgencyHook
 import XMonad.Hooks.WallpaperSetter
 
 import XMonad.Util.EZConfig (additionalKeys)
-import XMonad.Util.NamedScratchpad
+import XMonad.Util.NamedScratchpad hiding (name,cmd)
 import XMonad.Util.Replace
 import XMonad.Util.Run (runProcessWithInput, runInTerm)
 import XMonad.Util.WorkspaceCompare (getSortByXineramaRule,getSortByIndex)
@@ -37,6 +38,7 @@ import qualified XMonad.Util.ExtensibleState as XS
 import XMonad.Prompt
 import XMonad.Prompt.Input
 import XMonad.Prompt.Shell
+import XMonad.Prompt.Directory
 
 -- base layouts
 import XMonad.Layout.BinarySpacePartition
@@ -47,7 +49,7 @@ import XMonad.Layout.NoBorders (smartBorders,noBorders)
 import XMonad.Layout.Renamed
 import XMonad.Layout.Spacing
 import XMonad.Layout.TrackFloating
-import XMonad.Layout.WindowSwitcherDecoration
+-- import XMonad.Layout.WindowSwitcherDecoration
 -- layout combinators
 import XMonad.Layout.IM
 import XMonad.Layout.MultiToggle
@@ -55,7 +57,7 @@ import XMonad.Layout.Reflect (REFLECTX(..),REFLECTY(..))
 
 ---------------------------------------------------------------
 -- The preferred terminal program, which is used in a binding below and by certain contrib modules.
-myTerminal           = "urxvt"
+myTerminal           = "lxterminal"
 -- Whether focus follows the mouse pointer.
 myFocusFollowsMouse  = True
 -- Width of the window border in pixels.
@@ -87,25 +89,23 @@ tabbedLayout  = renamed [Replace "Tab"] $ tabbed shrinkText myTabConfig
 myLayout = trackFloating $ smartBorders $ avoidStruts $ mkToggle1 NBFULL $ mkToggle1 TABBED
          $ renamed [Replace "Bsp"] {- $ winSwitcher -} $ borderResize $ spacingWithEdge 0
          $ mkToggle1 REFLECTX $ mkToggle1 REFLECTY $ imLayout $ emptyBSP
-  where winSwitcher l = renamed [CutWordsLeft 1]
-          $ windowSwitcherDecoration shrinkText def{activeColor="#002590"} l
-        imLayout    = (renamed [CutWordsLeft 1]) . (withIM (1/8)
+  where imLayout    = (renamed [CutWordsLeft 1]) . (withIM (1/8)
                       (ClassName "Pidgin" `And` Role "buddy_list"
                       `Or` ClassName "Gajim" `And` Role "roster"
                       `Or` ClassName "Skype" `And`
                         (Not $ (Role "ConversationsWindow" `Or` Role "CallWindow"))))
-
+        -- winSwitcher l = renamed [CutWordsLeft 1]
+        --               $ windowSwitcherDecoration shrinkText def{activeColor="#002590"} l
 ------------------------------------------------------------------------
 -- Execute arbitrary actions and WindowSet manipulations when managing a new window.
 -- (use the xprop utility to get window attributes). possible attributes:
 -- resource/appName: first elem. of WM_CLASS
 -- className: second elem. title: WM_NAME
 -- others: e.g. stringProperty "WM_WINDOW_ROLE" to access it.
-myManageHook = placeHook simpleSmart
+myManageHook = namedScratchpadManageHook scratchpads -- <+> placeHook simpleSmart
              <+> composeAll [className =? "com-mathworks-util-PostVMInit" --> doFloat
                             ,className =? "Vlc" --> doFloat
-                            ]
-             <+> namedScratchpadManageHook scratchpads <+> manageDocks
+                            ] <+> manageDocks
 
 -- Perform an arbitrary action each time xmonad starts or is restarted with mod-q.
 myStartupHook = spawn myTrayerCommand <+>updateConkyMPD <+> spawn myDzenConky
@@ -140,7 +140,7 @@ myConf = def {
 
 -- command line calls to my dzen2 and trayer instances
 -- use DZen2 version with Xinerama, XFT and XPM (Option 7 in config.mk)
-myDzenStyle = " -e 'onstart=lower' -fn 'Inconsolata:size=10' -xs 1 -h 16"
+myDzenStyle = " -e 'onstart=lower' -fn 'Inconsolata LGC:size=9' -xs 1 -h 16"
 myDzenStatus = "dzen2 -ta l -w 500" ++ myDzenStyle
 myDzenConky  = "conky -c ~/.xmonad/conkyrc | dzen2 -ta r -x 500 -w 1000" ++ myDzenStyle
 myTrayerCommand = "trayer -l --monitor primary --edge top --align right --expand true "
@@ -172,6 +172,12 @@ myXPConfig = def {
     position = Top , promptBorderWidth = 0
   , bgColor = "#202020",  fgColor = "#d0d0d0"
   , bgHLight = "#004080", fgHLight = "#f0f0f0"
+  , promptKeymap = defaultXPKeymap `M.union` M.fromList [ --make Neo layer 4 arrows work
+      ((mod3Mask, xK_Left), moveCursor Prev)
+    , ((mod3Mask, xK_Right), moveCursor Next)
+    , ((mod3Mask, xK_Up), moveHistory W.focusUp')
+    , ((mod3Mask, xK_Down), moveHistory W.focusDown')
+    ]
   }
 
 -- selection prompt that shows all options from the start
@@ -249,12 +255,28 @@ withNamedWorkspace job str = do
     Nothing -> addHiddenWorkspace str >> withNamedWorkspace job str
 
 -- switch workspace, remove if it is empty and not in default list (dynamicWS)
-goToWS ws = removeEmptyWorkspaceAfterExcept myWorkspaces (return ()) >> addWorkspace ws
+goToWS ws = removeEmptyWorkspaceAfterExcept myWorkspaces $ addWorkspace ws
+
+newtype WSDir = WSDir { wsDir :: M.Map String String } deriving Typeable
+instance ExtensionClass WSDir where
+    initialValue = WSDir $ M.fromList []
+
+-- directory per workspace
+goWSdir ws = do
+  home <- liftIO $ getEnvDefault "HOME" "~"
+  dirs <- XS.gets wsDir
+  catchIO $ setCurrentDirectory $ fromMaybe home $ M.lookup ws dirs
+
+setWSdir xp = do
+  ws <- gets $ W.currentTag . windowset
+  directoryPrompt xp "Set working directory: "
+    (\dir -> XS.modify $ \(WSDir dirs) -> WSDir $ M.insert ws dir dirs)
+  goWSdir ws
 
 ----
 
 scratchpads = [
-  NS "scratchpad" "urxvt -name scratchpad +sb -e bash -c 'tmux attach -t scratch || tmux new -s scratch'"
+  NS "scratchpad" "urxvt -name scratchpad +sb -e bash -c 'tmux -2 new -A -s scratch'"
      (resource =? "scratchpad") (customFloating $ W.RationalRect 0 0 1.0 0.5),
   NS "neoview" "feh --title neoview ~/.xmonad/neo-druckvorlage.png"
      (title =? "neoview") (customFloating $ W.RationalRect 0 0 1.0 0.33)
@@ -283,6 +305,7 @@ main = do
     , ((myModMask .|. mod3Mask,   xK_l), windowSwap U True)
     , ((myModMask .|. mod3Mask,   xK_a), windowSwap D True)
     , ((myModMask,                xK_z), switchLayer)
+    , ((myModMask,                xK_d), setWSdir myXPConfig)
 
     -- CycleWS for screen handling
     , ((myModMask,                xK_w), prevScreen)
@@ -318,6 +341,8 @@ main = do
     , ((myModMask,               xK_b),     sendMessage Balance)
     , ((myModMask .|. shiftMask, xK_b),     sendMessage Equalize)
     , ((myModMask,               xK_n),     sendMessage FocusParent)
+    , ((myModMask .|.controlMask,xK_n),     sendMessage SelectNode)
+    , ((myModMask .|. shiftMask, xK_n),     sendMessage MoveNode)
 
     -- scratchpad
     , ((myModMask, xK_BackSpace), scratch "scratchpad")
@@ -331,7 +356,7 @@ main = do
     , ((0, 0x1008ff03), spawn "xbacklight -dec 10")
     , ((0, 0x1008ff2d), spawn "xscreensaver-command -lock") -- lock key on thinkpad
     , ((0, 0xff25),     spawn "xscreensaver-command -lock") -- Fn-Esc on my TECK
-    , ((0, 0x1008ff59), spawn "screens" >> spawn xmRestart) -- key with projector
+    , ((0, 0x1008ff59), spawn $ "screens && "++xmRestart) -- key with projector
     -- , ((0, 0x1008ff2f), spawn "sudo systemctl suspend")     -- suspend media key (systemd takes care (logind.conf))
 
     -- system volume keys
@@ -350,15 +375,15 @@ main = do
     , ((myModMask, 0x1008ff13), mpccmd "volume +10")
     ]
     ++ -- dynamic workspaces for all unused numbers (will be auto-added + auto-removed when empty)
-    (drop (length myWorkspaces) $ zip (zip (repeat myModMask) $ [xK_1..xK_9]++[xK_0])
-        (map goToWS $ map show $ [1..9]++[0]))
+    (zip (zip (repeat myModMask) $ [xK_1..xK_9]++[xK_0])
+        (map (\ws -> goWSdir ws >> goToWS ws) $ map show $ [1..9]++[0]))
     ++
-    (drop (length myWorkspaces) $ zip (zip (repeat (myModMask .|. shiftMask)) $ [xK_1..xK_9]++[xK_0])
+    (zip (zip (repeat (myModMask .|. shiftMask)) $ [xK_1..xK_9]++[xK_0])
         (map (withNamedWorkspace W.shift) $ map show $ [1..9]++[0]))
     ))
     where xmRestart = "xmonad --recompile && killall trayer conky dzen2; xmonad --restart"
           mpccmd str = XS.gets mpdHost >>= \h -> spawn $ "mpc -h "++h++" "++str
-          runMpdClient = XS.gets mpdHost >>= \h -> runInTerm "" $ "ncmpcpp -h "++h
+          runMpdClient = XS.gets mpdHost >>= \h -> runInTerm "" $ "bash -c 'ncmpcpp -h "++h++"'"
           togTouchpad = "synclient TouchpadOff=$(synclient -l | grep -c 'TouchpadOff.*=.*0')"
           togKBLayout = "setxkbmap -v | grep 'us('; if [[ \"$?\" == '0' ]]; then setxkbmap de neo -option;"
                        ++ " else setxkbmap us cz_sk_de -option -option caps:escape; fi"

@@ -2,8 +2,7 @@
 " vim: set foldmethod=marker foldlevel=0:
 " ---------------------------------------
 " Completion engine (tab completion / supertab replacement)
-if 1==0
-if v:version > 703 && has('lua')
+if v:version > 703 && has('lua') && 1==0
   Plug 'Shougo/neocomplete'
   " neocomplete settings {{{
   let g:neocomplete#enable_at_startup = 1
@@ -28,31 +27,12 @@ if v:version > 703 && has('lua')
   inoremap <expr><C-y>  neocomplete#close_popup()
   inoremap <expr><C-e>  neocomplete#cancel_popup()
   " }}}
-else
-  Plug 'Shougo/neocomplcache'
-  " neocomplcache settings {{{
-  let g:neocomplcache_enable_at_startup = 1
-  let g:neocomplcache_enable_smart_case = 1
-  let g:neocomplcache_min_syntax_length = 3
-  inoremap <expr><C-g>     neocomplcache#undo_completion()
-  inoremap <expr><C-l>     neocomplcache#complete_common_string()
-  inoremap <silent> <CR> <C-r>=<SID>my_cr_function()<CR>
-  function! s:my_cr_function()
-    return neocomplcache#close_popup() . "\<CR>"
-  endfunction
-  inoremap <expr><TAB>  pumvisible() ? "\<C-n>" : "\<TAB>"
-  inoremap <expr><C-h>  neocomplcache#smart_close_popup()."\<C-h>"
-  inoremap <expr><BS>   neocomplcache#smart_close_popup()."\<C-h>"
-  inoremap <expr><C-y>  neocomplcache#close_popup()
-  inoremap <expr><C-e>  neocomplcache#cancel_popup()
-  " }}}
-endif
 endif
 
 " Code snippets (complete with C-k) / snipmate replacement
-"Plug 'Shougo/neosnippet.vim'
-"Plug 'Shougo/neosnippet-snippets'
-"Plug 'honza/vim-snippets'
+Plug 'Shougo/neosnippet.vim'
+Plug 'Shougo/neosnippet-snippets'
+Plug 'honza/vim-snippets'
 " neosnippet settings {{{
 let g:neosnippet#enable_snipmate_compatibility = 1    " Use own snipmate snippets from .vim/snippets
 " Plugin key-mappings.
@@ -68,9 +48,9 @@ xmap <C-k>     <Plug>(neosnippet_expand_target)
 " Project and session management
 " ------------------------------
 " Async compiling
-"Plug 'tpope/vim-dispatch'
+" Plug 'tpope/vim-dispatch'
 " Sesssion management :Obsess(!) / vim -S Session.vim
-"Plug 'tpope/vim-obsession'
+" Plug 'tpope/vim-obsession'
 " Allow project-local vim config (.lvimrc)
 Plug 'embear/vim-localvimrc'
 let g:localvimrc_persistent = 1 " Remember decisions in file

@@ -4,7 +4,8 @@
 
 !-------------------------------------------------------------------------------
 ! Misc
-
+xscreensaver.dpmsEnabled: False
+xscreensaver.dpmsQuickoffEnabled: False
 dzen2.font: -*-fixed-*-*-*-*-10-*-*-*-*-*-*-*
 
 !-------------------------------------------------------------------------------
@@ -42,15 +43,16 @@ XTerm*charClass            : 33:48,35-38:48,39:43,42-47:48,58-59:48,61:48,63-64:
 !------------------------------------------------------------------------------
 ! URxvt
 URxvt*termName        : rxvt
-URxvt*font            : xft:Inconsolata-g:size=10:antialias=false
+URxvt*font            : xft:Inconsolata LGC:size=9:antialias=true
 !URxvt*letterSpace     : -1
 
 !Enable unicode input with ctrl-shift, disable stupid keycap-picture insert mode
 URxvt.iso14755        : true
 URxvt.iso14755_52     : false
-URxvt.preeditType     : OverTheSpot
-URxvt.inputMethod     : fcitx
 !URxvt*imFont          : xft:Inconsolata-g:size=10:antialias=false
+!Enable fcitx
+URxvt.inputMethod     : fcitx
+!URxvt.preeditType     : OverTheSpot
 
 URxvt.perl-ext-common : default,matcher
 URxvt.url-launcher    : firefox
@@ -74,6 +76,11 @@ URxvt.background    : [95]#000000
 ! Pseudo transparency
 URxvt*transparent   : true
 URxvt*shading       : 10
+
+URxvt.keysym.M-Up             : \033[1;3A
+URxvt.keysym.M-Down           : \033[1;3B
+URxvt.keysym.M-Right          : \033[1;3C
+URxvt.keysym.M-Left           : \033[1;3D
 
 !----------------------------
 ! XFT settings

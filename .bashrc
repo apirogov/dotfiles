@@ -3,8 +3,12 @@
 
 #Add own binaries
 #Global cabal sandbox only for recent cabal-install and xmonad
-paths=(~/bin ~/bin/matlab/bin ~/.cabal/bin ~/bin/sandboxes/*/bin ~/.gem/ruby/*/bin)
+paths=(~/bin ~/bin/matlab/bin ~/bin/sandboxes/*/bin ~/.cabal/bin  ~/.gem/ruby/*/bin)
 for bindir in ${paths[@]}; do [ -d $bindir ] && PATH=$PATH:${bindir}; done
+#add non-system .so libs
+libs=()
+# for libdir in ${libs[@]}; do [ -d $libdir ] && LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${libdir}; done
+# export LD_LIBRARY_PATH
 
 [ -z "$PS1" ] && return # If not running interactively, don't do anything
 
@@ -61,14 +65,7 @@ complete -f -X '*.@(aux|fdb_latexmk|fls|pdf|out|log|class|o)' vim #don't complet
 
 #Default PS1: PS1='\u@\h:\W\$ '
 #Colored PS1:
-DEFAULT="\[\e[0m\]"
-RED="\[\e[1;31m\]"
-GREEN="\[\e[32m\]"
-GGREEN="\[\e[1;32m\]"
-BLUE="\[\e[1;34m\]"
-CYAN="\[\e[1;36m\]"
-WHITE="\[\e[1;37m\]"
-BLUEBG="\[\e[44m\]"
+DEFAULT="\[\e[0m\]"; RED="\[\e[1;31m\]"; BLUE="\[\e[1;34m\]"; CYAN="\[\e[1;36m\]"; WHITE="\[\e[1;37m\]"; BLUEBG="\[\e[44m\]"
 export PS1="$BLUEBG$WHITE[\t]$DEFAULT $([ "$EUID" != "0" ] && echo "$BLUE\u$RED@$CYAN" || echo "$RED\u@")\h$DEFAULT \W$WHITE \\$ $DEFAULT"
 
 ## EXPORTS
@@ -99,20 +96,15 @@ alias rm='rm -iv'       #safety - ask before delete/overwrite
 alias cp='cp -iv'
 alias mv='mv -iv'
 alias mkdir='mkdir -p -v' #Allow multiple levels at once
-alias ps='ps -e -o pid,comm,args,vsize,pcpu' #Tweaked process list
+alias ps='ps -e -o pid,user,comm,args,vsize,pcpu' #Tweaked process list
 alias df='df -hT'       #-h : Human readable
 alias du='du -sh'
 alias duf='du -sk * | sort -n | perl -ne '\''($s,$f)=split(m{\t});for (qw(K M G)) {if($s<1024) {printf("%.1f",$s);print "$_\t$f"; last};$s=$s/1024}'\' #readable + sorted
 alias findtext="grep --color=always -ri" #better use ag when installed
 alias findfile='find . -name'
-alias t='todo.sh'
-alias tmux='tmux -2'
-alias matlabrepl='matlab -nosplash -nodesktop; stty echo' # -nojvm
 
 alias ping='ping -c 5'	#Limit ping number
 alias pingl='ping6 ff02::1%eth0'  #ping local devices
-alias sshfs='sshfs -o idmap=user'
-reversetunnel() { autossh -M 0 -o "ServerAliveInterval 30" -o "ServerAliveCountMax 2" -N -R $2:localhost:2200 $1; } #Reverse tunnel to $1:$2
 
 #Filesystem
 alias tcrypt='sudo ~/.tcrypt.sh' #tcplay wrapper. Usage: tcrypt open|close CONTAINERFILE
@@ -132,6 +124,11 @@ javacrec() {
   echo "compile!"
   find -name "*.java" > .java_sources.txt; javac @.java_sources.txt; rm -f .java_sources.txt
 }
+#Poor man's presentation generation, usage: genpres ~/*pics.jpg > out.pdf
+#${@:1:$(($#-1))}
+genpres() { convert -crop +1+1 -crop -1-1 -gravity center -extent 1600x1200 $@ pdf:-; }
+#Shots to movie
+genmovie() { ffmpeg -framerate 4 -r 4 -pattern_type glob -i "$1"  -c:v libx264 -vf "fps=25,format=yuv420p" $2; }
 
 #Package Management - Pacman
 if which pacman >/dev/null; then
@@ -148,10 +145,11 @@ if which systemctl >/dev/null; then
   alias listd="systemctl list-unit-files --type=service" #show all daemons run on startup
 fi
 
-#SSH key management
-if which keychain >/dev/null; then
+#SSH / Remote stuff
+alias tmux='tmux -2'
+alias initsshkeys=''
+if which keychain >/dev/null; then #SSH key management
   alias initsshkeys='eval `keychain --eval --nogui -Q -q id_rsa 2>/dev/null`'
-  alias ssh='initsshkeys && ssh'
   git() { #Make sure ssh-agent is running with keychain before using git push
     if [ "push" == "$1" ] || [ "pull" == "$1" ]; then
       eval `keychain --eval --nogui -Q -q id_rsa 2>/dev/null`
@@ -159,8 +157,36 @@ if which keychain >/dev/null; then
     $(which git) "$@"
   }
 fi
+alias ssh='initsshkeys && ssh'
+alias sshfs='initsshkeys && sshfs -o idmap=user'
+reversetunnel() { autossh -M 0 -o "ServerAliveInterval 30" -o "ServerAliveCountMax 2" -N -R $2:localhost:2200 $1; } #Reverse tunnel to $1:$2
+sshproxy() { ssh -N -D7070 $1; } #Create socks proxy for usage with e.g. tsocks running on port 7070
+sshtmux(){ ssh -t $1 tmux -2 new -A -s main; }
+sshscreen(){ ssh -t $1 screen -R; }
 
-#Internet
+#VNC
+function vnckill() { vncserver -kill :1; }
+function vncserve() {
+  if [ $# -eq 0 ]; then GEO="1200x730"; else GEO="$1"; fi
+  vnckill; vncserver -geometry $GEO -alwaysshared -localhost -SecurityTypes None :1
+}
+#Run vncserver on remote host and create port forwarding for one minute
+sshvncup(){
+  vncopts="-alwaysshared -localhost -autokill -SecurityTypes None :1"
+  ssh -f -L 5901:localhost:5901 $1 "vncserver $vncopts && sleep 60"
+}
+sshvncdown(){ ssh $1 "vncserver -kill :1"; }
+
+#Nested X Server
+function xephyr(){
+  Xephyr $1 -ac -dpi 96 -reset -screen $2 2>&1 >/dev/null &
+  pid=$!
+  DISPLAY=$1 $3 &
+  sh -c "trap 'kill $pid; exit' INT; while [ 1 -lt 2 ] ; do sleep 5 ; done"
+}
+
+
+#Internet CLI
 alias getip="wget -O - -q http://checkip.dyndns.org/index.html|sed -e 's/.* //' -e 's/<.*//'"
 alias speedtest='wget -O /dev/null http://speedtest.wdc01.softlayer.com/downloads/test10.zip'
 say() { mpv "http://translate.google.com/translate_tts?ie=UTF-8&tl=en&q=$(escape "$1" %)";} #say over google tts
@@ -180,14 +206,29 @@ alias togglepad='killall syndaemon; synclient TouchpadOff=$(synclient -l | grep 
 alias resetscreen='xrandr -s 1 && xrandr -s 0' #reset screen resolution to default (after buggy games)
 alias xp='xprop | grep "WM_WINDOW_ROLE\|WM_CLASS" && echo "WM_CLASS(STRING) = \"NAME\", \"CLASS\"";xwininfo'
 alias top10size='find . -printf "%s %p\n"|sort -nr|head'
+matlabrepl(){ tmux -2 new -A -s mat "matlab -nosplash -nodesktop $@"; }
 top10cmds(){ history|awk '{a[$2]++}END{for(i in a){printf"%5d\t%s\n",a[i],i}}'|sort -nr|head; } # most used commands
 find_recently_changed(){ find $1 -type f -print0 | xargs -0 stat --format '%Y :%y %n' | sort -nr | cut -d: -f2- | head; }
 batchconv(){ mkdir modified; find . -iname "*.jpg" -o -iname "*.png" | xargs -l -i convert "$@" {} ./modified/{}; } #example: batchconv -resize 33%
 shrinkimg(){ convert -resize 33% "$1" "$1.jpg"; }
 pulsekill(){ echo autospawn = no > $HOME/.config/pulse/client.conf; pulseaudio --kill; rm $HOME/.config/pulse/client.conf; } #disable pulse
 getBankingCSV(){ aqbanking-cli request --transactions -a "$1" | aqbanking-cli listtrans > "$2"; } #Dump transactions to file
-calc(){ ruby -e "require 'mathn'; puts $1"; } #Ruby calculator
 escape(){ ruby -e "puts '$2'+'$1'.split(//).map{|x| x.slice(0).ord.to_s(16)}.join('$2')"; } #usage: escape STRING ESCPREFIX(like % or 0x)
+calc(){ ruby -e "require 'mathn'; puts $1"; } #Ruby calculator
+
+if which ghc >/dev/null; then #define these if ghc is present
+  function hcalc { ghc -e "($*)"; }
+  function hmap { ghc -e "interact ($*)"; }
+  function hmapl { hmap "unlines.($*).lines"; }
+  function hmapw { hmapl "map (unwords.($*).words)"; }
+fi
+
+#Set Urxvt font size on the fly
+fontsize() {
+  font=$(xrdb -query | grep URxvt.*font | sed 's/.*:[\t ][\t ]*\(.*\)/\1/')
+  newsize=$(echo $font | sed "s/\\(.*size=\\)\\([0-9]*\\)\\(.*\\)/\\1$1\\3/")
+  echo -e "\033]710;$newsize\033\\"
+}
 
 repdf() { #Recompile pdf (shrinking, removing password). Usage: repdf in out [password]
   if [ -n "$3" ]; then PASSWORDARG="-sPDFPassword=$3"; fi
@@ -196,13 +237,6 @@ repdf() { #Recompile pdf (shrinking, removing password). Usage: repdf in out [pa
 }
 alias joinpdf='gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=join.pdf ' #requires ghostscript, convert also works!
 alias cleantex='find . -regex ".*\(aux\|bbl\|blg\|brf|\idx\|ilg\|ind\|lof\|log\|lol\|lot\|out\|nav\|out\|snm\|tdo\|toc\|fls\|fdb_latexmk\)$" -exec rm -i {} \;'
-
-if which ghc >/dev/null; then #define these if ghc is present
-  function hcalc { ghc -e "($*)"; }
-  function hmap { ghc -e "interact ($*)"; }
-  function hmapl { hmap "unlines.($*).lines"; }
-  function hmapw { hmapl "map (unwords.($*).words)"; }
-fi
 
 #Music
 alias setmp3chmod='find -name "*.mp3" -print0 | xargs -0 chmod 644'
@@ -230,54 +264,10 @@ alias music="ncmpcpp -h $SMARTMPD"
 #----
 
 #https://superuser.com/questions/611538/is-there-a-way-to-display-a-countdown-or-stopwatch-timer-in-a-terminal
-function countdown(){
-   date1=$((`date +%s` + $1));
-   while [ "$date1" -ne `date +%s` ]; do
-     sleep 0.5
-     echo -ne "$(date -u --date @$(($date1 - `date +%s`)) +%H:%M:%S)\r";
-   done
-}
-function stopwatch(){
-  date1=`date +%s`;
-   while true; do
-     sleep 0.5
-    echo -ne "$(date -u --date @$((`date +%s` - $date1)) +%H:%M:%S)\r";
-   done
-}
-
-#VNC and nested X stuff
-function xephyr(){
-  Xephyr $1 -ac -dpi 96 -reset -screen $2 2>&1 >/dev/null &
-  pid=$!
-  DISPLAY=$1 $3 &
-  sh -c "trap 'kill $pid; exit' INT; while [ 1 -lt 2 ] ; do sleep 5 ; done"
-}
-function vnckill() { vncserver -kill :1; }
-function vncserve() {
-  if [ $# -eq 0 ]; then GEO="1200x730"; else GEO="$1"; fi
-  vnckill; vncserver -geometry $GEO -alwaysshared -localhost -SecurityTypes None :1
-}
-#My vnc shortie: vnc host password other_options
-vnc(){ echo $2|vncviewer -compresslevel 9 -quality 7 -autopass $3 $1; }
-
-#Homework assignments
-#--------------------
-#Copy tex file into subdir - basically mini tex template automation
-#requires to have a whatever_base.tex file with placeholder NUM in current directory
-hwtex() {
-  if [ $# -eq 0 ]; then echo "No number given!"; return 1; fi
-  num=$(printf "%02d" $1)
-  exists=0
-  if [ -d "L$num" ]; then echo "Opening existing..."; exists=1; fi
-  match=$(find ./ -name "*_base.tex"|sort|tail -n 1)
-  if [ -z "$match" ]; then echo "No base file (ending with _base.tex) found!"; return 1; fi
-  file=$(sed "s/base/$num/" <<< $match)
-  if [ $exists -eq 0 ]; then
-    mkdir L$num; cat $match | sed "s/NUM/$num/" > L$num/$file
-  fi
-  cd L$num
-  vim $file +Latexmk +LatexView
-}
+function countdown(){ date1=$((`date +%s` + $1)); while [ "$date1" -ne `date +%s` ]; do
+  sleep 0.5; echo -ne "$(date -u --date @$(($date1 - `date +%s`)) +%H:%M:%S)\r"; done; }
+function stopwatch(){ date1=`date +%s`; while true; do
+  sleep 0.5; echo -ne "$(date -u --date @$((`date +%s` - $date1)) +%H:%M:%S)\r"; done; }
 
 # wraps cd, autocompletion removes one dir for each <TAB>-press, cycling
 # To move forward again, append a / and <TAB>
@@ -320,23 +310,47 @@ _cdm() {
   fi
 }
 complete -o nospace -F _cdm cdm
-#--------------------
 
-#Create socks proxy to uni lübeck intranet for usage with tsocks etc running on port 7070
-uniconnect() { ssh -N -D7070 sshgate;}
-#Resolve Uni Lübeck pc pool hostname to IP using ssh-gate
-poolpc() { ssh sshgate ping -c 1 $1 | head -n 1 | awk '{print$3}' | sed 's/[()]//g';}
+#Homework assignments
+#--------------------
+#Copy tex file into subdir - basically mini tex template automation
+#requires to have a whatever_base.tex file with placeholder NUM in current directory
+hwtex() {
+  if [ $# -eq 0 ]; then echo "No number given!"; return 1; fi
+  num=$(printf "%02d" $1)
+  exists=0
+  if [ -d "L$num" ]; then echo "Opening existing..."; exists=1; fi
+  match=$(find ./ -name "*_base.tex"|sort|tail -n 1)
+  if [ -z "$match" ]; then echo "No base file (ending with _base.tex) found!"; return 1; fi
+  file=$(sed "s/base/$num/" <<< $match)
+  if [ $exists -eq 0 ]; then
+    mkdir L$num; cat $match | sed "s/NUM/$num/" > L$num/$file
+  fi
+  cd L$num
+  vim $file +Latexmk +LatexView
+}
+#get free pool computer
+poolfree() {
+  for i in {1..70}; do
+    host=64pc$(printf %02d $i)
+    resp=$(ssh $host users)
+    if [[ -z "$resp" ]]; then
+      echo $host
+      return
+    fi
+  done
+}
 #Push to Pool to Print
 ppp() {
-  list() { echo "PDFs in ~:"; ssh sshgate 'ls *.pdf'; unset -f list; }
+  host=$(poolfree)
+  list() { echo "PDFs in ~:"; ssh $host 'ls *.pdf'; unset -f list; }
   initsshkeys
   if [[ "$1" == "" ]]; then list; return; fi
-  if [[ "$(ssh sshgate "md5sum $1 2>/dev/null")" == "$(md5sum $1)" ]]; then
+  if [[ "$(ssh $host "md5sum $1 2>/dev/null")" == "$(md5sum $1)" ]]; then
     echo "Already up to date!"; list; return; fi
-  scp $1 sshgate:~; echo -n "MD5: "
-  if [[ "$(ssh sshgate "md5sum $1 2>/dev/null")" == "$(md5sum $1)" ]]; then
+  scp $1 sshgate:~; sleep 1; echo -n "MD5: "
+  if [[ "$(ssh $host "md5sum $1 2>/dev/null")" == "$(md5sum $1)" ]]; then
     echo "Success!"; else echo "Failure!"; fi
   list
 }
 complete -f -X '!*.@(pdf)' ppp #complete only pdf files
-

@@ -3,7 +3,6 @@ Plug 'LaTeX-Box-Team/LaTeX-Box'
 let g:LatexBox_viewer='zathura'
 let g:LatexBox_latexmk_options='-lualatex -latexoption="--shell-escape"'
 let g:LatexBox_custom_indent=0 " conflicts with neocomplete
-
 let g:LatexBox_quickfix=2 " don't steal focus
 let g:LatexBox_latexmk_async=0 " auto rebuild on changes
 let g:LatexBox_latexmk_preview_continuously=1 " auto rebuild on changes
@@ -12,6 +11,9 @@ let g:syntastic_tex_checkers = ['chktex']
 au BufRead,BufNewFile *.tex     map <F8>  :w<cr>:Latexmk<cr>
 au BufRead,BufNewFile *.tex     map <F7>  :w<cr>:LatexView<cr>
 au BufRead,BufNewFile *.tex     map <F6>  :w<cr>:LatexErrors<cr>
+
+" C/C++
+Plug 'Rip-Rip/clang_complete'
 
 " Coq
 Plug 'def-lkb/vimbufsync'
@@ -25,27 +27,28 @@ au FileType coq map <silent> <C-F7> :CoqKill<cr><cr>
 " --------------------------
 "  Better install all necessary cabal stuff into a sandbox!
 
-" Replace operators with corresponding unicode symbols
-Plug 'vim-scripts/Haskell-Conceal'
 " Hoogle interface from vim (see :help hoogle)
 Plug 'Twinside/vim-hoogle'
-" Haskell tab completion with ghc-mod (cabal install ghc-mod)
-" Plug 'eagletmt/ghcmod-vim'
+" Haskell tab completion with ghc-mod (install from github, with 7.10 support, hack 'version string')
+Plug 'Shougo/vimproc.vim'
+Plug 'eagletmt/ghcmod-vim'
 " Plug 'eagletmt/neco-ghc'
 
-" type checking and lint (:Hdevtools* commands)
-" original repo from bitc, type info and checking, is mod for hsimport
-" Plug 'dan-t/vim-hdevtools'
-" au FileType haskell nnoremap <buffer> <silent> <F1> :HdevtoolsType<CR>
-" au FileType haskell nnoremap <buffer> <silent> <F2> :HdevtoolsInfo<CR>
-" au FileType haskell nnoremap <buffer> <silent> <F3> :HdevtoolsClear<CR>
+" type checking and lint
+au FileType haskell nnoremap <buffer> <silent> <F1> :GhcModType<CR>
+au FileType haskell nnoremap <buffer> <silent> <F3> :GhcModInfo<CR>
+au FileType haskell nnoremap <buffer> <silent> <F3> :GhcModTypeClear<CR>
 
-" Auto import - cabal install hsimport cabal-cargs
-" Plug 'dan-t/vim-hsimport'
-" au FileType haskell nmap <silent> <F4> :silent update <bar> HsimportSymbol<CR>
-" au FileType haskell setlocal omnifunc=necoghc#omnifunc
+let g:syntastic_haskell_checkers = ['ghc_mod','hlint']
 
-let g:syntastic_haskell_checkers = ['hdevtools','hlint']
+" for hacking on xmonad
+autocmd BufRead,BufNewFile ~/.xmonad/* call s:add_xmonad_path()
+function! s:add_xmonad_path()
+  if !exists('b:ghcmod_ghc_options')
+    let b:ghcmod_ghc_options = []
+  endif
+  call add(b:ghcmod_ghc_options, '-i' . expand('~/.xmonad/lib'))
+endfunction
 
 " lushtags is not maintained.. hasktags works better
 if executable('hasktags')

@@ -32,4 +32,5 @@ $endif$endif \
 ^fg(\#ffff00)${exec amixer get Master | awk '/%/{ gsub(/\[|\]/,""); print $5 }' |head -n 1} \
 ^ca()^ca()\
 ^fg(\#ff8080)${exec acpi -b | awk '{print$5}'}[${exec acpi -b | awk '{print $4}'|cut -b -3}] \
+^fg(\#8080ff)${exec netctl list | grep '*' | sed 's/* //'} \
 ^fg(\#ffffb0)${time %R}\

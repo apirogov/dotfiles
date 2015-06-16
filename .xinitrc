@@ -17,6 +17,9 @@ xset s off # turn off black Screensaver
 xset -dpms
 setterm -blank 0 -powerdown 0
 
+#daemon to adapt color temperature
+redshift -l 53.52:10.41 -b 1:0.7 -t 6000:4000 -g 0.8:0.7:0.8 -m randr &
+
 ##Mouse:
 # xset m 3 0 #set mouse sensitivity
 # xmodmap -e "pointer = 3 2 1" #invert mouse for left hand
