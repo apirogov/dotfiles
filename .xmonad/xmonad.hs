@@ -3,16 +3,16 @@
 -- xmonad config of Anton Pirogov
 -- requires trayer-srg-git + dzen2 + conky + xmonad-contrib-darcs
 ---------------------------------------------------------------
-import Data.List (elemIndex)
 import qualified Data.Map as M
+import Data.List (elemIndex)
 import Data.Maybe (fromMaybe)
 import Control.Monad (when)
 import System.Directory (setCurrentDirectory)
-import System.Posix.Env (getEnvDefault)
-
-import XMonad
-import qualified XMonad.StackSet as W
+import System.Posix.Env (getEnvDefault,putEnv)
 import System.Exit (exitSuccess)
+
+import XMonad hiding (Tall)
+import qualified XMonad.StackSet as W
 
 import XMonad.Actions.CycleWS (nextScreen,prevScreen,shiftNextScreen,shiftPrevScreen)
 import XMonad.Actions.DynamicWorkspaces
@@ -23,8 +23,8 @@ import XMonad.Actions.UpdatePointer (updatePointer)
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.ManageDocks
-import XMonad.Hooks.SetWMName
 import XMonad.Hooks.ServerMode
+import XMonad.Hooks.SetWMName
 import XMonad.Hooks.UrgencyHook
 import XMonad.Hooks.WallpaperSetter
 
@@ -41,23 +41,22 @@ import XMonad.Prompt.Shell
 import XMonad.Prompt.Directory
 
 -- base layouts
-import XMonad.Layout.BinarySpacePartition
+import XMonad.Layout.MouseResizableTile
 import XMonad.Layout.Tabbed
 -- layout modifiers
-import XMonad.Layout.BorderResize
+-- import XMonad.Layout.LayoutHints
 import XMonad.Layout.NoBorders (smartBorders,noBorders)
 import XMonad.Layout.Renamed
-import XMonad.Layout.Spacing
 import XMonad.Layout.TrackFloating
--- import XMonad.Layout.WindowSwitcherDecoration
 -- layout combinators
 import XMonad.Layout.IM
 import XMonad.Layout.MultiToggle
+import XMonad.Layout.MultiToggle.Instances (StdTransformers(MIRROR))
 import XMonad.Layout.Reflect (REFLECTX(..),REFLECTY(..))
 
 ---------------------------------------------------------------
 -- The preferred terminal program, which is used in a binding below and by certain contrib modules.
-myTerminal           = "lxterminal"
+myTerminal           = "urxvt"
 -- Whether focus follows the mouse pointer.
 myFocusFollowsMouse  = True
 -- Width of the window border in pixels.
@@ -87,15 +86,17 @@ tabbedLayout  = renamed [Replace "Tab"] $ tabbed shrinkText myTabConfig
 
 -- my main layout with the modifier and toggle stack
 myLayout = trackFloating $ smartBorders $ avoidStruts $ mkToggle1 NBFULL $ mkToggle1 TABBED
-         $ renamed [Replace "Bsp"] {- $ winSwitcher -} $ borderResize $ spacingWithEdge 0
-         $ mkToggle1 REFLECTX $ mkToggle1 REFLECTY $ imLayout $ emptyBSP
-  where imLayout    = (renamed [CutWordsLeft 1]) . (withIM (1/8)
-                      (ClassName "Pidgin" `And` Role "buddy_list"
-                      `Or` ClassName "Gajim" `And` Role "roster"
-                      `Or` ClassName "Skype" `And`
-                        (Not $ (Role "ConversationsWindow" `Or` Role "CallWindow"))))
-        -- winSwitcher l = renamed [CutWordsLeft 1]
-        --               $ windowSwitcherDecoration shrinkText def{activeColor="#002590"} l
+         $ renamed [Replace "Def"] -- $ layoutHints
+         $ mkToggle1 MIRROR $ mkToggle1 REFLECTX $ mkToggle1 REFLECTY $ imLayout $ tile
+  where imLayout = (renamed [CutWordsLeft 1]) . (withIM (1/8)
+                   (ClassName "Pidgin" `And` Role "buddy_list"
+                   `Or` ClassName "Gajim" `And` Role "roster"
+                   `Or` ClassName "Skype" `And`
+                     (Not $ (Role "ConversationsWindow" `Or` Role "CallWindow"))))
+        tile     = mouseResizableTile { masterFrac = 0.5,
+                                        fracIncrement = 0.05,
+                                        draggerType = BordersDragger }
+
 ------------------------------------------------------------------------
 -- Execute arbitrary actions and WindowSet manipulations when managing a new window.
 -- (use the xprop utility to get window attributes). possible attributes:
@@ -103,19 +104,22 @@ myLayout = trackFloating $ smartBorders $ avoidStruts $ mkToggle1 NBFULL $ mkTog
 -- className: second elem. title: WM_NAME
 -- others: e.g. stringProperty "WM_WINDOW_ROLE" to access it.
 myManageHook = namedScratchpadManageHook scratchpads -- <+> placeHook simpleSmart
-             <+> composeAll [className =? "com-mathworks-util-PostVMInit" --> doFloat
+             <+> composeAll [className =? "sun-awt-X11-XFramePeer" --> doFloat
                             ,className =? "Vlc" --> doFloat
                             ] <+> manageDocks
 
 -- Perform an arbitrary action each time xmonad starts or is restarted with mod-q.
 myStartupHook = spawn myTrayerCommand <+>updateConkyMPD <+> spawn myDzenConky
+              <+> liftIO (putEnv "_JAVA_AWT_WM_NONREPARENTING=1")
+              <+> setWMName "LG3D" -- for matlab
 
 myHandleEventHook = ewmhDesktopsEventHook <+> fullscreenEventHook <+> docksEventHook
                 <+> serverModeEventHookF "GOTO_WS" goToWS
                 <+> serverModeEventHookF "TOG_FUL" (const $ sendMessage $ Toggle NBFULL)
                 <+> serverModeEventHookF "TOG_TAB" (const $ sendMessage $ Toggle TABBED)
+                <+> serverModeEventHookF "TOG_ROT" (const $ sendMessage $ Toggle MIRROR)
 
-myLogHook = setWMName "LG3D" <+> ewmhDesktopsLogHook
+myLogHook = ewmhDesktopsLogHook
         <+> updatePointer (0.5, 0.5) (0,0) <+> wallpaperSetter def
 
 ---------------------------------------------------------------
@@ -140,9 +144,9 @@ myConf = def {
 
 -- command line calls to my dzen2 and trayer instances
 -- use DZen2 version with Xinerama, XFT and XPM (Option 7 in config.mk)
-myDzenStyle = " -e 'onstart=lower' -fn 'Inconsolata LGC:size=9' -xs 1 -h 16"
-myDzenStatus = "dzen2 -ta l -w 500" ++ myDzenStyle
-myDzenConky  = "conky -c ~/.xmonad/conkyrc | dzen2 -ta r -x 500 -w 1000" ++ myDzenStyle
+myDzenStyle = " -e 'onstart=lower' -fn 'Inconsolata LGC:size=10' -xs 1 -h 16"
+myDzenStatus = "dzen2 -ta l -w 450" ++ myDzenStyle
+myDzenConky  = "conky -c ~/.xmonad/conkyrc | dzen2 -ta r -x 450 -w 1050" ++ myDzenStyle
 myTrayerCommand = "trayer -l --monitor primary --edge top --align right --expand true "
                 ++"--transparent true --tint 0x000000 --alpha 0 --height 16 --widthtype pixel --width 100"
 
@@ -155,14 +159,14 @@ myDzenPP = def { ppCurrent = dzenColor "#ffffff" "#404040" . pad
                , ppWsSep   = ""
                , ppSep     = " "
                , ppTitle   = dzenColor "#ffffff" ""
-               , ppLayout  = (\x -> click 3 (xctl "TOG_TAB" "") $ click 1 (xctl "TOG_FUL" "")
-                                  $ dzenColor (getWSColor x) "" x)
+               , ppLayout  = (\x -> click 3 (xctl "TOG_TAB" "") $ click 2 (xctl "TOG_ROT" "")
+                                  $ click 1 (xctl "TOG_FUL" "") $ dzenColor (getWSColor x) "" x)
                , ppSort    = (.namedScratchpadFilterOutWorkspace) <$> getSortByXineramaRule
                }
   where click btn cmd str = "^ca("++(show btn)++","++cmd++")"++str++"^ca()"
         clickWS name = click 1 (xctl "GOTO_WS" name) name
         rainbow = ["#b0b0b0","#b000b0","#4040ff","#00d0d0","#00f000","#f0f000","#ffa000","#ff0000"]
-        getWSColor x = (rainbow !!) $ (1+) $ fromMaybe (-1) (x `elemIndex` ["Bsp","Ful","Tab"])
+        getWSColor x = (rainbow !!) $ (1+) $ fromMaybe (-1) (x `elemIndex` ["Def","Ful","Tab"])
         xctl ev param = "~/.xmonad/xmonadctl -a "++ev++" \""++param++"\""
 
 ----
@@ -175,8 +179,8 @@ myXPConfig = def {
   , promptKeymap = defaultXPKeymap `M.union` M.fromList [ --make Neo layer 4 arrows work
       ((mod3Mask, xK_Left), moveCursor Prev)
     , ((mod3Mask, xK_Right), moveCursor Next)
-    , ((mod3Mask, xK_Up), moveHistory W.focusUp')
-    , ((mod3Mask, xK_Down), moveHistory W.focusDown')
+    , ((mod3Mask, xK_Up), moveHistory W.focusDown')
+    , ((mod3Mask, xK_Down), moveHistory W.focusUp')
     ]
   }
 
@@ -204,6 +208,7 @@ myPrompt = do
           where (p,_) = break (==':') s
         tp = ["ranger","ncmpcpp","ssh","vim"] -- programs to run in terminal
         prompthooks = [("n",netctlP)          -- commands calling sub-prompts
+                      ,("m",mpdP)
                       ,("c",calcP)]
 
 -- prompt to select netctl config to connect to (first disconnects all)
@@ -249,7 +254,6 @@ floatWindow = (W.stack . W.workspace . W.current) <$> gets windowset >>= flip wh
 withNamedWorkspace job str = do
   ws <- gets windowset
   sort <- getSortByIndex
-  -- io $ spawn $ "notify-send "++str
   case str `elemIndex` (map W.tag $ sort $ W.workspaces ws) of
     Just i -> withNthWorkspace job i
     Nothing -> addHiddenWorkspace str >> withNamedWorkspace job str
@@ -293,6 +297,9 @@ main = do
       ((myModMask, xK_q), spawn xmRestart)
     , ((myModMask .|. shiftMask,  xK_q), confirm "Exit?" $ io exitSuccess)
     , ((myModMask, xK_p), myPrompt)
+    , ((myModMask, xK_n), netctlP)
+    , ((myModMask, xK_m), mpdP)
+    , ((myModMask .|. shiftMask,  xK_m), runMpdClient)
     , ((myModMask .|. shiftMask,  xK_t), floatWindow)
 
     -- Navigation2D, binding with Neo2 layer 4 arrows
@@ -314,35 +321,15 @@ main = do
     , ((myModMask .|. shiftMask,  xK_e), shiftNextScreen)
 
     -- toggle modifiers
-    , ((myModMask,                xK_x), sendMessage $ Toggle NBFULL)
-    , ((myModMask .|. shiftMask,  xK_x), sendMessage $ Toggle TABBED)
-    , ((myModMask,                xK_v), sendMessage $ Toggle REFLECTY)
-    , ((myModMask .|. shiftMask,  xK_v), sendMessage $ Toggle REFLECTX)
+    , ((myModMask,                xK_b), sendMessage $ Toggle MIRROR)
+    , ((myModMask,                xK_r), sendMessage $ Toggle REFLECTY)
+    , ((myModMask .|. shiftMask,  xK_r), sendMessage $ Toggle REFLECTX)
+    , ((myModMask,                xK_s), sendMessage $ Toggle NBFULL)
+    , ((myModMask .|. shiftMask,  xK_s), sendMessage $ Toggle TABBED)
 
     -- rotate windows (BSPWM-like circulate)
     , ((myModMask,               xK_f),     rotAllUp)
     , ((myModMask.|. shiftMask,  xK_f),     rotAllDown)
-
-    -- window spacing (eye candy)
-    , ((myModMask,               xK_g),     incSpacing 2)
-    , ((myModMask .|. shiftMask, xK_g),     incSpacing (-2))
-
-    -- Binary Space Partition layout control
-    , ((myModMask,               xK_Right), sendMessage $ ExpandTowards R)
-    , ((myModMask,               xK_Left),  sendMessage $ ExpandTowards L)
-    , ((myModMask,               xK_Up),    sendMessage $ ExpandTowards U)
-    , ((myModMask,               xK_Down),  sendMessage $ ExpandTowards D)
-    , ((myModMask .|. shiftMask, xK_Right), sendMessage $ ShrinkFrom R)
-    , ((myModMask .|. shiftMask, xK_Left),  sendMessage $ ShrinkFrom L)
-    , ((myModMask .|. shiftMask, xK_Up),    sendMessage $ ShrinkFrom U)
-    , ((myModMask .|. shiftMask, xK_Down),  sendMessage $ ShrinkFrom D)
-    , ((myModMask,               xK_r),     sendMessage Rotate)
-    , ((myModMask,               xK_s),     sendMessage Swap)
-    , ((myModMask,               xK_b),     sendMessage Balance)
-    , ((myModMask .|. shiftMask, xK_b),     sendMessage Equalize)
-    , ((myModMask,               xK_n),     sendMessage FocusParent)
-    , ((myModMask .|.controlMask,xK_n),     sendMessage SelectNode)
-    , ((myModMask .|. shiftMask, xK_n),     sendMessage MoveNode)
 
     -- scratchpad
     , ((myModMask, xK_BackSpace), scratch "scratchpad")
@@ -366,8 +353,6 @@ main = do
     , ((0, 0x1008ffb2), spawn "amixer set Capture toggle") -- mic mute
 
     -- For music control
-    , ((myModMask, xK_m), mpdP)
-    , ((myModMask .|. shiftMask, xK_m), runMpdClient)
     , ((0, 0x1008ff14), mpccmd "toggle")
     , ((0, 0x1008ff17), mpccmd "next")
     , ((0, 0x1008ff16), mpccmd "prev")

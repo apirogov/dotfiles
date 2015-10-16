@@ -57,7 +57,7 @@ set shiftround                 " Round indent to multiple of shiftwidth
 set nowrap                     " disable wrapping (cause its bad for coding)
 set showbreak=+                " show a + if a line is longer than the screen
 set linebreak                  " wrap on word boundaries (not in word middle)
-set textwidth=100              " after how many chars a break is made
+set textwidth=80               " after how many chars a break is made
 "set colorcolumn=+1             " Highlight that column (more annoying than useful)
 
 " Folding
@@ -93,7 +93,6 @@ set sidescrolloff=15           " keep n lines context horizontally
 set sidescroll=1
 
 if has("syntax")
-set t_Co=256                   " Number of colors in terminal
   syntax on
   set popt+=syntax:y           " Syntax highlighting also when printing
 endif
@@ -115,7 +114,9 @@ if has("gui_running")          " GVim
   set guioptions-=r            " Remove right-hand scrollbar
   set guiheadroom=0            " Fixes empty space with tiling WM
 else
-  set t_Co=256                   " Number of colors in terminal
+  if &term != "linux"              " if not in TTY
+    set t_Co=256                   " Number of colors in terminal
+  endif
 endif
 
 " Anti Annoyance
@@ -134,7 +135,7 @@ au FileType haskell setlocal expandtab
 au FileType ruby setlocal expandtab shiftwidth=2 softtabstop=2
 au FileType python setlocal expandtab shiftwidth=4 softtabstop=4
 au FileType rust setlocal expandtab shiftwidth=4 softtabstop=4
-au FileType java setlocal noexpandtab shiftwidth=4 softtabstop=4
+au FileType c,cpp,java setlocal noexpandtab shiftwidth=4 softtabstop=4
 
 " Language specific settings and keybindings
 " ------------------------------------------
@@ -152,8 +153,8 @@ au BufRead,BufNewFile  *.m      map <buffer> <F8>  :w<cr>::!matlab -nodesktop -n
 au BufRead,BufNewFile *.hs      map <buffer> <F7>  :w<cr>:!ghci %<cr>
 " Compile a standalone haskell script
 au BufRead,BufNewFile *.hs      map <buffer> <F8>  :w<cr>:!rm -rf /tmp/*.o; ghc -fwarn-name-shadowing -hidir=/tmp -odir=/tmp -O -o a.out % && ./a.out<cr>
-" Compile a pdf from latex
-au BufRead,BufNewFile *.tex     map <unique> <F8>  :w<cr>:cd %:p:h<cr>:!lualatex *.tex<cr><cr>
+" Compile a pdf from latex (uncomment when without Latexbox plugin)
+" au BufRead,BufNewFile *.tex     map <unique> <F8>  :w<cr>:cd %:p:h<cr>:!lualatex *.tex<cr><cr>
 
 " General keybindings
 " -------------------
@@ -221,13 +222,13 @@ endif
 au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g`\"" | endif
 
 " Remove trailing whitespace from code files on save
-fun! <SID>StripTrailingWhitespaces()
-    let l = line(".")
-    let c = col(".")
-    %s/\s\+$//e
-    call cursor(l, c)
-endfun
-au FileType * au BufWritePre <buffer> :call <SID>StripTrailingWhitespaces()
+" fun! <SID>StripTrailingWhitespaces()
+"     let l = line(".")
+"     let c = col(".")
+"     %s/\s\+$//e
+"     call cursor(l, c)
+" endfun
+" au FileType * au BufWritePre <buffer> :call <SID>StripTrailingWhitespaces()
 
 " Include completion for filetypes with custom lists
 au FileType * exec("setlocal dictionary+=".$HOME."/.vim/dict/".expand('<amatch>'))

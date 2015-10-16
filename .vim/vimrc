@@ -44,6 +44,7 @@ Plug 'john2x/flatui.vim'
 Plug 'vim-scripts/summerfruit256.vim'
 Plug 'vim-scripts/pyte'
 Plug 'jonathanfilip/vim-lucius'
+Plug 'gosukiwi/vim-atom-dark'
 if !has("gui_running") " Terminal vim can't take all colorschemes
   let g:rehash256 = 1 " For molokai
   let g:solarized_termcolors=256
@@ -52,6 +53,10 @@ endif
 " Finalize vim-plug
 call plug#end()
 
-set bg=light
-colorscheme lucius
+if &t_Co>255
+  set bg=light
+  colorscheme lucius
+else " e.g. in TTY
+  colorscheme desert
+endif
 

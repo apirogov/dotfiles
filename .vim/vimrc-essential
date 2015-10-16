@@ -65,11 +65,17 @@ Plug 'vim-scripts/TaskList.vim'
 
 " Code Commenting - gc<Motion> -> toggle comment, gcu -> uncomment commented
 Plug 'tpope/vim-commentary'
+autocmd FileType matlab set commentstring=\%\ %s
 " Automatic code block closing (if ... end, etc)
 Plug 'tpope/vim-endwise'
 " Auto-Closing for symbols
-Plug 'Raimondi/delimitMate'
-au FileType mail,text,todotxt let b:delimitMate_autoclose = 0 " delimitMate: disable in regular text
+" Plug 'Raimondi/delimitMate'
+" au FileType mail,text,todotxt let b:delimitMate_autoclose = 0 " delimitMate: disable in regular text
+Plug 'cohama/lexima.vim'
+let g:lexima_no_default_rules=1
+au FileType * call lexima#set_default_rules()
+au FileType mail,text,todotxt call lexima#clear_rules()
+
 " Color parentheses and other surroundings
 Plug 'kien/rainbow_parentheses.vim'
 au VimEnter * RainbowParenthesesToggle    " RainbowParentheses: everywhere
@@ -91,6 +97,7 @@ let g:syntastic_quiet_messages = {'level': 'warnings'} " No warnings
 Plug 'epeli/slimux'
 map <leader>s :SlimuxREPLSendLine<CR>
 vmap <leader>s :SlimuxREPLSendSelection<CR>
+let g:slimux_exclude_vim_pane = 0
 
 " Tmux and splits, seamless
 Plug 'christoomey/vim-tmux-navigator'

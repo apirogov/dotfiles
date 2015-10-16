@@ -1,27 +1,28 @@
 " Latex -> :Latexmk/:LatexView
 Plug 'LaTeX-Box-Team/LaTeX-Box'
 let g:LatexBox_viewer='zathura'
-let g:LatexBox_latexmk_options='-lualatex -latexoption="--shell-escape"'
+let g:LatexBox_latexmk_options='-lualatex -latexoption="-synctex=1 \%O \%S" -latexoption=--shell-escape'
 let g:LatexBox_custom_indent=0 " conflicts with neocomplete
 let g:LatexBox_quickfix=2 " don't steal focus
 let g:LatexBox_latexmk_async=0 " auto rebuild on changes
 let g:LatexBox_latexmk_preview_continuously=1 " auto rebuild on changes
 
 let g:syntastic_tex_checkers = ['chktex']
+au BufRead,BufNewFile *.tex     nnoremap <F9> :!zathura --synctex-forward <C-R>=line('.')<CR>:<C-R>=col('.')<CR>:<C-R>=expand("%:p%:t")<CR> <C-R>=LatexBox_GetOutputFile()<CR> > /dev/null<CR><CR>
 au BufRead,BufNewFile *.tex     map <F8>  :w<cr>:Latexmk<cr>
-au BufRead,BufNewFile *.tex     map <F7>  :w<cr>:LatexView<cr>
+au BufRead,BufNewFile *.tex     map <F7>  :w<cr>:silent !zathura -x "vim --servername <C-R>=v:servername<CR> --remote +\%{line} \%{input}" <C-R>=LatexBox_GetOutputFile()<CR> & > /dev/null<cr>
 au BufRead,BufNewFile *.tex     map <F6>  :w<cr>:LatexErrors<cr>
 
 " C/C++
-Plug 'Rip-Rip/clang_complete'
+" Plug 'Rip-Rip/clang_complete'
 
 " Coq
-Plug 'def-lkb/vimbufsync'
-Plug 'the-lambda-church/coquille'
-" Maps Coquille commands to <F2> (Undo), <F3> (Next), <F4> (ToCursor)
-au FileType coq call coquille#FNMapping()
-au FileType coq map <F7> :CoqLaunch<cr>
-au FileType coq map <silent> <C-F7> :CoqKill<cr><cr>
+" Plug 'def-lkb/vimbufsync'
+" Plug 'the-lambda-church/coquille'
+"" Maps Coquille commands to <F2> (Undo), <F3> (Next), <F4> (ToCursor)
+" au FileType coq call coquille#FNMapping()
+" au FileType coq map <F7> :CoqLaunch<cr>
+" au FileType coq map <silent> <C-F7> :CoqKill<cr><cr>
 
 " Haskell plugins and config
 " --------------------------
@@ -29,7 +30,7 @@ au FileType coq map <silent> <C-F7> :CoqKill<cr><cr>
 
 " Hoogle interface from vim (see :help hoogle)
 Plug 'Twinside/vim-hoogle'
-" Haskell tab completion with ghc-mod (install from github, with 7.10 support, hack 'version string')
+" Haskell tab completion with ghc-mod
 Plug 'Shougo/vimproc.vim'
 Plug 'eagletmt/ghcmod-vim'
 " Plug 'eagletmt/neco-ghc'

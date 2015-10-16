@@ -3,7 +3,7 @@
 
 #Add own binaries
 #Global cabal sandbox only for recent cabal-install and xmonad
-paths=(~/bin ~/bin/matlab/bin ~/bin/sandboxes/*/bin ~/.cabal/bin  ~/.gem/ruby/*/bin)
+paths=(~/bin /home/admin/bin/rpi/haskell/ghc-7.10.2/bin /home/admin/bin/rpi/gcc-linaro-4.8/bin ~/bin/matlab2015b/bin ~/bin/sandboxes/*/bin ~/.cabal/bin  ~/.gem/ruby/*/bin)
 for bindir in ${paths[@]}; do [ -d $bindir ] && PATH=$PATH:${bindir}; done
 #add non-system .so libs
 libs=()
@@ -116,13 +116,13 @@ alias hc='rm -rf /tmp/*.o; ghc -Wall -fwarn-name-shadowing -fwarn-incomplete-pat
 alias gcc='LANG="C" gcc -ansi -std=c99 -pedantic -Wall -Wextra -Wshadow -Wcast-qual -Wformat=2 -Wmissing-include-dirs -Wfloat-equal -Wswitch-enum -Wundef -Wwrite-strings -Wredundant-decls -fverbose-asm -pg -g '	#High standard level, many debugging opts
 #Recursive javac in root source directory, fixing UTF and setting up dirs
 javacrec() {
-  echo "convert to unicode.."
-  find -name "*.java" -exec sh -c 'iconv -f ISO-8859-15 -t UTF-8 "$1" > tmp; mv tmp "$1"' x {} \;
+  # echo "convert to unicode.."
+  # find -name "*.java" -exec sh -c 'iconv -f ISO-8859-15 -t UTF-8 "$1" > tmp; mv tmp "$1"' x {} \;
   echo "create package structure.."
   dir="grep package \$1 | sed 's/[\\t ]*package[\\t ]*\\([a-zA-Z0-9.]*\\)[\\t ]*;.*/\\1/' | sed 's/\\./\\//'"
   find -name "*.java" -exec sh -c "dir=\$($dir); [ -n \"\$dir\" ] && mkdir -p \$dir && mv \$1 \$dir" x {} \;
   echo "compile!"
-  find -name "*.java" > .java_sources.txt; javac @.java_sources.txt; rm -f .java_sources.txt
+  find -name "*.java" > .java_sources.txt; javac -encoding iso-8859-1 @.java_sources.txt; rm -f .java_sources.txt
 }
 #Poor man's presentation generation, usage: genpres ~/*pics.jpg > out.pdf
 #${@:1:$(($#-1))}
@@ -132,21 +132,22 @@ genmovie() { ffmpeg -framerate 4 -r 4 -pattern_type glob -i "$1"  -c:v libx264 -
 
 #Package Management - Pacman
 if which pacman >/dev/null; then
-  function pss(){ aura -Ss $1; aura -As $1; } #Search for packages
+  function pss(){ aura -Ss --color=always $@; aura -As $@; } #Search for packages
+  function pip(){ sudo -- sh -c "pacman -S --needed $@ || aura -A $@"; } #Install package
   alias pup='sudo -- sh -c "aura -Syu; aura -Au"'   #Dist upgrade
-  alias pip='sudo pacman -S --needed' #Install package from database
   alias prp='sudo pacman -Ruscn' #Recursive remove
   alias pil='sudo pacman -U'     #Install local Package
   alias pro='sudo aura -Oj'      #List and remove orphans
   alias pgl='pacman -Qqne'       #List of installed packages
   alias pgf='pacman -Qqme'       #List foreign/AUR packages
+  alias pql='pacman -Ql'         #List files installed by that package
 fi
 if which systemctl >/dev/null; then
   alias listd="systemctl list-unit-files --type=service" #show all daemons run on startup
 fi
 
 #SSH / Remote stuff
-alias tmux='tmux -2'
+alias tmux='tmux -2' #note: copy/paste with mouse holding Shift within tmux
 alias initsshkeys=''
 if which keychain >/dev/null; then #SSH key management
   alias initsshkeys='eval `keychain --eval --nogui -Q -q id_rsa 2>/dev/null`'
@@ -177,7 +178,7 @@ sshvncup(){
 }
 sshvncdown(){ ssh $1 "vncserver -kill :1"; }
 
-#Nested X Server
+#Nested X Server (xephyr display size exec)
 function xephyr(){
   Xephyr $1 -ac -dpi 96 -reset -screen $2 2>&1 >/dev/null &
   pid=$!
@@ -221,6 +222,10 @@ if which ghc >/dev/null; then #define these if ghc is present
   function hmap { ghc -e "interact ($*)"; }
   function hmapl { hmap "unlines.($*).lines"; }
   function hmapw { hmapl "map (unwords.($*).words)"; }
+
+  alias ghc-sandbox="ghc -no-user-package-db -package-db .cabal-sandbox/*-packages.conf.d"
+  alias ghci-sandbox="ghci -no-user-package-db -package-db .cabal-sandbox/*-packages.conf.d"
+  alias runhaskell-sandbox="runhaskell -no-user-package-db -package-db .cabal-sandbox/*-packages.conf.d"
 fi
 
 #Set Urxvt font size on the fly
@@ -255,7 +260,7 @@ MEDIAHOST=$(head -n 1 $MPDPWDFILE | sed 's/.*@//') #takes first host from list f
 MEDIALOGIN=$MEDIAUSER@$MEDIAHOST
 alias center.mount="mkdir ~/media; sshfs -p $MEDIASSHP $MEDIALOGIN:/media/DATA ~/media"
 alias center.umount="fusermount -u ~/media; rmdir ~/media"
-alias center.updatebackup="rsync --delete -avue 'ssh -p $MEDIASSHP' ~/myfiles $MEDIALOGIN:/media/DATA" #mirror local -> remote external
+alias center.updatebackup="rsync --info=progress2 --delete -avue 'ssh -p $MEDIASSHP' ~/myfiles $MEDIALOGIN:/media/DATA" #mirror local -> remote external
 alias center.mpc="ncmpcpp -h $MEDIAHOST"
 alias center.stream="mpv http://$MEDIAHOST:8000"
 #alias to access either first mpd from .mpdpwd -> mediaserver, or fallback to localhost
@@ -354,3 +359,9 @@ ppp() {
   list
 }
 complete -f -X '!*.@(pdf)' ppp #complete only pdf files
+
+socksend() {
+  exec 3<>/dev/tcp/$1/$2
+  echo $3 >&3
+  exec 3>&-
+}

@@ -80,7 +80,7 @@ case "$1" in
   xmonad)
     exec dbus-launch xmonad ;;
   *)  #default
-    exec dbus-launch xmonad ;;
+    exec xmonad ;;
 esac
 
 #Run parallel xservers with: startx [parameter] -- :[N]

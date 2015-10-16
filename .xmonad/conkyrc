@@ -5,29 +5,12 @@ out_to_x no
 update_interval 1.0
 total_run_times 0
 use_spacer none
-
 #Für reines ALSA: ^fg(\#ffff00)${exec amixer get Master | awk '/%/{ gsub(/\[|\]/,""); print $4 }'} \
 TEXT
-${if_existing /tmp/currmpd}^fg(\#0080ff)${if_match ${exec mpc -h $(cat /tmp/currmpd)|wc -l}==3}\
-^ca(1,cat /tmp/currmpd | xargs -Ihost mpc -h host volume +10)\
-^ca(3,cat /tmp/currmpd | xargs -Ihost mpc -h host volume -10)\
-${exec mpc -h $(cat /tmp/currmpd)|tail -n 1|sed 's/volume://'|awk '{print$1}'} \
-^ca()^ca()\
-^ca(1,cat /tmp/currmpd | xargs -Ihost mpc -h host toggle)\
-^ca(3,cat /tmp/currmpd | xargs -Ihost mpc -h host stop)\
-${exec mpc -h $(cat /tmp/currmpd)|sed '2q;d'|awk '{print$1}'|head -c 3}] \
-^ca()^ca()\
-^ca(1,cat /tmp/currmpd | xargs urxvt -e ncmpcpp -h)\
-${exec mpc -h $(cat /tmp/currmpd)|head -n 1|head -c 40} \
-^ca()\
-^ca(1,cat /tmp/currmpd | xargs -Ihost mpc -h host next)\
-^ca(3,cat /tmp/currmpd | xargs -Ihost mpc -h host prev)\
-(${exec mpc -h $(cat /tmp/currmpd)|sed '2q;d'|awk '{print$3}'})\
-^ca()^ca()\
-$endif$endif \
+${exec ~/.xmonad/mpdzen /tmp/currmpd \#0080ff 30}\
 ^fg(\#ffffff)C:${cpu cpu0}% R:$memperc% S:$swapperc% \
 ^fg(\#40f0f0)/:${fs_used_perc /}% /home:${fs_used_perc /home}% \
-^fg(\#a0ffa0)↓${downspeedf wlan1}KB/s ↑${upspeedf wlan1}KB/s \
+^fg(\#a0ffa0)↓${downspeedf wlp0s20u1}KB/s ↑${upspeedf wlp0s20u1}KB/s \
 ^ca(1,exec amixer set Master 5%+)^ca(3,exec amixer set Master 5%-)\
 ^fg(\#ffff00)${exec amixer get Master | awk '/%/{ gsub(/\[|\]/,""); print $5 }' |head -n 1} \
 ^ca()^ca()\

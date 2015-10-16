@@ -1,9 +1,59 @@
 -- allows ifdef constructions only for interpreter with CPP language pragma
 :set -DGHCI
 
-import Data.Function (on)
+-- useful warnings
+:set -Wall
+:set -fno-warn-missing-signatures
+:set -fno-warn-type-defaults
+:set -fno-warn-name-shadowing
+:set -fno-warn-unused-do-bind
+
+import Data.Char
+import Data.String
+import qualified Data.Text as T
+import qualified Data.Map as M
+import qualified Data.Set as S
+import Data.Function
 import Data.Ratio
+import Data.Monoid
+import Data.Foldable
+import Data.Traversable
+import Control.Applicative
+import Control.Monad
+
+import Control.Lens
+import Linear.V2
 
 -- :set -XOverloadedStrings
--- :set prompt "\ESC[1;37m%s\n\ESC[1;34mλ> \ESC[m"
+-- :set -XOverloadedLists
+
+:set -XScopedTypeVariables
+:set -XNoMonomorphismRestriction
+
+:set -XRecursiveDo
+:set -XViewPatterns
+:set -XPatternGuards
+
+:set -XRankNTypes
+:set -XGADTs
+:set -XKindSignatures
+:set -XTypeFamilies
+
+:set -XMultiParamTypeClasses
+:set -XFunctionalDependencies
+
+:set -XFlexibleContexts
+:set -XFlexibleInstances
+
+:set -XStandaloneDeriving
+:set -XGeneralizedNewtypeDeriving
+:set -XDeriveDataTypeable
+:set -XDeriveGeneric
+
+
 :set prompt "λ> "
+:set prompt2 "| "
+
+-- default multiline support (annoying)
+-- :set +m
+
