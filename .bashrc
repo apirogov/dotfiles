@@ -32,6 +32,7 @@ shopt -s autocd     # auto-cd if entering a path
 ## SET OPTIONS
 set -o ignoreeof    # stops ctrl+d from logging me out
 set -o noclobber    # prevent overwriting files with cat
+set -o vi           # vi input mode
 
 ## BIND OPTIONS
 bind 'set completion-ignore-case on'
@@ -81,7 +82,7 @@ export HISTFILESIZE="999999"	#Lines total
 export PROMPT_COMMAND+="history -a; history -n" #share history between terminals
 
 export BROWSER="firefox"
-export EDITOR="vim"
+export EDITOR="nvim"
 export VISUAL="gvim"
 export PAGER="less"
 export LESS="-iMn -F -X -R"
@@ -92,6 +93,7 @@ alias ls='ls --color=auto'
 alias la='ls -A'
 alias ll='ls -lhtA'
 alias q='exit'
+alias e='nvim'
 alias rm='rm -iv'       #safety - ask before delete/overwrite
 alias cp='cp -iv'
 alias mv='mv -iv'
@@ -204,6 +206,7 @@ clrProxy(){ assignProxy ""; } # This is what 'unset' does.
 
 #Misc. Programs
 alias togglepad='killall syndaemon; synclient TouchpadOff=$(synclient -l | grep -c "TouchpadOff.*=.*0")'
+alias togglelrm="xmodmap -pp | grep -e '\\s\+[13]\\s' | awk '{print \$2}' | sed 'N;s/\n/ /' | xargs -l bash -c 'xmodmap -e \"pointer = \$1 2 \$0\"'"
 alias resetscreen='xrandr -s 1 && xrandr -s 0' #reset screen resolution to default (after buggy games)
 alias xp='xprop | grep "WM_WINDOW_ROLE\|WM_CLASS" && echo "WM_CLASS(STRING) = \"NAME\", \"CLASS\"";xwininfo'
 alias top10size='find . -printf "%s %p\n"|sort -nr|head'

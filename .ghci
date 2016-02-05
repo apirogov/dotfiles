@@ -10,9 +10,9 @@
 
 import Data.Char
 import Data.String
-import qualified Data.Text as T
-import qualified Data.Map as M
-import qualified Data.Set as S
+-- import qualified Data.Text as T
+-- import qualified Data.Map as M
+-- import qualified Data.Set as S
 import Data.Function
 import Data.Ratio
 import Data.Monoid
@@ -21,8 +21,8 @@ import Data.Traversable
 import Control.Applicative
 import Control.Monad
 
-import Control.Lens
-import Linear.V2
+-- import Control.Lens
+-- import Linear.V2
 
 -- :set -XOverloadedStrings
 -- :set -XOverloadedLists

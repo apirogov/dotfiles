@@ -2,6 +2,7 @@
 {-# OPTIONS_GHC -W -fwarn-unused-imports -fno-warn-missing-signatures -fno-warn-type-defaults #-}
 -- xmonad config of Anton Pirogov
 -- requires trayer-srg-git + dzen2 + conky + xmonad-contrib-darcs
+-- also compile mpdzen.hs and xmonadctl.hs
 ---------------------------------------------------------------
 import qualified Data.Map as M
 import Data.List (elemIndex)
@@ -87,15 +88,15 @@ tabbedLayout  = renamed [Replace "Tab"] $ tabbed shrinkText myTabConfig
 -- my main layout with the modifier and toggle stack
 myLayout = trackFloating $ smartBorders $ avoidStruts $ mkToggle1 NBFULL $ mkToggle1 TABBED
          $ renamed [Replace "Def"] -- $ layoutHints
-         $ mkToggle1 MIRROR $ mkToggle1 REFLECTX $ mkToggle1 REFLECTY $ imLayout $ tile
+         $ mkToggle1 MIRROR $ mkToggle1 REFLECTX $ mkToggle1 REFLECTY $ imLayout main
   where imLayout = (renamed [CutWordsLeft 1]) . (withIM (1/8)
                    (ClassName "Pidgin" `And` Role "buddy_list"
                    `Or` ClassName "Gajim" `And` Role "roster"
                    `Or` ClassName "Skype" `And`
                      (Not $ (Role "ConversationsWindow" `Or` Role "CallWindow"))))
-        tile     = mouseResizableTile { masterFrac = 0.5,
+        main     = mouseResizableTile { masterFrac = 0.5,
                                         fracIncrement = 0.05,
-                                        draggerType = BordersDragger }
+                                        draggerType = BordersDragger } 
 
 ------------------------------------------------------------------------
 -- Execute arbitrary actions and WindowSet manipulations when managing a new window.
@@ -144,9 +145,9 @@ myConf = def {
 
 -- command line calls to my dzen2 and trayer instances
 -- use DZen2 version with Xinerama, XFT and XPM (Option 7 in config.mk)
-myDzenStyle = " -e 'onstart=lower' -fn 'Inconsolata LGC:size=10' -xs 1 -h 16"
-myDzenStatus = "dzen2 -ta l -w 450" ++ myDzenStyle
-myDzenConky  = "conky -c ~/.xmonad/conkyrc | dzen2 -ta r -x 450 -w 1050" ++ myDzenStyle
+myDzenStyle = " -e 'onstart=lower' -fn 'Inconsolata LGC:size=9' -xs 1 -h 16"
+myDzenStatus = "dzen2 -ta l -w 500" ++ myDzenStyle
+myDzenConky  = "conky -c ~/.xmonad/conkyrc | dzen2 -ta r -x 500 -w 1000" ++ myDzenStyle
 myTrayerCommand = "trayer -l --monitor primary --edge top --align right --expand true "
                 ++"--transparent true --tint 0x000000 --alpha 0 --height 16 --widthtype pixel --width 100"
 

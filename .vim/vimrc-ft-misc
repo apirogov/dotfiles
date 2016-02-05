@@ -17,12 +17,17 @@ au BufRead,BufNewFile *.tex     map <F6>  :w<cr>:LatexErrors<cr>
 " Plug 'Rip-Rip/clang_complete'
 
 " Coq
-" Plug 'def-lkb/vimbufsync'
-" Plug 'the-lambda-church/coquille'
+Plug 'def-lkb/vimbufsync'
+Plug 'the-lambda-church/coquille'
+Plug 'jvoorhis/coq.vim'
 "" Maps Coquille commands to <F2> (Undo), <F3> (Next), <F4> (ToCursor)
-" au FileType coq call coquille#FNMapping()
-" au FileType coq map <F7> :CoqLaunch<cr>
-" au FileType coq map <silent> <C-F7> :CoqKill<cr><cr>
+au FileType coq call coquille#FNMapping()
+au FileType coq map <F7> :CoqLaunch<cr>
+au FileType coq map <silent> <F8> :CoqKill<cr><cr>
+au BufRead,BufNewFile *.v set filetype=coq
+
+" Idris
+Plug 'idris-hackers/idris-vim'
 
 " Haskell plugins and config
 " --------------------------
@@ -39,8 +44,7 @@ Plug 'eagletmt/ghcmod-vim'
 au FileType haskell nnoremap <buffer> <silent> <F1> :GhcModType<CR>
 au FileType haskell nnoremap <buffer> <silent> <F3> :GhcModInfo<CR>
 au FileType haskell nnoremap <buffer> <silent> <F3> :GhcModTypeClear<CR>
-
-let g:syntastic_haskell_checkers = ['ghc_mod','hlint']
+au BufWritePost *.hs silent! GhcModCheck
 
 " for hacking on xmonad
 autocmd BufRead,BufNewFile ~/.xmonad/* call s:add_xmonad_path()

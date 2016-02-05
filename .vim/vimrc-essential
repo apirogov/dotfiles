@@ -92,12 +92,12 @@ let g:syntastic_enable_signs=1    "mark syntax errors with :signs
 let g:syntastic_auto_jump=0       "automatically jump to the error when saving the file
 let g:syntastic_auto_loc_list=1   "show the error list automatically
 let g:syntastic_quiet_messages = {'level': 'warnings'} " No warnings
+" Plug 'benekastah/neomake'
 
 " slime-like repl interaction for tmux
 Plug 'epeli/slimux'
 map <leader>s :SlimuxREPLSendLine<CR>
 vmap <leader>s :SlimuxREPLSendSelection<CR>
-let g:slimux_exclude_vim_pane = 0
 
 " Tmux and splits, seamless
 Plug 'christoomey/vim-tmux-navigator'

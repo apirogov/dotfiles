@@ -10,13 +10,15 @@ set encoding=utf-8             " set default encoding
 set fileformats=unix,dos,mac   " set ordered list of supported file fmts
 set shell=/bin/bash            " Shell used by :sh
 set history=100                " number of lines of command line history
-" Tell vim to remember certain things when we exit
-"  '10  :  marks will be remembered for up to 10 previously edited files
-"  "100 :  will save up to 100 lines for each register
-"  :20  :  up to 20 lines of command-line history will be remembered
-"  %    :  saves and restores the buffer list
-"  n... :  where to save the viminfo files
-set viminfo='10,\"100,:20,%,n~/.viminfo
+if !has('nvim')
+  " Tell vim to remember certain things when we exit
+  "  '10  :  marks will be remembered for up to 10 previously edited files
+  "  "100 :  will save up to 100 lines for each register
+  "  :20  :  up to 20 lines of command-line history will be remembered
+  "  %    :  saves and restores the buffer list
+  "  n... :  where to save the viminfo files
+  set viminfo='10,\"100,:20,%,n~/.viminfo
+endif
 
 set directory=~/.vim/tmp       " Dir for vim temp files
 set backupdir=~/.vim/tmp       " Dir for backups
@@ -159,10 +161,18 @@ au BufRead,BufNewFile *.hs      map <buffer> <F8>  :w<cr>:!rm -rf /tmp/*.o; ghc 
 " General keybindings
 " -------------------
 " Navigate splits
+if exists(':tnoremap')
+  tnoremap <Esc> <C-\><C-n>
+  tnoremap <A-Left> <C-\><C-n><C-w>h
+  tnoremap <A-Right> <C-\><C-n><C-w>l
+  tnoremap <A-Up> <C-\><C-n><C-w>k
+  tnoremap <A-Down> <C-\><C-n><C-w>j
+endif
 nnoremap <M-Left> <C-w>h
 nnoremap <M-Right> <C-w>l
 nnoremap <M-Up> <C-w>k
 nnoremap <M-Down> <C-w>j
+
 nnoremap <M-S-Left> 2<C-w><
 nnoremap <M-S-Right> 2<C-w>>
 nnoremap <M-S-Up> 2<C-w>+

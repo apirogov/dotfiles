@@ -53,6 +53,10 @@ endif
 " Finalize vim-plug
 call plug#end()
 
+if (has('nvim'))
+  let $TERM='xterm-256color'
+endif
+
 if &t_Co>255
   set bg=light
   colorscheme lucius

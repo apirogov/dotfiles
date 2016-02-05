@@ -5,7 +5,6 @@ import Data.Time.Clock.POSIX (getPOSIXTime)
 import Data.Monoid
 import Shelly
 import qualified Data.Text as T
-default (T.Text)
 
 click btn cmd str = "^ca(" <> btn <> "," <> cmd <> ")" <> str <> "^ca()"
 

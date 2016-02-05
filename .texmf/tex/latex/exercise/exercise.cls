@@ -6,8 +6,8 @@
 \ProvidesClass{exercise}
 \RequirePackage[log-declarations=false]{xparse}
 
-% new german spelling
-\RequirePackage[english,ngerman]{babel}
+% new german spelling (breaks quotes in tikz!)
+% \RequirePackage[english,ngerman]{babel}
 
 % KOMA uses xkeyval instead if keyval - load to make sure
 \RequirePackage{xkeyval}

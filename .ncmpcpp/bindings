@@ -202,7 +202,8 @@ def_key "right"
 
 def_key "right"
   require_screen "browser"
-  press_enter
+# press_enter
+  enter_directory
 
 #
 #def_key "+"
