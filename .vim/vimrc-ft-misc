@@ -1,5 +1,5 @@
 " Latex -> :Latexmk/:LatexView
-Plug 'LaTeX-Box-Team/LaTeX-Box'
+Plug 'LaTeX-Box-Team/LaTeX-Box', { 'for': 'latex' }
 let g:LatexBox_viewer='zathura'
 let g:LatexBox_latexmk_options='-lualatex -latexoption="-synctex=1 \%O \%S" -latexoption=--shell-escape'
 let g:LatexBox_custom_indent=0 " conflicts with neocomplete
@@ -14,45 +14,83 @@ au BufRead,BufNewFile *.tex     map <F7>  :w<cr>:silent !zathura -x "vim --serve
 au BufRead,BufNewFile *.tex     map <F6>  :w<cr>:LatexErrors<cr>
 
 " C/C++
-" Plug 'Rip-Rip/clang_complete'
+inoremap <leader><Tab> <C-x><C-o>
+Plug 'vim-scripts/a.vim', { 'for': ['c','cpp'] }
+" Plug 'justmao945/vim-clang', { 'for': ['c','cpp'] }
+let g:clang_c_options = '-std=gnu11 -Wall -Wextra'
+Plug 'brookhong/cscope.vim', { 'for': ['c','cpp'] }
+let g:cscope_silent=1
+au FileType c,cpp call s:cscopeMappings()
+function s:cscopeMappings()
+nnoremap <buffer> <silent> <leader>fa :call CscopeFindInteractive(expand('<cword>'))<CR>
+nnoremap <buffer> <silent> <leader>l :call ToggleLocationList()<CR>
+" s: Find this C symbol
+nnoremap <buffer> <silent> <leader>fs :call CscopeFind('s', expand('<cword>'))<CR>
+" g: Find this definition
+nnoremap <buffer> <silent> <leader>fg :call CscopeFind('g', expand('<cword>'))<CR>
+" d: Find functions called by this function
+nnoremap <buffer> <silent> <leader>fd :call CscopeFind('d', expand('<cword>'))<CR>
+" c: Find functions calling this function
+nnoremap <buffer> <silent> <leader>fc :call CscopeFind('c', expand('<cword>'))<CR>
+" t: Find this text string
+nnoremap <buffer> <silent> <leader>ft :call CscopeFind('t', expand('<cword>'))<CR>
+" e: Find this egrep pattern
+nnoremap <buffer> <silent> <leader>fe :call CscopeFind('e', expand('<cword>'))<CR>
+" f: Find this file
+nnoremap <buffer> <silent> <leader>ff :call CscopeFind('f', expand('<cword>'))<CR>
+" i: Find files #including this file
+nnoremap <buffer> <silent> <leader>fi :call CscopeFind('i', expand('<cword>'))<CR>
+endfunction
 
 " Coq
-Plug 'def-lkb/vimbufsync'
-Plug 'the-lambda-church/coquille'
-Plug 'jvoorhis/coq.vim'
+au BufRead,BufNewFile *.v set filetype=coq
+Plug 'def-lkb/vimbufsync', { 'for': 'coq' }
+Plug 'the-lambda-church/coquille', { 'for': 'coq' }
+Plug 'jvoorhis/coq.vim', { 'for': 'coq' }
 "" Maps Coquille commands to <F2> (Undo), <F3> (Next), <F4> (ToCursor)
 au FileType coq call coquille#FNMapping()
 au FileType coq map <F7> :CoqLaunch<cr>
 au FileType coq map <silent> <F8> :CoqKill<cr><cr>
-au BufRead,BufNewFile *.v set filetype=coq
 
 " Idris
-Plug 'idris-hackers/idris-vim'
+Plug 'idris-hackers/idris-vim', { 'for': 'idris' }
 
 " Haskell plugins and config
 " --------------------------
-"  Better install all necessary cabal stuff into a sandbox!
+"  Better install all necessary cabal stuff into a sandbox/with stack:
+"  ghc-mod, hasktags, hlint, hoogle
 
 " Hoogle interface from vim (see :help hoogle)
-Plug 'Twinside/vim-hoogle'
+Plug 'Twinside/vim-hoogle', { 'for': 'haskell' }
 " Haskell tab completion with ghc-mod
-Plug 'Shougo/vimproc.vim'
-Plug 'eagletmt/ghcmod-vim'
+Plug 'Shougo/vimproc.vim', {'do': 'make'}
+Plug 'eagletmt/ghcmod-vim', { 'for': 'haskell' }
+let g:ghcmod_ghc_options = ['-fno-warn-unused-do-bind','-fno-warn-unused-binds']
 " Plug 'eagletmt/neco-ghc'
 
 " type checking and lint
 au FileType haskell nnoremap <buffer> <silent> <F1> :GhcModType<CR>
 au FileType haskell nnoremap <buffer> <silent> <F3> :GhcModInfo<CR>
 au FileType haskell nnoremap <buffer> <silent> <F3> :GhcModTypeClear<CR>
+au BufRead,BufNewFile *.hs let g:neomake_haskell_enabled_makers = []
 au BufWritePost *.hs silent! GhcModCheck
 
 " for hacking on xmonad
 autocmd BufRead,BufNewFile ~/.xmonad/* call s:add_xmonad_path()
 function! s:add_xmonad_path()
-  if !exists('b:ghcmod_ghc_options')
-    let b:ghcmod_ghc_options = []
+  call add(g:ghcmod_ghc_options, '-i' . expand('~/.xmonad/lib'))
+endfunction
+
+" for making ghc-mod work with stack outside of projects
+autocmd BufRead,BufNewFile *.hs call s:add_stack_db()
+function! s:add_stack_db()
+  if !exists('g:ghcmod_ghc_options')
+    let g:ghcmod_ghc_options = []
   endif
-  call add(b:ghcmod_ghc_options, '-i' . expand('~/.xmonad/lib'))
+  let pkgdbs = system("stack exec env 2>/dev/null | grep PACKAGE_SANDBOXES | sed 's/^.*=//' | sed 's/:/\\n/g' | head -n-1")
+  for pkgdb in split(pkgdbs)
+    call add(g:ghcmod_ghc_options, '-package-db ' . pkgdb)
+  endfor
 endfunction
 
 " lushtags is not maintained.. hasktags works better

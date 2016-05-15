@@ -138,13 +138,14 @@ au FileType ruby setlocal expandtab shiftwidth=2 softtabstop=2
 au FileType python setlocal expandtab shiftwidth=4 softtabstop=4
 au FileType rust setlocal expandtab shiftwidth=4 softtabstop=4
 au FileType c,cpp,java setlocal noexpandtab shiftwidth=4 softtabstop=4
+au FileType c,cpp setlocal commentstring=//%s
 
 " Language specific settings and keybindings
 " ------------------------------------------
 
 " Save and compile without make file and run small C program (not useful on multifile project)
-au BufRead,BufNewFile  *.c,*.h  map <buffer> <F8>  :w<cr>:!gcc -std=c99 -lm -Wall -fopenmp %<cr><cr>
-au BufRead,BufNewFile  *.c,*.h  map <buffer> <F7>  :!./a.out<space>
+au BufRead,BufNewFile  *.c      map <buffer> <F8>  :w<cr>:!gcc -std=c99 -lm -Wall -Wextra -fopenmp %<cr><cr>
+au BufRead,BufNewFile  *.c      map <buffer> <F7>  :!./a.out<space>
 " Save and run ruby interpreter
 au BufRead,BufNewFile  *.rb     map <buffer> <F8>  :w<cr>:!ruby %<cr>
 " Load into IRB
@@ -232,13 +233,13 @@ endif
 au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g`\"" | endif
 
 " Remove trailing whitespace from code files on save
-" fun! <SID>StripTrailingWhitespaces()
-"     let l = line(".")
-"     let c = col(".")
-"     %s/\s\+$//e
-"     call cursor(l, c)
-" endfun
-" au FileType * au BufWritePre <buffer> :call <SID>StripTrailingWhitespaces()
+fun! <SID>StripTrailingWhitespaces()
+    let l = line(".")
+    let c = col(".")
+    %s/\s\+$//e
+    call cursor(l, c)
+endfun
+au FileType * au BufWritePre <buffer> :call <SID>StripTrailingWhitespaces()
 
 " Include completion for filetypes with custom lists
 au FileType * exec("setlocal dictionary+=".$HOME."/.vim/dict/".expand('<amatch>'))
@@ -248,8 +249,15 @@ set complete+=k
 au BufNewFile,BufRead bookmarks setlocal filetype=text conceallevel=2 nowrap tw=0
 au BufNewFile,BufRead bookmarks syntax match URLstr /^http\S\+/ conceal cchar=>
 au BufNewFile,BufRead bookmarks syntax match Comment /^#.\+/
+" fasta files
+au BufNewFile,BufRead *.fasta,*.fa  setf fasta
 " Open url under cursor
 map <leader>mo "1yiW:!firefox -new-tab "<c-r>1"<cr><cr>
+
+" Use ag instead of grep, if installed
+if executable('ag')
+    set grepprg=ag\ --nogroup\ --nocolor
+endif
 
 " ---------- Memos ------------
 "Tip: Macros

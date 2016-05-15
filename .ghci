@@ -7,10 +7,11 @@
 :set -fno-warn-type-defaults
 :set -fno-warn-name-shadowing
 :set -fno-warn-unused-do-bind
+:set -fno-warn-unused-binds
 
 import Data.Char
 import Data.String
--- import qualified Data.Text as T
+import qualified Data.Text as T
 -- import qualified Data.Map as M
 -- import qualified Data.Set as S
 import Data.Function
@@ -21,11 +22,9 @@ import Data.Traversable
 import Control.Applicative
 import Control.Monad
 
--- import Control.Lens
--- import Linear.V2
+import Control.Lens
 
--- :set -XOverloadedStrings
--- :set -XOverloadedLists
+:set -XOverloadedStrings
 
 :set -XScopedTypeVariables
 :set -XNoMonomorphismRestriction
@@ -38,6 +37,7 @@ import Control.Monad
 :set -XGADTs
 :set -XKindSignatures
 :set -XTypeFamilies
+:set -XDataKinds
 
 :set -XMultiParamTypeClasses
 :set -XFunctionalDependencies

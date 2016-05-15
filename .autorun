@@ -19,4 +19,6 @@ syncthing-gtk -m & #using systemctl service
 
 #daemon to adapt color temperature
 # redshift -l 53.52:10.41 -b 1:0.7 -t 6000:4000 -g 0.8:0.7:0.8 -m randr &
+mpd &
+mpdscribble &
 

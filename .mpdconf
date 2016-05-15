@@ -1,0 +1,55 @@
+# See: /usr/share/doc/mpd/mpdconf.example
+user "admin"
+music_directory "/home/admin/myfiles/music"
+#log_file "/var/lib/mpd/log"
+#log_level "default"
+auto_update	"yes"
+#auto_update_depth "3"
+
+audio_output {
+        type                    "pulse"
+        name                    "MPD PulseAudio Output"
+ 	 mixer_type      	"software"	# optional
+       #sink                    "your-sink-name-here"
+}
+
+#audio_output {
+#	type		"alsa"
+#	name		"My ALSA Device"
+#	device		"hw:0,0"	# optional
+#	format		"44100:16:2"	# optional
+#	mixer_type      "software"	# optional
+#	mixer_device	"default"	# optional
+#	mixer_control	"PCM"		# optional
+#	mixer_index	"0"		# optional
+#}
+
+audio_output {
+    type            "fifo"
+    name            "snapcast"
+    path            "/tmp/snapfifo" 
+    format          "48000:16:2"
+    mixer_type      "null"
+}
+
+
+audio_output {
+     type            "pipe"
+     name            "volume dummy"
+     command         "cat >/dev/null"
+     format          "44100:16:2"
+     mixer_type      "software"
+}
+
+audio_output {
+	type		"httpd"
+	name		"My HTTP Stream"
+	encoder		"lame"		# optional, vorbis or lame
+	port		"8000"
+#	bind_to_address	"0.0.0.0"		# optional, IPv4 or IPv6
+##	quality		"5.0"			# do not define if bitrate is defined
+	bitrate		"128"			# do not define if quality is defined
+	format		"44100:16:1"
+#	max_clients	"0"			# optional 0=no limit
+	always_on	"yes"
+}

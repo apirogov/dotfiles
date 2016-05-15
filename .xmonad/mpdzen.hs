@@ -6,8 +6,10 @@ import Data.Monoid
 import Shelly
 import qualified Data.Text as T
 
+click :: T.Text -> T.Text -> T.Text -> T.Text
 click btn cmd str = "^ca(" <> btn <> "," <> cmd <> ")" <> str <> "^ca()"
 
+main :: IO ()
 main = do
   (hostfile:color:maxw':_) <- fmap T.pack <$> getArgs
   ex <- liftIO $ doesFileExist $ T.unpack hostfile
@@ -22,7 +24,7 @@ main = do
     let mpccmd   = "cat " <> hostfile <> " | xargs -Ihost mpc -h host "
         volume   = (filter (/="") $ concat $ T.splitOn ":" <$> (T.splitOn " " $ ls!!2))!!1
         status   = T.take 3 (ls!!1) <> "]"
-        progress = (T.splitOn " " (ls!!1))!!4
+        progress = (filter (not . T.null) $ T.splitOn " " (ls!!1))!!2
     
         fgclr = "^fg(" <> color <> ")♪"
         vol   = click "1" (mpccmd<>"volume +10") 

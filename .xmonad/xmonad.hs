@@ -1,11 +1,11 @@
 {-# LANGUAGE DeriveDataTypeable, TypeSynonymInstances, MultiParamTypeClasses #-}
 {-# OPTIONS_GHC -W -fwarn-unused-imports -fno-warn-missing-signatures -fno-warn-type-defaults #-}
 -- xmonad config of Anton Pirogov
--- requires trayer-srg-git + dzen2 + conky + xmonad-contrib-darcs
+-- requires trayer-srg-git + dzen2 + conky + xmonad-contrib 0.12
 -- also compile mpdzen.hs and xmonadctl.hs
 ---------------------------------------------------------------
 import qualified Data.Map as M
-import Data.List (elemIndex)
+import Data.List (elemIndex,isPrefixOf)
 import Data.Maybe (fromMaybe)
 import Control.Monad (when)
 import System.Directory (setCurrentDirectory)
@@ -88,15 +88,15 @@ tabbedLayout  = renamed [Replace "Tab"] $ tabbed shrinkText myTabConfig
 -- my main layout with the modifier and toggle stack
 myLayout = trackFloating $ smartBorders $ avoidStruts $ mkToggle1 NBFULL $ mkToggle1 TABBED
          $ renamed [Replace "Def"] -- $ layoutHints
-         $ mkToggle1 MIRROR $ mkToggle1 REFLECTX $ mkToggle1 REFLECTY $ imLayout main
+         $ mkToggle1 MIRROR $ mkToggle1 REFLECTX $ mkToggle1 REFLECTY $ imLayout mainL
   where imLayout = (renamed [CutWordsLeft 1]) . (withIM (1/8)
                    (ClassName "Pidgin" `And` Role "buddy_list"
                    `Or` ClassName "Gajim" `And` Role "roster"
                    `Or` ClassName "Skype" `And`
                      (Not $ (Role "ConversationsWindow" `Or` Role "CallWindow"))))
-        main     = mouseResizableTile { masterFrac = 0.5,
+        mainL     = mouseResizableTile { masterFrac = 0.5,
                                         fracIncrement = 0.05,
-                                        draggerType = BordersDragger } 
+                                        draggerType = BordersDragger }
 
 ------------------------------------------------------------------------
 -- Execute arbitrary actions and WindowSet manipulations when managing a new window.
@@ -110,9 +110,9 @@ myManageHook = namedScratchpadManageHook scratchpads -- <+> placeHook simpleSmar
                             ] <+> manageDocks
 
 -- Perform an arbitrary action each time xmonad starts or is restarted with mod-q.
-myStartupHook = spawn myTrayerCommand <+>updateConkyMPD <+> spawn myDzenConky
+myStartupHook = setWMName "LG3D" -- for matlab
+              <+> spawn myTrayerCommand <+>updateConkyMPD <+> spawn myDzenConky
               <+> liftIO (putEnv "_JAVA_AWT_WM_NONREPARENTING=1")
-              <+> setWMName "LG3D" -- for matlab
 
 myHandleEventHook = ewmhDesktopsEventHook <+> fullscreenEventHook <+> docksEventHook
                 <+> serverModeEventHookF "GOTO_WS" goToWS
@@ -121,7 +121,11 @@ myHandleEventHook = ewmhDesktopsEventHook <+> fullscreenEventHook <+> docksEvent
                 <+> serverModeEventHookF "TOG_ROT" (const $ sendMessage $ Toggle MIRROR)
 
 myLogHook = ewmhDesktopsLogHook
-        <+> updatePointer (0.5, 0.5) (0,0) <+> wallpaperSetter def
+        <+> updatePointer (0.5, 0.5) (0,0)
+        <+> wallpaperSetter def {
+            wallpapers = defWPNames (map show [2..6])
+                       `mappend` WallpaperList [("1",WallpaperDir "1")]
+        }
 
 ---------------------------------------------------------------
 
@@ -201,7 +205,7 @@ myPrompt = do
   cmds <- io getCommands
   ret <- inputPromptWithCompl myXPConfig "" $ myCompl (cmds++map fst prompthooks)
   whenJust ret $ exec
-  where myCompl = getShellCompl
+  where myCompl = flip getShellCompl isPrefixOf
         exec s
           | Just h <- lookup p prompthooks = h
           | s `elem` tp = runInTerm "" s
@@ -218,10 +222,16 @@ netctlP = do
                    ["-c", "find /etc/netctl/ -maxdepth 1 -type f | sed 's/^.*\\///'"] ""
   selectThenDo "netctl" ("-":nets) (spawn . ("sudo netctl stop-all && sudo netctl start "++))
 
--- use ghc as calculator
-calcP = do
-  ret <- inputPrompt myXPConfig "calc"
-  whenJust ret $ \n -> spawn $ "bash -c \"notify-send $(ghc -e '"++n++"')\""
+calcP = do runProcessWithInput "bash" [] "rm /tmp/lastres" >> calcP'
+           runProcessWithInput "bash" [] "notify-send $(cat /tmp/lastres); cat /tmp/lastres | xsel -i;"
+           return ()
+  where calcP' = do
+          lastRes <- words <$> runProcessWithInput "cat" ["/tmp/lastres"] ""
+          inputPromptWithCompl myXPConfig "calc" (const $ return lastRes) ?+ \ret -> do
+            newRes <- words <$> runProcessWithInput "ruby"
+                                ["-e","require 'mathn'; puts ("++ret++")"] ""
+            runProcessWithInput "bash" [] $ "echo '"++unwords newRes++"' > /tmp/lastres\n"
+            calcP'
 
 -- type to store chosen MPD server in X State
 newtype MPDHost = MPDHost { mpdHost :: String } deriving (Read,Show,Typeable)
@@ -367,7 +377,7 @@ main = do
     (zip (zip (repeat (myModMask .|. shiftMask)) $ [xK_1..xK_9]++[xK_0])
         (map (withNamedWorkspace W.shift) $ map show $ [1..9]++[0]))
     ))
-    where xmRestart = "xmonad --recompile && killall trayer conky dzen2; xmonad --restart"
+    where xmRestart = "stack exec xmonad -- --recompile && killall trayer conky dzen2; xmonad --restart"
           mpccmd str = XS.gets mpdHost >>= \h -> spawn $ "mpc -h "++h++" "++str
           runMpdClient = XS.gets mpdHost >>= \h -> runInTerm "" $ "bash -c 'ncmpcpp -h "++h++"'"
           togTouchpad = "synclient TouchpadOff=$(synclient -l | grep -c 'TouchpadOff.*=.*0')"

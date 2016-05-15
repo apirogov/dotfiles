@@ -2,8 +2,7 @@
 [ -r /etc/profile ] && . /etc/profile
 
 #Add own binaries
-#Global cabal sandbox only for recent cabal-install and xmonad
-paths=(~/bin /home/admin/bin/rpi/haskell/ghc-7.10.2/bin /home/admin/bin/rpi/gcc-linaro-4.8/bin ~/bin/matlab2015b/bin ~/bin/sandboxes/*/bin ~/.cabal/bin  ~/.gem/ruby/*/bin)
+paths=(~/bin ~/bin/matlab16a/bin ~/.local/bin ~/.gem/ruby/*/bin)
 for bindir in ${paths[@]}; do [ -d $bindir ] && PATH=$PATH:${bindir}; done
 #add non-system .so libs
 libs=()
@@ -32,7 +31,7 @@ shopt -s autocd     # auto-cd if entering a path
 ## SET OPTIONS
 set -o ignoreeof    # stops ctrl+d from logging me out
 set -o noclobber    # prevent overwriting files with cat
-set -o vi           # vi input mode
+# set -o vi           # vi input mode
 
 ## BIND OPTIONS
 bind 'set completion-ignore-case on'
@@ -46,7 +45,7 @@ stty -ixon #so as not to be disturbed by Ctrl-S ctrl-Q in terminals and be able 
 complete -cf sudo    #complete stuff after sudo
 complete -cf man     #complete man pages
 complete -f -X '*.@(aux|fdb_latexmk|fls|pdf|out|log|class|o)' vim #don't complete these files for vim
-#Btw: Alt-Backspace deletes word, CTRL-<Arrow> moves wordwise, !CMD runs last matching cmd
+#Btw: Alt-Backspace deletes word, CTRL-<Arrow> moves wordwise, !!, !CMD runs last matching cmd
 
 #XTerm Escape Sequences for text color + attributes
 #Change color: \e[Nm
@@ -72,7 +71,7 @@ export PS1="$BLUEBG$WHITE[\t]$DEFAULT $([ "$EUID" != "0" ] && echo "$BLUE\u$RED@
 ## EXPORTS
 export LANG="de_DE.UTF-8"
 export LC_ALL="de_DE.UTF-8"
-export LANGUAGE="de_DE.UTF-8"
+export LANGUAGE="de_DE:en_US:en"
 export TZ="Europe/Berlin"
 
 export HISTCONTROL="ignorespace:ignoredups:erasedups" #No duplicates in history, no cmds preceded by space
@@ -115,7 +114,9 @@ alias mirror="rsync -auv --delete"
 
 #Compiler settings
 alias hc='rm -rf /tmp/*.o; ghc -Wall -fwarn-name-shadowing -fwarn-incomplete-patterns -hidir=/tmp -odir=/tmp -O' #"script compile" shortie
-alias gcc='LANG="C" gcc -ansi -std=c99 -pedantic -Wall -Wextra -Wshadow -Wcast-qual -Wformat=2 -Wmissing-include-dirs -Wfloat-equal -Wswitch-enum -Wundef -Wwrite-strings -Wredundant-decls -fverbose-asm -pg -g '	#High standard level, many debugging opts
+alias cc='LANG="C" gcc -ansi -std=c99 -pedantic -Wall -Wextra -Wshadow -Wcast-qual -Wformat=2 -Wmissing-include-dirs -Wfloat-equal -Wswitch-enum -Wundef -Wwrite-strings -Wredundant-decls -fverbose-asm -pg -g '	#High standard level, many debugging opts
+alias uvagpp='g++ -lm -lcrypt -O2 -std=c++11 -pipe -DONLINE_JUDGE'
+
 #Recursive javac in root source directory, fixing UTF and setting up dirs
 javacrec() {
   # echo "convert to unicode.."
@@ -124,11 +125,11 @@ javacrec() {
   dir="grep package \$1 | sed 's/[\\t ]*package[\\t ]*\\([a-zA-Z0-9.]*\\)[\\t ]*;.*/\\1/' | sed 's/\\./\\//'"
   find -name "*.java" -exec sh -c "dir=\$($dir); [ -n \"\$dir\" ] && mkdir -p \$dir && mv \$1 \$dir" x {} \;
   echo "compile!"
-  find -name "*.java" > .java_sources.txt; javac -encoding iso-8859-1 @.java_sources.txt; rm -f .java_sources.txt
+  find -name "*.java" > .java_sources.txt; javac -Xlint:unchecked -encoding iso-8859-1 @.java_sources.txt; rm -f .java_sources.txt
 }
 #Poor man's presentation generation, usage: genpres ~/*pics.jpg > out.pdf
 #${@:1:$(($#-1))}
-genpres() { convert -crop +1+1 -crop -1-1 -gravity center -extent 1600x1200 $@ pdf:-; }
+genpres() { convert -crop +1+1 -crop -1-1 -gravity center -extent 1200x900 $@ pdf:-; }
 #Shots to movie
 genmovie() { ffmpeg -framerate 4 -r 4 -pattern_type glob -i "$1"  -c:v libx264 -vf "fps=25,format=yuv420p" $2; }
 
@@ -210,6 +211,7 @@ alias togglelrm="xmodmap -pp | grep -e '\\s\+[13]\\s' | awk '{print \$2}' | sed 
 alias resetscreen='xrandr -s 1 && xrandr -s 0' #reset screen resolution to default (after buggy games)
 alias xp='xprop | grep "WM_WINDOW_ROLE\|WM_CLASS" && echo "WM_CLASS(STRING) = \"NAME\", \"CLASS\"";xwininfo'
 alias top10size='find . -printf "%s %p\n"|sort -nr|head'
+alias fixsteam='find ~/.steam/root/ \( -name "libgcc_s.so*" -o -name "libstdc++.so*" -o -name "libxcb.so*" -o -name "libgpg-error.so*" \) -print -delete'
 matlabrepl(){ tmux -2 new -A -s mat "matlab -nosplash -nodesktop $@"; }
 top10cmds(){ history|awk '{a[$2]++}END{for(i in a){printf"%5d\t%s\n",a[i],i}}'|sort -nr|head; } # most used commands
 find_recently_changed(){ find $1 -type f -print0 | xargs -0 stat --format '%Y :%y %n' | sort -nr | cut -d: -f2- | head; }
@@ -221,14 +223,12 @@ escape(){ ruby -e "puts '$2'+'$1'.split(//).map{|x| x.slice(0).ord.to_s(16)}.joi
 calc(){ ruby -e "require 'mathn'; puts $1"; } #Ruby calculator
 
 if which ghc >/dev/null; then #define these if ghc is present
+  alias ghci="stack ghci --no-build"
+  alias ghc="stack ghc --"
   function hcalc { ghc -e "($*)"; }
   function hmap { ghc -e "interact ($*)"; }
   function hmapl { hmap "unlines.($*).lines"; }
   function hmapw { hmapl "map (unwords.($*).words)"; }
-
-  alias ghc-sandbox="ghc -no-user-package-db -package-db .cabal-sandbox/*-packages.conf.d"
-  alias ghci-sandbox="ghci -no-user-package-db -package-db .cabal-sandbox/*-packages.conf.d"
-  alias runhaskell-sandbox="runhaskell -no-user-package-db -package-db .cabal-sandbox/*-packages.conf.d"
 fi
 
 #Set Urxvt font size on the fly
@@ -250,6 +250,8 @@ alias cleantex='find . -regex ".*\(aux\|bbl\|blg\|brf|\idx\|ilg\|ind\|lof\|log\|
 alias setmp3chmod='find -name "*.mp3" -print0 | xargs -0 chmod 644'
 alias fixmusicdir='chmod -R u+rwX,go+rX,go-w ./'  #set files to 644, dirs to 755
 alias m4a2mp3='for a in *.m4a; do faad -f 2 -w "$a"  | lame -r - "$a.mp3"; done'
+alias flac2mp3='for a in ./*.flac; do ffmpeg -i "$a" -qscale:a 0 "${a[@]/%flac/mp3}"; done'
+alias wav2mp3='for i in *.wav; do lame -h -b 320 "$i" "`basename "$i" .wav`".mp3; done'
 alias normalizevolume='find /home/admin/myfiles/music/ -type f -iname "*.mp3" -exec mp3gain -p -r -k -s i -d 6.0 "{}" \;'
 
 #----
@@ -368,3 +370,5 @@ socksend() {
   echo $3 >&3
   exec 3>&-
 }
+
+eval "$(stack --bash-completion-script stack)"

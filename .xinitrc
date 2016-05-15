@@ -23,9 +23,8 @@ setterm -blank 0 -powerdown 0
 xsetroot -cursor_name left_ptr #Set cursor
 
 ##Touchpad settings
-synclient PalmDetect=1
-synclient PalmMinWidth=5
-synclient PalmMinZ=100
+synclient PalmDetect=1 PalmMinWidth=5 PalmMinZ=100
+synclient HorizEdgeScroll=0 HorizTwoFingerScroll=0 #fix MEvent CASE! in java
 syndaemon -t -K -i 1 -d
 # synclient TouchpadOff=1
 

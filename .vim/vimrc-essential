@@ -1,4 +1,4 @@
-" Universally useful vim plugins, Vundle initialization
+" Universally useful vim plugins
 
 " Improved %
 Plug 'matchit.zip'
@@ -14,10 +14,12 @@ Plug 'dockyard/vim-easydir'
 Plug 'tpope/vim-speeddating'
 " Show detailed info about characters with ga
 Plug 'tpope/vim-characterize'
-" NetRW+ (- to move from buffer to containing dir
+" NetRW+ (- to move from buffer to containing dir)
 Plug 'tpope/vim-vinegar'
 " Useful pair bindings
 Plug 'tpope/vim-unimpaired'
+" For camelCase vs snake_case: crs/crm/crc/cru
+Plug 'tpope/vim-abolish'
 " repeat with . hook for plugins
 Plug 'tpope/vim-repeat'
 
@@ -48,8 +50,6 @@ Plug 'briandoll/change-inside-surroundings.vim'
 
 " Tabularize verb (gl/L textobj align char or /regex)
 Plug 'tommcdo/vim-lion'
-" Ag (the silver searcher) search (awesome fast code grep with :Ag)
-Plug 'rking/ag.vim'
 " Regex preview
 Plug 'osyo-manga/vim-over'
 
@@ -62,6 +62,8 @@ map <leader>t :TagbarToggle<cr>
 " Generate view of tasks with XXX/FIXME/TODO
 map <leader>T <Plug>TaskList
 Plug 'vim-scripts/TaskList.vim'
+" Ag (the silver searcher) search (awesome fast code grep with :Ag)
+Plug 'rking/ag.vim'
 
 " Code Commenting - gc<Motion> -> toggle comment, gcu -> uncomment commented
 Plug 'tpope/vim-commentary'
@@ -86,13 +88,26 @@ Plug 'tpope/vim-fugitive'
 Plug 'airblade/vim-gitgutter'
 let g:gitgutter_realtime = 0      "possibly fix keystroke glitches
 
-" Syntax checking for vim. Close error window with lclose show with Errors
-Plug 'scrooloose/syntastic'
-let g:syntastic_enable_signs=1    "mark syntax errors with :signs
-let g:syntastic_auto_jump=0       "automatically jump to the error when saving the file
-let g:syntastic_auto_loc_list=1   "show the error list automatically
-let g:syntastic_quiet_messages = {'level': 'warnings'} " No warnings
-" Plug 'benekastah/neomake'
+" Syntax checking for vim.
+Plug 'benekastah/neomake'
+" open list without moving the cursor; use :ll to jump to current error
+let g:neomake_open_list = 2
+" jump to next error
+nnoremap <leader>ne :ll<CR>
+let g:neomake_warning_sign = {'text': 'W', 'texthl': 'WarningMsg'}
+let g:neomake_error_sign = {'text': 'E', 'texthl': 'ErrorMsg'}
+autocmd! BufWritePost * Neomake
+function! NeomakeCpp()
+  let g:neomake_cpp_gcc_maker = neomake#makers#ft#cpp#gcc()
+  let g:neomake_cpp_gcc_maker.args += ['-std=c++11']
+  let g:neomake_cpp_clang_maker = neomake#makers#ft#cpp#clang()
+  let g:neomake_cpp_clang_maker.args += ['-std=c++11', '-Wno-c++11-extensions']
+endfunction
+au BufRead,BufNewFile *.cpp :call NeomakeCpp()
+" let g:syntastic_enable_signs=1    "mark syntax errors with :signs
+" let g:syntastic_auto_jump=0       "automatically jump to the error when saving the file
+" let g:syntastic_auto_loc_list=1   "show the error list automatically
+" let g:syntastic_quiet_messages = {'level': 'warnings'} " No warnings
 
 " slime-like repl interaction for tmux
 Plug 'epeli/slimux'
@@ -107,3 +122,8 @@ nnoremap <silent> <M-Down> :TmuxNavigateDown<cr>
 nnoremap <silent> <M-Up> :TmuxNavigateUp<cr>
 nnoremap <silent> <M-Right> :TmuxNavigateRight<cr>
 
+" Russian typing
+Plug 'einars/translit.vim'
+nnoremap <leader>tr :exec Translit('translit.ru')<cr>
+" Distraction free writing :Goyo
+Plug 'junegunn/goyo.vim'

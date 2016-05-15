@@ -22,18 +22,19 @@ source ~/.vim/vimrc-ide-misc
 source ~/.vim/vimrc-ft-misc
 
 " (Better) syntax support
-Plug 'sudar/vim-arduino-syntax'
 Plug 'hail2u/vim-css3-syntax'
 Plug 'othree/html5-syntax.vim'
 Plug 'tpope/vim-markdown'
 Plug 'nelstrom/vim-markdown-folding'
-Plug 'gberenfield/cljfold.vim'
 Plug 'vim-scripts/haskell.vim'
 Plug 'rust-lang/rust.vim'
 Plug 'Twinside/vim-syntax-haskell-cabal'
 Plug 'Twinside/vim-haskellFold'
 
 " Some good colorschemes
+Plug 'AlessandroYorba/Alduin'
+let g:alduin_Shout_Windhelm=1
+let g:alduin_Shout_AuraWhisper=1
 Plug 'tomasr/molokai'
 Plug 'sjl/badwolf'
 Plug 'vim-scripts/jellybeans.vim'
@@ -58,8 +59,8 @@ if (has('nvim'))
 endif
 
 if &t_Co>255
-  set bg=light
-  colorscheme lucius
+  " set bg=light
+  colorscheme alduin
 else " e.g. in TTY
   colorscheme desert
 endif

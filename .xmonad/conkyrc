@@ -13,7 +13,7 @@ ${exec ~/.xmonad/mpdzen /tmp/currmpd \#0080ff 40}\
 ^fg(\#ffffff)C:${lua_parse format %2.0f ${cpu cpu0}}% \
 R:${lua_parse format %2.0f $memperc}% \
 ^fg(\#40f0f0)/:${fs_used_perc /}% /home:${fs_used_perc /home}% \
-^fg(\#a0ffa0)↓${downspeedf wlp0s20u1}KB/s ↑${upspeedf wlp0s20u1}KB/s \
+^fg(\#a0ffa0)↓${downspeedf wlp6s0}KB/s ↑${upspeedf wlp6s0}KB/s \
 ^ca(1,exec amixer set Master 5%+)^ca(3,exec amixer set Master 5%-)\
 ^fg(\#ffff00)${exec amixer get Master | awk '/%/{ gsub(/\[|\]/,""); print $5 }' |head -n 1} \
 ^ca()^ca()\
