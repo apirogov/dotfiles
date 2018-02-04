@@ -1,34 +1,6 @@
 " Plugins with fancy and IDE-like integration stuff
 " vim: set foldmethod=marker foldlevel=0:
 " ---------------------------------------
-" Completion engine (tab completion / supertab replacement)
-if v:version > 703 && has('lua') && 1==0
-  Plug 'Shougo/neocomplete'
-  " neocomplete settings {{{
-  let g:neocomplete#enable_at_startup = 1
-  let g:neocomplete#enable_smart_case = 1
-  let g:neocomplete#sources#syntax#min_keyword_length = 3
-  " Plugin key-mappings.
-  inoremap <expr><C-g>     neocomplete#undo_completion()
-  inoremap <expr><C-l>     neocomplete#complete_common_string()
-  " Recommended key-mappings.
-  " <CR>: close popup and save indent.
-  inoremap <silent> <CR> <C-r>=<SID>my_cr_function()<CR>
-  function! s:my_cr_function()
-    return neocomplete#close_popup() . "\<CR>"
-    " For no inserting <CR> key.
-    "return pumvisible() ? neocomplete#close_popup() : "\<CR>"
-  endfunction
-  " <TAB>: completion.
-  inoremap <expr><TAB>  pumvisible() ? "\<C-n>" : "\<TAB>"
-  " <C-h>, <BS>: close popup and delete backword char.
-  inoremap <expr><C-h> neocomplete#smart_close_popup()."\<C-h>"
-  "inoremap <expr><BS> neocomplete#smart_close_popup()."\<C-h>" "breaks delimitMate
-  inoremap <expr><C-y>  neocomplete#close_popup()
-  inoremap <expr><C-e>  neocomplete#cancel_popup()
-  " }}}
-endif
-
 " Code snippets (complete with C-k) / snipmate replacement
 Plug 'Shougo/neosnippet.vim'
 Plug 'Shougo/neosnippet-snippets'
@@ -47,13 +19,10 @@ xmap <C-k>     <Plug>(neosnippet_expand_target)
 
 " Project and session management
 " ------------------------------
-" Async compiling
-" Plug 'tpope/vim-dispatch'
-" Sesssion management :Obsess(!) / vim -S Session.vim
-" Plug 'tpope/vim-obsession'
 " Allow project-local vim config (.lvimrc)
 Plug 'embear/vim-localvimrc'
 let g:localvimrc_persistent = 1 " Remember decisions in file
+let g:localvimrc_sandbox = 0 " don't nag with sandbox
 " Automatically switch to project root with <leader>cd
 Plug 'airblade/vim-rooter'
 let g:rooter_manual_only = 1

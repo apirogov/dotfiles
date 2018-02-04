@@ -1,8 +1,9 @@
+#!/usr/bin/env stack
+-- stack script --resolver lts-9.0 --package X11
 import Graphics.X11.Xlib
 import Graphics.X11.Xlib.Extras
 import System.Environment
 import System.IO
-import Data.Char
 
 main :: IO ()
 main = parse True "XMONAD_COMMAND" =<< getArgs

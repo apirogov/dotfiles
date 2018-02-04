@@ -2,7 +2,8 @@
 % This package is a branch of utf8-math initiated by Markus Fröb at
 % Universitat de Barcelona. Since 2011, it is maintained by Daniel Thoma and
 % Normann Decker at the Institute for Software Engineering and Programming
-% Languages, Universität zu Lübeck.
+% Languages, Universität zu Lübeck. Anton Pirogov contributed additional symbols 
+% and LuaLaTeX-Magic.
 %
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{utf8-math}[2010/05/01 Defines standard operators and new Unicode symbols to use directly]
@@ -54,7 +55,7 @@
 %\RequirePackage[cmex10]{amsmath} % IEEE
 \RequirePackage{amsmath}
 \RequirePackage{amssymb}
-
+\RequirePackage{stmaryrd}
 \RequirePackage{mathrsfs}
 \RequirePackage[Symbol]{upgreek}
 \RequirePackage{bbm}
@@ -96,8 +97,9 @@
 \DeclareUnicodeCharacter{03B2}{\beta}
 \DeclareUnicodeCharacter{03B3}{\@unitextgreek{gamma}}
 \DeclareUnicodeCharacter{03B4}{\@unitextgreek{delta}}
-\DeclareUnicodeCharacter{03B5}{\@unitextgreek{epsilon}}
-\DeclareUnicodeCharacter{025B}{\@unitextgreek{varepsilon}}
+%\DeclareUnicodeCharacter{03B5}{\@unitextgreek{epsilon}}
+\DeclareUnicodeCharacter{03B5}{\@unitextgreek{varepsilon}}%ε U+03B5 GREEK SMALL LETTER EPSILON
+\DeclareUnicodeCharacter{03F5}{\@unitextgreek{epsilon}}   %ϵ U+03F5 GREEK LUNATE EPSILON SYMBOL
 \DeclareUnicodeCharacter{03B6}{\@unitextgreek{zeta}}
 \DeclareUnicodeCharacter{03B7}{\@unitextgreek{eta}}
 \DeclareUnicodeCharacter{03B8}{\@unitextgreek{theta}}
@@ -117,7 +119,8 @@
 \DeclareUnicodeCharacter{03C6}{\@unitextgreek{varphi}} % φ U+03C6 GREEK SMALL LETTER PHI
 \DeclareUnicodeCharacter{03C7}{\@unitextgreek{chi}}
 \DeclareUnicodeCharacter{03C8}{\@unitextgreek{psi}}
-\DeclareUnicodeCharacter{03C9}{\@unitextgreek{omega}}
+%\DeclareUnicodeCharacter{03C9}{\@unitextgreek{omega}}
+\DeclareUnicodeCharacter{03C9}{\omega}
 
 \DeclareUnicodeCharacter{03D1}{\ensuremath{\vartheta}}
 \DeclareUnicodeCharacter{03D5}{\@unitextgreek{phi}} % ϕ U+03D5 GREEK PHI SYMBOL
@@ -308,6 +311,16 @@
 \DeclareUnicodeCharacter{1D431}{\mathbf{x}} % '𝐱' 'MATHEMATICAL BOLD SMALL X' (U+1D431)
 \DeclareUnicodeCharacter{1D432}{\mathbf{y}} % '𝐲' 'MATHEMATICAL BOLD SMALL Y' (U+1D432)
 \DeclareUnicodeCharacter{1D433}{\mathbf{z}} % '𝐳' 'MATHEMATICAL BOLD SMALL Z' (U+1D433)
+\DeclareUnicodeCharacter{1D7CE}{\mathbf{0}} % '𝟎' 'MATHEMATICAL BOLD DIGIT ZERO' (U+1D7CE)
+\DeclareUnicodeCharacter{1D7CF}{\mathbf{1}} % '𝟏' 'MATHEMATICAL BOLD DIGIT ONE' (U+1D7CF)
+\DeclareUnicodeCharacter{1D7D0}{\mathbf{2}} % '𝟐' 'MATHEMATICAL BOLD DIGIT TWO' (U+1D7D0)
+\DeclareUnicodeCharacter{1D7D1}{\mathbf{3}} % '𝟑' 'MATHEMATICAL BOLD DIGIT THREE' (U+1D7D1)
+\DeclareUnicodeCharacter{1D7D2}{\mathbf{4}} % '𝟒' 'MATHEMATICAL BOLD DIGIT FOUR' (U+1D7D2)
+\DeclareUnicodeCharacter{1D7D3}{\mathbf{5}} % '𝟓' 'MATHEMATICAL BOLD DIGIT FIVE' (U+1D7D3)
+\DeclareUnicodeCharacter{1D7D4}{\mathbf{6}} % '𝟔' 'MATHEMATICAL BOLD DIGIT SIX' (U+1D7D4)
+\DeclareUnicodeCharacter{1D7D5}{\mathbf{7}} % '𝟕' 'MATHEMATICAL BOLD DIGIT SEVEN' (U+1D7D5)
+\DeclareUnicodeCharacter{1D7D6}{\mathbf{8}} % '𝟖' 'MATHEMATICAL BOLD DIGIT EIGHT' (U+1D7D6)
+\DeclareUnicodeCharacter{1D7D7}{\mathbf{9}} % '𝟗' 'MATHEMATICAL BOLD DIGIT NINE' (U+1D7D7)
 
 \DeclareUnicodeCharacter{1D49C}{\mathscr{A}} % '𝒜' 'MATHEMATICAL SCRIPT CAPITAL A' (U+1D49C)
 \DeclareUnicodeCharacter{212C}{\mathscr{B}} % 'ℬ' 'SCRIPT CAPITAL B' (U+212C)
@@ -535,6 +548,16 @@
 \DeclareUnicodeCharacter{1D569}{\mathbb{x}} % '𝕩' 'MATHEMATICAL DOUBLE-STRUCK SMALL X' (U+1D569)
 \DeclareUnicodeCharacter{1D56A}{\mathbb{y}} % '𝕪' 'MATHEMATICAL DOUBLE-STRUCK SMALL Y' (U+1D56A)
 \DeclareUnicodeCharacter{1D56B}{\mathbb{z}} % '𝕫' 'MATHEMATICAL DOUBLE-STRUCK SMALL Z' (U+1D56B)
+\DeclareUnicodeCharacter{1D7D8}{\mathbb{0}} % '𝟘' 'MATHEMATICAL DOUBLE-STRUCK DIGIT ZERO' (U+1D7D8)
+\DeclareUnicodeCharacter{1D7D9}{\mathbb{1}} % '𝟙' 'MATHEMATICAL DOUBLE-STRUCK DIGIT ONE' (U+1D7D9)
+\DeclareUnicodeCharacter{1D7DA}{\mathbb{2}} % '𝟚' 'MATHEMATICAL DOUBLE-STRUCK DIGIT TWO' (U+1D7DA)
+\DeclareUnicodeCharacter{1D7DB}{\mathbb{3}} % '𝟛' 'MATHEMATICAL DOUBLE-STRUCK DIGIT THREE' (U+1D7DB)
+\DeclareUnicodeCharacter{1D7DC}{\mathbb{4}} % '𝟜' 'MATHEMATICAL DOUBLE-STRUCK DIGIT FOUR' (U+1D7DC)
+\DeclareUnicodeCharacter{1D7DD}{\mathbb{5}} % '𝟝' 'MATHEMATICAL DOUBLE-STRUCK DIGIT FIVE' (U+1D7DD)
+\DeclareUnicodeCharacter{1D7DE}{\mathbb{6}} % '𝟞' 'MATHEMATICAL DOUBLE-STRUCK DIGIT SIX' (U+1D7DE)
+\DeclareUnicodeCharacter{1D7DF}{\mathbb{7}} % '𝟟' 'MATHEMATICAL DOUBLE-STRUCK DIGIT SEVEN' (U+1D7DF)
+\DeclareUnicodeCharacter{1D7E0}{\mathbb{8}} % '𝟠' 'MATHEMATICAL DOUBLE-STRUCK DIGIT EIGHT' (U+1D7E0)
+\DeclareUnicodeCharacter{1D7E1}{\mathbb{9}} % '𝟡' 'MATHEMATICAL DOUBLE-STRUCK DIGIT NINE' (U+1D7E1)
 
 %%% Relations
 \DeclareUnicodeCharacter{227C}{\preccurlyeq} % '≼' 'PRECEDES OR EQUAL TO' (U+227C)
@@ -551,12 +574,12 @@
 \DeclareUnicodeCharacter{228D}{\cupdot} %'⊍' U+228D MULTISET MULTIPLICATION
 \DeclareUnicodeCharacter{228E}{\uplus} %'⊎' U+228E MULTISET UNION
 \DeclareUnicodeCharacter{228F}{\sqsubset} % '⊏' 'SQUARE IMAGE OF' (U+228F)
-\DeclareUnicodeCharacter{22E2}{\not\sqsubset} % '⋢' 'NOT SQUARE IMAGE OF OR EQUAL TO' (U+22E2)
 \DeclareUnicodeCharacter{2290}{\sqsupset} % '⊐' 'SQUARE ORIGINAL OF' (U+2290)
-\DeclareUnicodeCharacter{22E3}{\not\sqsupset} % '⋣' 'NOT SQUARE ORIGINAL OF OR EQUAL TO' (U+22E3)
+%\DeclareUnicodeCharacter{????}{\not\sqsubset} % 'NOT SQUARE IMAGE OF' (does not exist)
+%\DeclareUnicodeCharacter{????}{\not\sqsupset} % 'NOT SQUARE ORIGINAL OF' (does not existe)
 \DeclareUnicodeCharacter{2291}{\sqsubseteq} % '⊑' 'SQUARE IMAGE OF OR EQUAL TO' (U+2291)
-\DeclareUnicodeCharacter{22E2}{\not\sqsubseteq} % '⋢' 'NOT SQUARE IMAGE OF OR EQUAL TO' (U+22E2)
 \DeclareUnicodeCharacter{2292}{\sqsupseteq} % '⊒' 'SQUARE ORIGINAL OF OR EQUAL TO' (U+2292)
+\DeclareUnicodeCharacter{22E2}{\not\sqsubseteq} % '⋢' 'NOT SQUARE IMAGE OF OR EQUAL TO' (U+22E2)
 \DeclareUnicodeCharacter{22E3}{\not\sqsupseteq} % '⋣' 'NOT SQUARE ORIGINAL OF OR EQUAL TO' (U+22E3)
 \DeclareUnicodeCharacter{2208}{\in} % '∈' 'ELEMENT OF' (U+2208)
 \DeclareUnicodeCharacter{220B}{\ni} % '∋' 'CONTAINS AS MEMBER' (U+220B)
@@ -583,11 +606,13 @@
 \DeclareUnicodeCharacter{22C1}{\bigvee} % '⋁' 'N-ARY LOGICAL OR' (U+22C1)
 \DeclareUnicodeCharacter{22C2}{\bigcap} %U+22C2 ⋂       e2 8b 82        N-ARY INTERSECTION
 \DeclareUnicodeCharacter{22C3}{\bigcup} %U+22C3 ⋃       e2 8b 83        N-ARY UNION
+\DeclareUnicodeCharacter{22C8}{\bowtie} %U+22C8 ⋈       BOWTIE
 \DeclareUnicodeCharacter{2A05}{\bigsqcap} % '⨅' 'N-ARY SQUARE INTERSECTION OPERATOR' (U+2A05)
 \DeclareUnicodeCharacter{2A06}{\bigsqcup} % '⨆' 'N-ARY SQUARE UNION OPERATOR' (U+2A06)
 \DeclareUnicodeCharacter{2A00}{\ensuremath{\bigodot}} % '⨀' 'N-ARY CIRCLED DOT OPERATOR' (U+2A00)
 \DeclareUnicodeCharacter{2A01}{\ensuremath{\bigoplus}} % '⨁' 'N-ARY CIRCLED PLUS OPERATOR' (U+2A01)
 \DeclareUnicodeCharacter{2A02}{\ensuremath{\bigotimes}} % '⨂' 'N-ARY CIRCLED TIMES OPERATOR' (U+2A02)
+\DeclareUnicodeCharacter{229B}{\ensuremath{\circledast}} % % '⊛' 'CIRCLED ASTERISK'
 
 %%%　Braces
 \DeclareUnicodeCharacter{2223}{\mid} % '∣' 'DIVIDES' (U+2223)
@@ -649,19 +674,20 @@
 \DeclareUnicodeCharacter{B0}{^\circ}
 \DeclareUnicodeCharacter{B1}{\pm}
 \DeclareUnicodeCharacter{B5}{\upmu}
-\DeclareUnicodeCharacter{B7}{\cdot}
+\DeclareUnicodeCharacter{B7}{\cdot} % '·' MIDDLE DOT (U+B7)
 \DeclareUnicodeCharacter{22C5}{\cdot} % '⋅' DOT OPERATOR (U+22C5)
 \DeclareUnicodeCharacter{D7}{\times}       %× U+00D7 MULTIPLICATION SIGN
 \DeclareUnicodeCharacter{F7}{\div}       %÷ U+00D7 DIVISION SIGN
 
 \DeclareUnicodeCharacter{1E96}{\overline{h}}
-
+\DeclareUnicodeCharacter{2016}{\|} % '‖' 'DOUBLE VERTICAL LINE' (U+2016)
 \DeclareUnicodeCharacter{2020}{\dagger}
 \DeclareUnicodeCharacter{2022}{\bullet} % '•' 'BULLET' (U+2022)
 \DeclareUnicodeCharacter{210F}{\hbar}
-\DeclareUnicodeCharacter{2295}{\oplus} %Unicode Character 'CIRCLED PLUS' (U+2295)
-\DeclareUnicodeCharacter{2299}{\odot} %Unicode Character 'CIRCLED DOT OPERATOR' (U+2299)
-
+\DeclareUnicodeCharacter{2295}{\oplus} % '⊕' Unicode Character 'CIRCLED PLUS' (U+2295)
+\DeclareUnicodeCharacter{2296}{\ominus} % 'CIRCLED MINUS' (U+2296)
+\DeclareUnicodeCharacter{2297}{\otimes} % '⊗' 'CIRCLED TIMES' (U+2297)
+\DeclareUnicodeCharacter{2299}{\odot} % '⊙' 'CIRCLED DOT OPERATOR' (U+2299)
 \DeclareUnicodeCharacter{2139}{\mathi}
 \DeclareUnicodeCharacter{2192}{\to}        %→ U+2192 RIGHTWARDS ARROW
 
@@ -678,9 +704,10 @@
 \DeclareUnicodeCharacter{2286}{\subseteq} %⊆ U+2286 SUBSET OF OR EQUAL TO
 \DeclareUnicodeCharacter{2287}{\supseteq} %⊇ U+2287 SUPERSET OF OR EQUAL TO
 
-\DeclareUnicodeCharacter{2212}{-}
+\DeclareUnicodeCharacter{2212}{-} % '−' MINUS SIGN (U+2212)
 \DeclareUnicodeCharacter{2213}{\mp} % '∓'
-\DeclareUnicodeCharacter{2215}{/}
+\DeclareUnicodeCharacter{2215}{/} % U+2215 DIVISION SLASH '∕'
+
 \DeclareUnicodeCharacter{2216}{\setminus} % '∖' U+2216 SET MINUS
 \DeclareUnicodeCharacter{2218}{\circ} % ∘ U+2218 RING OPERATOR
 %\DeclareUnicodeCharacter{2219}{\bullet ???} % '∙' 'BULLET OPERATOR' (U+2219)
@@ -702,9 +729,9 @@
 \DeclareUnicodeCharacter{2230}{\oiiint}
 \DeclareUnicodeCharacter{223C}{\sim}
 \DeclareUnicodeCharacter{2248}{\approx}
-\DeclareUnicodeCharacter{2254}{:=}
-\DeclareUnicodeCharacter{2255}{=:}
-\DeclareUnicodeCharacter{2260}{\neq}
+\DeclareUnicodeCharacter{2254}{:=} % '≔' COLON EQUALS (U+2254)
+\DeclareUnicodeCharacter{2255}{=:} % '≕' EQUALS COLON (U+2255)
+\DeclareUnicodeCharacter{2260}{\neq} % '≠' 'NOT EQUAL TO' (U+2260)
 \DeclareUnicodeCharacter{2261}{\equiv} % '≡' U+2261
 \DeclareUnicodeCharacter{2262}{\not\equiv} % '≢' U+2261
 \DeclareUnicodeCharacter{226A}{\ll}
@@ -713,9 +740,13 @@
 \DeclareUnicodeCharacter{2273}{\gtrsim}
 \DeclareUnicodeCharacter{227A}{\prec}
 \DeclareUnicodeCharacter{227B}{\succ}
+\DeclareUnicodeCharacter{2298}{\oslash} % '⊘' 'CIRCLED DIVISION SLASH' (U+2298)
+\DeclareUnicodeCharacter{22A0}{\boxtimes} % '⊠' 'SQUARED TIMES' (U+22A0)
 \DeclareUnicodeCharacter{22A1}{\boxdot} % '⊡' 'SQUARED DOT OPERATOR' (U+22A1)
 \DeclareUnicodeCharacter{22A4}{\top} % '⊤' 'DOWN TACK' (U+22A4)
 \DeclareUnicodeCharacter{22A5}{\bot} % '⊥' 'UP TACK' (U+22A5)
+\DeclareUnicodeCharacter{22EE}{\vdots} % '⋮' 'VERTICAL ELLIPSIS' (U+22EE)
+\DeclareUnicodeCharacter{22EF}{\cdots} % 'MIDLINE HORIZONTAL ELLIPSIS' (U+22EF)
 \DeclareUnicodeCharacter{2308}{\lceil} % '⌈' 'LEFT CEILING'
 \DeclareUnicodeCharacter{2309}{\rceil} % '⌉' 'RIGHT CEILING'
 \DeclareUnicodeCharacter{230A}{\lfloor} % '⌊' 'LEFT FLOOR'
@@ -730,17 +761,204 @@
 
 \DeclareUnicodeCharacter{25B9}{\triangleright} % '▹' 'WHITE RIGHT-POINTING SMALL TRIANGLE' (U+25B9)
 \DeclareUnicodeCharacter{25C3}{\triangleleft} % '◃' 'WHITE LEFT-POINTING SMALL TRIANGLE' (U+25C3)
+\DeclareUnicodeCharacter{25B8}{\blacktriangleright} % 'BLACK RIGHT-POINTING SMALL TRIANGLE' (U+25B8)
+\DeclareUnicodeCharacter{25C2}{\blacktriangleleft} % 'BLACK LEFT-POINTING SMALL TRIANGLE' (U+25C2)
 \DeclareUnicodeCharacter{25BF}{\triangledown} % '▿' 'WHITE DOWN-POINTING SMALL TRIANGLE' (U+25BF)
 
 %\DeclareUnicodeCharacter{25C6}{\blacklozenge} Black Damond
+
+\DeclareUnicodeCharacter{29C0}{\olessthan} % '⧀' 'CIRCLED LESS-THAN' (U+29C0)
+\DeclareUnicodeCharacter{29C1}{\ogreaterthan} % '⧁' 'CIRCLED GREATER-THAN' (U+29C1)
+
 \DeclareUnicodeCharacter{25CA}{\lozenge} %◊ U+25CA LOZENGE
 \DeclareUnicodeCharacter{29EB}{\blacklozenge} % ⧫ U+29EB BLACK LOZENGE
+\DeclareUnicodeCharacter{2AFD}{\sslash} % '⫽' 'DOUBLE SOLIDUS OPERATOR' (U+2AFD)
 
 \DeclareUnicodeCharacter{33D1}{\ensuremath{\ln}} % '㏑' SQUARE LN
 \DeclareUnicodeCharacter{33D2}{\ensuremath{\log}} % '㏒' SQUARE LOG
 \DeclareUnicodeCharacter{2135}{\ensuremath{\aleph}} % 'ℵ' ALEF SYMBOL
 
-% Typografie (Spezial-Leerzeichen, Punkte…)
-\DeclareUnicodeCharacter{00A0}{~}
-\DeclareUnicodeCharacter{202F}{\,}
-\DeclareUnicodeCharacter{2026}{\ifmmode\ldots\else\textellipsis\fi} % nutze den jeweils passenden Befehl
+\DeclareUnicodeCharacter{2701}{\ding{33}} % '✁' UPPER BLADE SCISSORS (U+2701)
+\DeclareUnicodeCharacter{2702}{\ding{34}} % '✂' BLACK SCISSORS (U+2702)
+\DeclareUnicodeCharacter{2703}{\ding{35}} % '✃' LOWER BLADE SCISSORS (U+2703)
+\DeclareUnicodeCharacter{2704}{\ding{36}} % '✄' WHITE SCISSORS (U+2704)
+\DeclareUnicodeCharacter{260E}{\ding{37}} % '☎' BLACK TELEPHONE (U+260E)
+\DeclareUnicodeCharacter{2706}{\ding{38}} % '✆' TELEPHONE LOCATION SIGN (U+2706)
+\DeclareUnicodeCharacter{2707}{\ding{39}} % '✇' TAPE DRIVE (U+2707)
+\DeclareUnicodeCharacter{2708}{\ding{40}} % '✈' AIRPLANE (U+2708)
+\DeclareUnicodeCharacter{2709}{\ding{41}} % '✉' ENVELOPE (U+2709)
+\DeclareUnicodeCharacter{261B}{\ding{42}} % '☛' BLACK RIGHT POINTING INDEX (U+261B)
+\DeclareUnicodeCharacter{261E}{\ding{43}} % '☞' WHITE RIGHT POINTING INDEX (U+261E)
+\DeclareUnicodeCharacter{270C}{\ding{44}} % '✌' VICTORY HAND (U+270C)
+\DeclareUnicodeCharacter{270D}{\ding{45}} % '✍' WRITING HAND (U+270D)
+\DeclareUnicodeCharacter{270E}{\ding{46}} % '✎' LOWER RIGHT PENCIL (U+270E)
+\DeclareUnicodeCharacter{270F}{\ding{47}} % '✏' PENCIL (U+270F)
+\DeclareUnicodeCharacter{2710}{\ding{48}} % '✐' UPPER RIGHT PENCIL (U+2710)
+\DeclareUnicodeCharacter{2711}{\ding{49}} % '✑' WHITE NIB (U+2711)
+\DeclareUnicodeCharacter{2712}{\ding{50}} % '✒' BLACK NIB (U+2712)
+\DeclareUnicodeCharacter{2713}{\ding{51}} % '✓' CHECK MARK (U+2713)
+\DeclareUnicodeCharacter{2714}{\ding{52}} % '✔' HEAVY CHECK MARK (U+2714)
+\DeclareUnicodeCharacter{2715}{\ding{53}} % '✕' MULTIPLICATION X (U+2715)
+\DeclareUnicodeCharacter{2716}{\ding{54}} % '✖' HEAVY MULTIPLICATION X (U+2716)
+\DeclareUnicodeCharacter{2717}{\ding{55}} % '✗' BALLOT X (U+2717)
+\DeclareUnicodeCharacter{2718}{\ding{56}} % '✘' HEAVY BALLOT X (U+2718)
+\DeclareUnicodeCharacter{2719}{\ding{57}} % '✙' OUTLINED GREEK CROSS (U+2719)
+\DeclareUnicodeCharacter{271A}{\ding{58}} % '✚' HEAVY GREEK CROSS (U+271A)
+\DeclareUnicodeCharacter{271B}{\ding{59}} % '✛' OPEN CENTRE CROSS (U+271B)
+\DeclareUnicodeCharacter{271C}{\ding{60}} % '✜' HEAVY OPEN CENTRE CROSS (U+271C)
+\DeclareUnicodeCharacter{271D}{\ding{61}} % '✝' LATIN CROSS (U+271D)
+\DeclareUnicodeCharacter{271E}{\ding{62}} % '✞' SHADOWED WHITE LATIN CROSS (U+271E)
+\DeclareUnicodeCharacter{271F}{\ding{63}} % '✟' OUTLINED LATIN CROSS (U+271F)
+\DeclareUnicodeCharacter{2720}{\ding{64}} % '✠' MALTESE CROSS (U+2720)
+\DeclareUnicodeCharacter{2721}{\ding{65}} % '✡' STAR OF DAVID (U+2721)
+\DeclareUnicodeCharacter{2722}{\ding{66}} % '✢' FOUR TEARDROP-SPOKED ASTERISK (U+2722)
+\DeclareUnicodeCharacter{2723}{\ding{67}} % '✣' FOUR BALLOON-SPOKED ASTERISK (U+2723)
+\DeclareUnicodeCharacter{2724}{\ding{68}} % '✤' HEAVY FOUR BALLOON-SPOKED ASTERISK (U+2724)
+\DeclareUnicodeCharacter{2725}{\ding{69}} % '✥' FOUR CLUB-SPOKED ASTERISK (U+2725)
+\DeclareUnicodeCharacter{2726}{\ding{70}} % '✦' BLACK FOUR POINTED STAR (U+2726)
+\DeclareUnicodeCharacter{2727}{\ding{71}} % '✧' WHITE FOUR POINTED STAR (U+2727)
+\DeclareUnicodeCharacter{2605}{\ding{72}} % '★' BLACK STAR (U+2605)
+\DeclareUnicodeCharacter{2606}{\ding{73}} % '☆' WHITE STAR (U+2606)
+\DeclareUnicodeCharacter{272A}{\ding{74}} % '✪' CIRCLED WHITE STAR (U+272A)
+\DeclareUnicodeCharacter{272B}{\ding{75}} % '✫' OPEN CENTRE BLACK STAR (U+272B)
+\DeclareUnicodeCharacter{272C}{\ding{76}} % '✬' BLACK CENTRE WHITE STAR (U+272C)
+\DeclareUnicodeCharacter{272D}{\ding{77}} % '✭' OUTLINED BLACK STAR (U+272D)
+\DeclareUnicodeCharacter{272E}{\ding{78}} % '✮' HEAVY OUTLINED BLACK STAR (U+272E)
+\DeclareUnicodeCharacter{272F}{\ding{79}} % '✯' PINWHEEL STAR (U+272F)
+\DeclareUnicodeCharacter{2730}{\ding{80}} % '✰' SHADOWED WHITE STAR (U+2730)
+\DeclareUnicodeCharacter{2731}{\ding{81}} % '✱' HEAVY ASTERISK (U+2731)
+\DeclareUnicodeCharacter{2732}{\ding{82}} % '✲' OPEN CENTRE ASTERISK (U+2732)
+\DeclareUnicodeCharacter{2733}{\ding{83}} % '✳' EIGHT SPOKED ASTERISK (U+2733)
+\DeclareUnicodeCharacter{2734}{\ding{84}} % '✴' EIGHT POINTED BLACK STAR (U+2734)
+\DeclareUnicodeCharacter{2735}{\ding{85}} % '✵' EIGHT POINTED PINWHEEL STAR (U+2735)
+\DeclareUnicodeCharacter{2736}{\ding{86}} % '✶' SIX POINTED BLACK STAR (U+2736)
+\DeclareUnicodeCharacter{2737}{\ding{87}} % '✷' EIGHT POINTED RECTILINEAR BLACK STAR (U+2737)
+\DeclareUnicodeCharacter{2738}{\ding{88}} % '✸' HEAVY EIGHT POINTED RECTILINEAR BLACK STAR (U+2738)
+\DeclareUnicodeCharacter{2739}{\ding{89}} % '✹' TWELVE POINTED BLACK STAR (U+2739)
+\DeclareUnicodeCharacter{273A}{\ding{90}} % '✺' SIXTEEN POINTED ASTERISK (U+273A)
+\DeclareUnicodeCharacter{273B}{\ding{91}} % '✻' TEARDROP-SPOKED ASTERISK (U+273B)
+\DeclareUnicodeCharacter{273C}{\ding{92}} % '✼' OPEN CENTRE TEARDROP-SPOKED ASTERISK (U+273C)
+\DeclareUnicodeCharacter{273D}{\ding{93}} % '✽' HEAVY TEARDROP-SPOKED ASTERISK (U+273D)
+\DeclareUnicodeCharacter{273E}{\ding{94}} % '✾' SIX PETALLED BLACK AND WHITE FLORETTE (U+273E)
+\DeclareUnicodeCharacter{273F}{\ding{95}} % '✿' BLACK FLORETTE (U+273F)
+\DeclareUnicodeCharacter{2740}{\ding{96}} % '❀' WHITE FLORETTE (U+2740)
+\DeclareUnicodeCharacter{2741}{\ding{97}} % '❁' EIGHT PETALLED OUTLINED BLACK FLORETTE (U+2741)
+\DeclareUnicodeCharacter{2742}{\ding{98}} % '❂' CIRCLED OPEN CENTRE EIGHT POINTED STAR (U+2742)
+\DeclareUnicodeCharacter{2743}{\ding{99}} % '❃' HEAVY TEARDROP-SPOKED PINWHEEL ASTERISK (U+2743)
+\DeclareUnicodeCharacter{2744}{\ding{100}} % '❄' SNOWFLAKE (U+2744)
+\DeclareUnicodeCharacter{2745}{\ding{101}} % '❅' TIGHT TRIFOLIATE SNOWFLAKE (U+2745)
+\DeclareUnicodeCharacter{2746}{\ding{102}} % '❆' HEAVY CHEVRON SNOWFLAKE (U+2746)
+\DeclareUnicodeCharacter{2747}{\ding{103}} % '❇' SPARKLE (U+2747)
+\DeclareUnicodeCharacter{2748}{\ding{104}} % '❈' HEAVY SPARKLE (U+2748)
+\DeclareUnicodeCharacter{2749}{\ding{105}} % '❉' BALLOON-SPOKED ASTERISK (U+2749)
+\DeclareUnicodeCharacter{274A}{\ding{106}} % '❊' EIGHT TEARDROP-SPOKED PROPELLER ASTERISK (U+274A)
+\DeclareUnicodeCharacter{274B}{\ding{107}} % '❋' HEAVY EIGHT TEARDROP-SPOKED PROPELLER ASTERISK (U+274B)
+\DeclareUnicodeCharacter{25CF}{\ding{108}} % '●' BLACK CIRCLE (U+25CF)
+\DeclareUnicodeCharacter{274D}{\ding{109}} % '❍' SHADOWED WHITE CIRCLE (U+274D)
+\DeclareUnicodeCharacter{25A0}{\ding{110}} % '■' BLACK SQUARE (U+25A0)
+\DeclareUnicodeCharacter{274F}{\ding{111}} % '❏' LOWER RIGHT DROP-SHADOWED WHITE SQUARE (U+274F)
+\DeclareUnicodeCharacter{2750}{\ding{112}} % '❐' UPPER RIGHT DROP-SHADOWED WHITE SQUARE (U+2750)
+\DeclareUnicodeCharacter{2751}{\ding{113}} % '❑' LOWER RIGHT SHADOWED WHITE SQUARE (U+2751)
+\DeclareUnicodeCharacter{2752}{\ding{114}} % '❒' UPPER RIGHT SHADOWED WHITE SQUARE (U+2752)
+\DeclareUnicodeCharacter{25B2}{\ding{115}} % '▲' BLACK UP-POINTING TRIANGLE (U+25B2)
+\DeclareUnicodeCharacter{25BC}{\ding{116}} % '▼' BLACK DOWN-POINTING TRIANGLE (U+25BC)
+\DeclareUnicodeCharacter{25C6}{\ding{117}} % '◆' BLACK DIAMOND (U+25C6)
+\DeclareUnicodeCharacter{2756}{\ding{118}} % '❖' BLACK DIAMOND MINUS WHITE X (U+2756)
+\DeclareUnicodeCharacter{25D7}{\ding{119}} % '◗' RIGHT HALF BLACK CIRCLE (U+25D7)
+\DeclareUnicodeCharacter{2758}{\ding{120}} % '❘' LIGHT VERTICAL BAR (U+2758)
+\DeclareUnicodeCharacter{2759}{\ding{121}} % '❙' MEDIUM VERTICAL BAR (U+2759)
+\DeclareUnicodeCharacter{275A}{\ding{122}} % '❚' HEAVY VERTICAL BAR (U+275A)
+\DeclareUnicodeCharacter{275B}{\ding{123}} % '❛' HEAVY SINGLE TURNED COMMA QUOTATION MARK ORNAMENT (U+275B)
+\DeclareUnicodeCharacter{275C}{\ding{124}} % '❜' HEAVY SINGLE COMMA QUOTATION MARK ORNAMENT (U+275C)
+\DeclareUnicodeCharacter{275D}{\ding{125}} % '❝' HEAVY DOUBLE TURNED COMMA QUOTATION MARK ORNAMENT (U+275D)
+\DeclareUnicodeCharacter{275E}{\ding{126}} % '❞' HEAVY DOUBLE COMMA QUOTATION MARK ORNAMENT (U+275E)
+\DeclareUnicodeCharacter{2761}{\ding{161}} % '❡' CURVED STEM PARAGRAPH SIGN ORNAMENT (U+2761)
+\DeclareUnicodeCharacter{2762}{\ding{162}} % '❢' HEAVY EXCLAMATION MARK ORNAMENT (U+2762)
+\DeclareUnicodeCharacter{2763}{\ding{163}} % '❣' HEAVY HEART EXCLAMATION MARK ORNAMENT (U+2763)
+\DeclareUnicodeCharacter{2764}{\ding{164}} % '❤' HEAVY BLACK HEART (U+2764)
+\DeclareUnicodeCharacter{2765}{\ding{165}} % '❥' ROTATED HEAVY BLACK HEART BULLET (U+2765)
+\DeclareUnicodeCharacter{2766}{\ding{166}} % '❦' FLORAL HEART (U+2766)
+\DeclareUnicodeCharacter{2767}{\ding{167}} % '❧' ROTATED FLORAL HEART BULLET (U+2767)
+\DeclareUnicodeCharacter{2663}{\ding{168}} % '♣' BLACK CLUB SUIT (U+2663)
+\DeclareUnicodeCharacter{2666}{\ding{169}} % '♦' BLACK DIAMOND SUIT (U+2666)
+\DeclareUnicodeCharacter{2665}{\ding{170}} % '♥' BLACK HEART SUIT (U+2665)
+\DeclareUnicodeCharacter{2660}{\ding{171}} % '♠' BLACK SPADE SUIT (U+2660)
+\DeclareUnicodeCharacter{2460}{\ding{172}} % '①' CIRCLED DIGIT ONE (U+2460)
+\DeclareUnicodeCharacter{2461}{\ding{173}} % '②' CIRCLED DIGIT TWO (U+2461)
+\DeclareUnicodeCharacter{2462}{\ding{174}} % '③' CIRCLED DIGIT THREE (U+2462)
+\DeclareUnicodeCharacter{2463}{\ding{175}} % '④' CIRCLED DIGIT FOUR (U+2463)
+\DeclareUnicodeCharacter{2464}{\ding{176}} % '⑤' CIRCLED DIGIT FIVE (U+2464)
+\DeclareUnicodeCharacter{2465}{\ding{177}} % '⑥' CIRCLED DIGIT SIX (U+2465)
+\DeclareUnicodeCharacter{2466}{\ding{178}} % '⑦' CIRCLED DIGIT SEVEN (U+2466)
+\DeclareUnicodeCharacter{2467}{\ding{179}} % '⑧' CIRCLED DIGIT EIGHT (U+2467)
+\DeclareUnicodeCharacter{2468}{\ding{180}} % '⑨' CIRCLED DIGIT NINE (U+2468)
+\DeclareUnicodeCharacter{2469}{\ding{181}} % '⑩' CIRCLED NUMBER TEN (U+2469)
+\DeclareUnicodeCharacter{2776}{\ding{182}} % '❶' DINGBAT NEGATIVE CIRCLED DIGIT ONE (U+2776)
+\DeclareUnicodeCharacter{2777}{\ding{183}} % '❷' DINGBAT NEGATIVE CIRCLED DIGIT TWO (U+2777)
+\DeclareUnicodeCharacter{2778}{\ding{184}} % '❸' DINGBAT NEGATIVE CIRCLED DIGIT THREE (U+2778)
+\DeclareUnicodeCharacter{2779}{\ding{185}} % '❹' DINGBAT NEGATIVE CIRCLED DIGIT FOUR (U+2779)
+\DeclareUnicodeCharacter{277A}{\ding{186}} % '❺' DINGBAT NEGATIVE CIRCLED DIGIT FIVE (U+277A)
+\DeclareUnicodeCharacter{277B}{\ding{187}} % '❻' DINGBAT NEGATIVE CIRCLED DIGIT SIX (U+277B)
+\DeclareUnicodeCharacter{277C}{\ding{188}} % '❼' DINGBAT NEGATIVE CIRCLED DIGIT SEVEN (U+277C)
+\DeclareUnicodeCharacter{277D}{\ding{189}} % '❽' DINGBAT NEGATIVE CIRCLED DIGIT EIGHT (U+277D)
+\DeclareUnicodeCharacter{277E}{\ding{190}} % '❾' DINGBAT NEGATIVE CIRCLED DIGIT NINE (U+277E)
+\DeclareUnicodeCharacter{277F}{\ding{191}} % '❿' DINGBAT NEGATIVE CIRCLED NUMBER TEN (U+277F)
+\DeclareUnicodeCharacter{2780}{\ding{192}} % '➀' DINGBAT CIRCLED SANS-SERIF DIGIT ONE (U+2780)
+\DeclareUnicodeCharacter{2781}{\ding{193}} % '➁' DINGBAT CIRCLED SANS-SERIF DIGIT TWO (U+2781)
+\DeclareUnicodeCharacter{2782}{\ding{194}} % '➂' DINGBAT CIRCLED SANS-SERIF DIGIT THREE (U+2782)
+\DeclareUnicodeCharacter{2783}{\ding{195}} % '➃' DINGBAT CIRCLED SANS-SERIF DIGIT FOUR (U+2783)
+\DeclareUnicodeCharacter{2784}{\ding{196}} % '➄' DINGBAT CIRCLED SANS-SERIF DIGIT FIVE (U+2784)
+\DeclareUnicodeCharacter{2785}{\ding{197}} % '➅' DINGBAT CIRCLED SANS-SERIF DIGIT SIX (U+2785)
+\DeclareUnicodeCharacter{2786}{\ding{198}} % '➆' DINGBAT CIRCLED SANS-SERIF DIGIT SEVEN (U+2786)
+\DeclareUnicodeCharacter{2787}{\ding{199}} % '➇' DINGBAT CIRCLED SANS-SERIF DIGIT EIGHT (U+2787)
+\DeclareUnicodeCharacter{2788}{\ding{200}} % '➈' DINGBAT CIRCLED SANS-SERIF DIGIT NINE (U+2788)
+\DeclareUnicodeCharacter{2789}{\ding{201}} % '➉' DINGBAT CIRCLED SANS-SERIF NUMBER TEN (U+2789)
+\DeclareUnicodeCharacter{278A}{\ding{202}} % '➊' DINGBAT NEGATIVE CIRCLED SANS-SERIF DIGIT ONE (U+278A)
+\DeclareUnicodeCharacter{278B}{\ding{203}} % '➋' DINGBAT NEGATIVE CIRCLED SANS-SERIF DIGIT TWO (U+278B)
+\DeclareUnicodeCharacter{278C}{\ding{204}} % '➌' DINGBAT NEGATIVE CIRCLED SANS-SERIF DIGIT THREE (U+278C)
+\DeclareUnicodeCharacter{278D}{\ding{205}} % '➍' DINGBAT NEGATIVE CIRCLED SANS-SERIF DIGIT FOUR (U+278D)
+\DeclareUnicodeCharacter{278E}{\ding{206}} % '➎' DINGBAT NEGATIVE CIRCLED SANS-SERIF DIGIT FIVE (U+278E)
+\DeclareUnicodeCharacter{278F}{\ding{207}} % '➏' DINGBAT NEGATIVE CIRCLED SANS-SERIF DIGIT SIX (U+278F)
+\DeclareUnicodeCharacter{2790}{\ding{208}} % '➐' DINGBAT NEGATIVE CIRCLED SANS-SERIF DIGIT SEVEN (U+2790)
+\DeclareUnicodeCharacter{2791}{\ding{209}} % '➑' DINGBAT NEGATIVE CIRCLED SANS-SERIF DIGIT EIGHT (U+2791)
+\DeclareUnicodeCharacter{2792}{\ding{210}} % '➒' DINGBAT NEGATIVE CIRCLED SANS-SERIF DIGIT NINE (U+2792)
+\DeclareUnicodeCharacter{2793}{\ding{211}} % '➓' DINGBAT NEGATIVE CIRCLED SANS-SERIF NUMBER TEN (U+2793)
+\DeclareUnicodeCharacter{2794}{\ding{212}} % '➔' HEAVY WIDE-HEADED RIGHTWARDS ARROW (U+2794)
+\DeclareUnicodeCharacter{2798}{\ding{216}} % '➘' HEAVY SOUTH EAST ARROW (U+2798)
+\DeclareUnicodeCharacter{2799}{\ding{217}} % '➙' HEAVY RIGHTWARDS ARROW (U+2799)
+\DeclareUnicodeCharacter{279A}{\ding{218}} % '➚' HEAVY NORTH EAST ARROW (U+279A)
+\DeclareUnicodeCharacter{279B}{\ding{219}} % '➛' DRAFTING POINT RIGHTWARDS ARROW (U+279B)
+\DeclareUnicodeCharacter{279C}{\ding{220}} % '➜' HEAVY ROUND-TIPPED RIGHTWARDS ARROW (U+279C)
+\DeclareUnicodeCharacter{279D}{\ding{221}} % '➝' TRIANGLE-HEADED RIGHTWARDS ARROW (U+279D)
+\DeclareUnicodeCharacter{279E}{\ding{222}} % '➞' HEAVY TRIANGLE-HEADED RIGHTWARDS ARROW (U+279E)
+\DeclareUnicodeCharacter{279F}{\ding{223}} % '➟' DASHED TRIANGLE-HEADED RIGHTWARDS ARROW (U+279F)
+\DeclareUnicodeCharacter{27A0}{\ding{224}} % '➠' HEAVY DASHED TRIANGLE-HEADED RIGHTWARDS ARROW (U+27A0)
+\DeclareUnicodeCharacter{27A1}{\ding{225}} % '➡' BLACK RIGHTWARDS ARROW (U+27A1)
+\DeclareUnicodeCharacter{27A2}{\ding{226}} % '➢' THREE-D TOP-LIGHTED RIGHTWARDS ARROWHEAD (U+27A2)
+\DeclareUnicodeCharacter{27A3}{\ding{227}} % '➣' THREE-D BOTTOM-LIGHTED RIGHTWARDS ARROWHEAD (U+27A3)
+\DeclareUnicodeCharacter{27A4}{\ding{228}} % '➤' BLACK RIGHTWARDS ARROWHEAD (U+27A4)
+\DeclareUnicodeCharacter{27A5}{\ding{229}} % '➥' HEAVY BLACK CURVED DOWNWARDS AND RIGHTWARDS ARROW (U+27A5)
+\DeclareUnicodeCharacter{27A6}{\ding{230}} % '➦' HEAVY BLACK CURVED UPWARDS AND RIGHTWARDS ARROW (U+27A6)
+\DeclareUnicodeCharacter{27A7}{\ding{231}} % '➧' SQUAT BLACK RIGHTWARDS ARROW (U+27A7)
+\DeclareUnicodeCharacter{27A8}{\ding{232}} % '➨' HEAVY CONCAVE-POINTED BLACK RIGHTWARDS ARROW (U+27A8)
+\DeclareUnicodeCharacter{27A9}{\ding{233}} % '➩' RIGHT-SHADED WHITE RIGHTWARDS ARROW (U+27A9)
+\DeclareUnicodeCharacter{27AA}{\ding{234}} % '➪' LEFT-SHADED WHITE RIGHTWARDS ARROW (U+27AA)
+\DeclareUnicodeCharacter{27AB}{\ding{235}} % '➫' BACK-TILTED SHADOWED WHITE RIGHTWARDS ARROW (U+27AB)
+\DeclareUnicodeCharacter{27AC}{\ding{236}} % '➬' FRONT-TILTED SHADOWED WHITE RIGHTWARDS ARROW (U+27AC)
+\DeclareUnicodeCharacter{27AD}{\ding{237}} % '➭' HEAVY LOWER RIGHT-SHADOWED WHITE RIGHTWARDS ARROW (U+27AD)
+\DeclareUnicodeCharacter{27AE}{\ding{238}} % '➮' HEAVY UPPER RIGHT-SHADOWED WHITE RIGHTWARDS ARROW (U+27AE)
+\DeclareUnicodeCharacter{27AF}{\ding{239}} % '➯' NOTCHED LOWER RIGHT-SHADOWED WHITE RIGHTWARDS ARROW (U+27AF)
+\DeclareUnicodeCharacter{27B1}{\ding{241}} % '➱' NOTCHED UPPER RIGHT-SHADOWED WHITE RIGHTWARDS ARROW (U+27B1)
+\DeclareUnicodeCharacter{27B2}{\ding{242}} % '➲' CIRCLED HEAVY WHITE RIGHTWARDS ARROW (U+27B2)
+\DeclareUnicodeCharacter{27B3}{\ding{243}} % '➳' WHITE-FEATHERED RIGHTWARDS ARROW (U+27B3)
+\DeclareUnicodeCharacter{27B4}{\ding{244}} % '➴' BLACK-FEATHERED SOUTH EAST ARROW (U+27B4)
+\DeclareUnicodeCharacter{27B5}{\ding{245}} % '➵' BLACK-FEATHERED RIGHTWARDS ARROW (U+27B5)
+\DeclareUnicodeCharacter{27B6}{\ding{246}} % '➶' BLACK-FEATHERED NORTH EAST ARROW (U+27B6)
+\DeclareUnicodeCharacter{27B7}{\ding{247}} % '➷' HEAVY BLACK-FEATHERED SOUTH EAST ARROW (U+27B7)
+\DeclareUnicodeCharacter{27B8}{\ding{248}} % '➸' HEAVY BLACK-FEATHERED RIGHTWARDS ARROW (U+27B8)
+\DeclareUnicodeCharacter{27B9}{\ding{249}} % '➹' HEAVY BLACK-FEATHERED NORTH EAST ARROW (U+27B9)
+\DeclareUnicodeCharacter{27BA}{\ding{250}} % '➺' TEARDROP-BARBED RIGHTWARDS ARROW (U+27BA)
+\DeclareUnicodeCharacter{27BB}{\ding{251}} % '➻' HEAVY TEARDROP-SHANKED RIGHTWARDS ARROW (U+27BB)
+\DeclareUnicodeCharacter{27BC}{\ding{252}} % '➼' WEDGE-TAILED RIGHTWARDS ARROW (U+27BC)
+\DeclareUnicodeCharacter{27BD}{\ding{253}} % '➽' HEAVY WEDGE-TAILED RIGHTWARDS ARROW (U+27BD)
+\DeclareUnicodeCharacter{27BE}{\ding{254}} % '➾' OPEN-OUTLINED RIGHTWARDS ARROW (U+27BE)

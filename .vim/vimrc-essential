@@ -1,7 +1,7 @@
 " Universally useful vim plugins
 
 " Improved %
-Plug 'matchit.zip'
+Plug 'vim-scripts/matchit.zip'
 " f with 2 chars + vim-easymotion alternative
 Plug 'justinmk/vim-sneak'
 " Show marks. Toggle mark with mN, `N -> goto mark N, m<space> remove all
@@ -30,14 +30,15 @@ Plug 'kana/vim-textobj-user'
 Plug 'kana/vim-textobj-indent'
 Plug 'kana/vim-textobj-function'
 Plug 'kana/vim-textobj-entire'
+Plug 'kana/vim-textobj-line'
 Plug 'lucapette/vim-textobj-underscore'
 Plug 'vim-scripts/camelcasemotion'
 " <,/>,=shift args, [,/], move between args, textobjs a,/i,
 Plug 'PeterRincker/vim-argumentative'
-" Override default text obj to work on next found left/right
-Plug 'wellle/targets.vim'
 " Exchange places with cx<movement> cxx=line, X=in visual mode, cxc=clear
 Plug 'tommcdo/vim-exchange'
+" Override default text obj to work on next found left/right
+" Plug 'wellle/targets.vim'
 
 " Manage surroundings with [dcy]s<motion><surrounding>
 Plug 'tpope/vim-surround'
@@ -67,12 +68,9 @@ Plug 'rking/ag.vim'
 
 " Code Commenting - gc<Motion> -> toggle comment, gcu -> uncomment commented
 Plug 'tpope/vim-commentary'
-autocmd FileType matlab set commentstring=\%\ %s
 " Automatic code block closing (if ... end, etc)
 Plug 'tpope/vim-endwise'
 " Auto-Closing for symbols
-" Plug 'Raimondi/delimitMate'
-" au FileType mail,text,todotxt let b:delimitMate_autoclose = 0 " delimitMate: disable in regular text
 Plug 'cohama/lexima.vim'
 let g:lexima_no_default_rules=1
 au FileType * call lexima#set_default_rules()
@@ -86,27 +84,13 @@ au VimEnter * RainbowParenthesesToggle    " RainbowParentheses: everywhere
 Plug 'tpope/vim-fugitive'
 " See changed lines within file (:GitGutterToggle)
 Plug 'airblade/vim-gitgutter'
+let g:gitgutter_sign_removed_first_line = "^_"
 let g:gitgutter_realtime = 0      "possibly fix keystroke glitches
 
-" Syntax checking for vim.
-Plug 'benekastah/neomake'
-" open list without moving the cursor; use :ll to jump to current error
-let g:neomake_open_list = 2
-" jump to next error
-nnoremap <leader>ne :ll<CR>
-let g:neomake_warning_sign = {'text': 'W', 'texthl': 'WarningMsg'}
-let g:neomake_error_sign = {'text': 'E', 'texthl': 'ErrorMsg'}
-autocmd! BufWritePost * Neomake
-function! NeomakeCpp()
-  let g:neomake_cpp_gcc_maker = neomake#makers#ft#cpp#gcc()
-  let g:neomake_cpp_gcc_maker.args += ['-std=c++11']
-  let g:neomake_cpp_clang_maker = neomake#makers#ft#cpp#clang()
-  let g:neomake_cpp_clang_maker.args += ['-std=c++11', '-Wno-c++11-extensions']
-endfunction
-au BufRead,BufNewFile *.cpp :call NeomakeCpp()
-" let g:syntastic_enable_signs=1    "mark syntax errors with :signs
-" let g:syntastic_auto_jump=0       "automatically jump to the error when saving the file
-" let g:syntastic_auto_loc_list=1   "show the error list automatically
+Plug 'scrooloose/syntastic'
+let g:syntastic_enable_signs=1    "mark syntax errors with :signs
+let g:syntastic_auto_jump=0       "automatically jump to the error when saving the file
+let g:syntastic_auto_loc_list=1   "show the error list automatically
 " let g:syntastic_quiet_messages = {'level': 'warnings'} " No warnings
 
 " slime-like repl interaction for tmux
@@ -122,8 +106,8 @@ nnoremap <silent> <M-Down> :TmuxNavigateDown<cr>
 nnoremap <silent> <M-Up> :TmuxNavigateUp<cr>
 nnoremap <silent> <M-Right> :TmuxNavigateRight<cr>
 
+" Copy/paste preview
+Plug 'junegunn/vim-peekaboo'
 " Russian typing
 Plug 'einars/translit.vim'
 nnoremap <leader>tr :exec Translit('translit.ru')<cr>
-" Distraction free writing :Goyo
-Plug 'junegunn/goyo.vim'

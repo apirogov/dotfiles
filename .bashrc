@@ -2,14 +2,14 @@
 [ -r /etc/profile ] && . /etc/profile
 
 #Add own binaries
-paths=(~/bin ~/bin/matlab16a/bin ~/.local/bin ~/.gem/ruby/*/bin)
+paths=(~/bin ~/bin/bio ~/.local/bin)
 for bindir in ${paths[@]}; do [ -d $bindir ] && PATH=$PATH:${bindir}; done
 #add non-system .so libs
-libs=()
+# libs=()
 # for libdir in ${libs[@]}; do [ -d $libdir ] && LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${libdir}; done
 # export LD_LIBRARY_PATH
 
-[ -z "$PS1" ] && return # If not running interactively, don't do anything
+[ -z "$PS1" ] && return # If not running interactively, we're done here.
 
 #X Terminal titles
 export PROMPT_COMMAND=""
@@ -75,24 +75,29 @@ export LANGUAGE="de_DE:en_US:en"
 export TZ="Europe/Berlin"
 
 export HISTCONTROL="ignorespace:ignoredups:erasedups" #No duplicates in history, no cmds preceded by space
-export HISTIGNORE="&:ls:ll:la:q:pwd:exit:clear"	#Never log these
+export HISTIGNORE="&:ls:ll:la:q:e:pwd:exit:clear"	#Never log these
 export HISTSIZE="9999"	#Lines saved in one session
 export HISTFILESIZE="999999"	#Lines total
 export PROMPT_COMMAND+="history -a; history -n" #share history between terminals
 
 export BROWSER="firefox"
-export EDITOR="nvim"
+export EVENT_NOEPOLL=1 #fix tmux2.2 <-> vim interaction
+export TERM=xterm-256color
+# export EDITOR="emacsclient -t"
+# export ALTERNATE_EDITOR=""
+# export VISUAL="emacsclient -c -n"
+export EDITOR="vim"
 export VISUAL="gvim"
 export PAGER="less"
 export LESS="-iMn -F -X -R"
 export TEXMFHOME="~/.texmf"   #custom packages
+export _JAVA_OPTIONS='-Dawt.useSystemAAFontSettings=on -Dswing.aatext=true -Dswing.defaultlaf=com.sun.java.swing.plaf.gtk.GTKLookAndFeel'
 
 ## ALIASES AND FUNCTIONS
 alias ls='ls --color=auto'
 alias la='ls -A'
 alias ll='ls -lhtA'
 alias q='exit'
-alias e='nvim'
 alias rm='rm -iv'       #safety - ask before delete/overwrite
 alias cp='cp -iv'
 alias mv='mv -iv'
@@ -103,45 +108,34 @@ alias du='du -sh'
 alias duf='du -sk * | sort -n | perl -ne '\''($s,$f)=split(m{\t});for (qw(K M G)) {if($s<1024) {printf("%.1f",$s);print "$_\t$f"; last};$s=$s/1024}'\' #readable + sorted
 alias findtext="grep --color=always -ri" #better use ag when installed
 alias findfile='find . -name'
+alias e=$VISUAL
+# function e(){ #detect if a GUI frame is open, just open if required
+#     emacsclient -n -e "(if (> (length (frame-list)) 1) 't)" | grep t >/dev/null
+#     emacsclient $(if [ "$?" = '1' ]; then echo '-c'; fi) -n -a '' "$@"
+# }
 
 alias ping='ping -c 5'	#Limit ping number
 alias pingl='ping6 ff02::1%eth0'  #ping local devices
 
 #Filesystem
-alias tcrypt='sudo ~/.tcrypt.sh' #tcplay wrapper. Usage: tcrypt open|close CONTAINERFILE
+alias tcrypt='sudo ~/.tcrypt.sh' # tcrypt wrapper, usage: tcrypt open|close CONTAINER
 alias mkisofs='mkisofs -v -r -J -o'	#Usage: mkisofs target.img /src/path
 alias mirror="rsync -auv --delete"
 
-#Compiler settings
-alias hc='rm -rf /tmp/*.o; ghc -Wall -fwarn-name-shadowing -fwarn-incomplete-patterns -hidir=/tmp -odir=/tmp -O' #"script compile" shortie
-alias cc='LANG="C" gcc -ansi -std=c99 -pedantic -Wall -Wextra -Wshadow -Wcast-qual -Wformat=2 -Wmissing-include-dirs -Wfloat-equal -Wswitch-enum -Wundef -Wwrite-strings -Wredundant-decls -fverbose-asm -pg -g '	#High standard level, many debugging opts
-alias uvagpp='g++ -lm -lcrypt -O2 -std=c++11 -pipe -DONLINE_JUDGE'
-
-#Recursive javac in root source directory, fixing UTF and setting up dirs
-javacrec() {
-  # echo "convert to unicode.."
-  # find -name "*.java" -exec sh -c 'iconv -f ISO-8859-15 -t UTF-8 "$1" > tmp; mv tmp "$1"' x {} \;
-  echo "create package structure.."
-  dir="grep package \$1 | sed 's/[\\t ]*package[\\t ]*\\([a-zA-Z0-9.]*\\)[\\t ]*;.*/\\1/' | sed 's/\\./\\//'"
-  find -name "*.java" -exec sh -c "dir=\$($dir); [ -n \"\$dir\" ] && mkdir -p \$dir && mv \$1 \$dir" x {} \;
-  echo "compile!"
-  find -name "*.java" > .java_sources.txt; javac -Xlint:unchecked -encoding iso-8859-1 @.java_sources.txt; rm -f .java_sources.txt
-}
 #Poor man's presentation generation, usage: genpres ~/*pics.jpg > out.pdf
-#${@:1:$(($#-1))}
 genpres() { convert -crop +1+1 -crop -1-1 -gravity center -extent 1200x900 $@ pdf:-; }
 #Shots to movie
 genmovie() { ffmpeg -framerate 4 -r 4 -pattern_type glob -i "$1"  -c:v libx264 -vf "fps=25,format=yuv420p" $2; }
 
 #Package Management - Pacman
 if which pacman >/dev/null; then
-  function pss(){ aura -Ss --color=always $@; aura -As $@; } #Search for packages
-  function pip(){ sudo -- sh -c "pacman -S --needed $@ || aura -A $@"; } #Install package
+  pss(){ aura -Ss --color=always $@; aura -As $@; } #Search for packages
+  pin(){ sudo -- sh -c "pacman -S --needed $@ || aura -A $@"; } #Install package
+  pgl(){ pacman -Qqnei | grep -E "(Name)|(Beschreibung)" | tr -d '\n' | sed 's/Name\s*: /\n/g' | sed 's/Beschreibung\s*: /\t/'; }    #List of installed packages
   alias pup='sudo -- sh -c "aura -Syu; aura -Au"'   #Dist upgrade
   alias prp='sudo pacman -Ruscn' #Recursive remove
   alias pil='sudo pacman -U'     #Install local Package
   alias pro='sudo aura -Oj'      #List and remove orphans
-  alias pgl='pacman -Qqne'       #List of installed packages
   alias pgf='pacman -Qqme'       #List foreign/AUR packages
   alias pql='pacman -Ql'         #List files installed by that package
 fi
@@ -153,7 +147,7 @@ fi
 alias tmux='tmux -2' #note: copy/paste with mouse holding Shift within tmux
 alias initsshkeys=''
 if which keychain >/dev/null; then #SSH key management
-  alias initsshkeys='eval `keychain --eval --nogui -Q -q id_rsa 2>/dev/null`'
+  alias initsshkeys='eval `keychain --eval --nogui -Q -q id_rsa id_ed25519 2>/dev/null`'
   git() { #Make sure ssh-agent is running with keychain before using git push
     if [ "push" == "$1" ] || [ "pull" == "$1" ]; then
       eval `keychain --eval --nogui -Q -q id_rsa 2>/dev/null`
@@ -169,11 +163,13 @@ sshtmux(){ ssh -t $1 tmux -2 new -A -s main; }
 sshscreen(){ ssh -t $1 screen -R; }
 
 #VNC
-function vnckill() { vncserver -kill :1; }
-function vncserve() {
-  if [ $# -eq 0 ]; then GEO="1200x730"; else GEO="$1"; fi
-  vnckill; vncserver -geometry $GEO -alwaysshared -localhost -SecurityTypes None :1
-}
+if which vncserver >/dev/null; then
+    function vnckill() { vncserver -kill :1; }
+    function vncserve() {
+    if [ $# -eq 0 ]; then GEO="1200x730"; else GEO="$1"; fi
+    vnckill; vncserver -geometry $GEO -alwaysshared -localhost -SecurityTypes None :1
+    }
+fi
 #Run vncserver on remote host and create port forwarding for one minute
 sshvncup(){
   vncopts="-alwaysshared -localhost -autokill -SecurityTypes None :1"
@@ -189,13 +185,12 @@ function xephyr(){
   sh -c "trap 'kill $pid; exit' INT; while [ 1 -lt 2 ] ; do sleep 5 ; done"
 }
 
-
 #Internet CLI
+socksend() { exec 3<>/dev/tcp/$1/$2; echo $3 >&3; exec 3>&-; }
 alias getip="wget -O - -q http://checkip.dyndns.org/index.html|sed -e 's/.* //' -e 's/<.*//'"
 alias speedtest='wget -O /dev/null http://speedtest.wdc01.softlayer.com/downloads/test10.zip'
-say() { mpv "http://translate.google.com/translate_tts?ie=UTF-8&tl=en&q=$(escape "$1" %)";} #say over google tts
-#German-English translation... via dict.cc, requires curl, grep and ruby
-translate(){ curl --silent http://www.dict.cc/?s=$1|grep c[12]Arr | ruby -e "arr=[gets.split('\",\"'),gets.split('\",\"')]; arr[0].shift; arr[1].shift; arr.each{|x| x[-1]=x[-1][0..-5] }; 0.upto(arr[0].length-1){|n| puts arr[0][n]+' <-> '+arr[1][n] }"; }
+#German-English translation... via dict.cc
+translate(){ curl --silent https://www.dict.cc/?s=$1|grep c[12]Arr|sed 's/[^"]*[(]"","\(.*\)[)].*/\1/;s/"$//;s/","/\t/g'|awk 'BEGIN{x[1][1]=x[2][1]=""}{split($0,x[NR],"\t")}END{for (i in x[1]) print x[1][i] " <-> " x[2][i]}'; }
 getunicode(){ wget -O - http://www.fileformat.info$(wget -O - http://www.fileformat.info/info/unicode/char/$1/index.htm 2>/dev/null | grep $1 | grep img | sed 's/.*src="//' | sed 's/".*//') 2>/dev/null | display; }
 
 # Proxy
@@ -206,37 +201,29 @@ assignProxy(){
 clrProxy(){ assignProxy ""; } # This is what 'unset' does.
 
 #Misc. Programs
+alias fluidsynth='fluidsynth -is -a pulseaudio /usr/share/soundfonts/FluidR3_GM.sf2'
 alias togglepad='killall syndaemon; synclient TouchpadOff=$(synclient -l | grep -c "TouchpadOff.*=.*0")'
 alias togglelrm="xmodmap -pp | grep -e '\\s\+[13]\\s' | awk '{print \$2}' | sed 'N;s/\n/ /' | xargs -l bash -c 'xmodmap -e \"pointer = \$1 2 \$0\"'"
 alias resetscreen='xrandr -s 1 && xrandr -s 0' #reset screen resolution to default (after buggy games)
 alias xp='xprop | grep "WM_WINDOW_ROLE\|WM_CLASS" && echo "WM_CLASS(STRING) = \"NAME\", \"CLASS\"";xwininfo'
 alias top10size='find . -printf "%s %p\n"|sort -nr|head'
 alias fixsteam='find ~/.steam/root/ \( -name "libgcc_s.so*" -o -name "libstdc++.so*" -o -name "libxcb.so*" -o -name "libgpg-error.so*" \) -print -delete'
-matlabrepl(){ tmux -2 new -A -s mat "matlab -nosplash -nodesktop $@"; }
-top10cmds(){ history|awk '{a[$2]++}END{for(i in a){printf"%5d\t%s\n",a[i],i}}'|sort -nr|head; } # most used commands
-find_recently_changed(){ find $1 -type f -print0 | xargs -0 stat --format '%Y :%y %n' | sort -nr | cut -d: -f2- | head; }
 batchconv(){ mkdir modified; find . -iname "*.jpg" -o -iname "*.png" | xargs -l -i convert "$@" {} ./modified/{}; } #example: batchconv -resize 33%
 shrinkimg(){ convert -resize 33% "$1" "$1.jpg"; }
-pulsekill(){ echo autospawn = no > $HOME/.config/pulse/client.conf; pulseaudio --kill; rm $HOME/.config/pulse/client.conf; } #disable pulse
 getBankingCSV(){ aqbanking-cli request --transactions -a "$1" | aqbanking-cli listtrans > "$2"; } #Dump transactions to file
-escape(){ ruby -e "puts '$2'+'$1'.split(//).map{|x| x.slice(0).ord.to_s(16)}.join('$2')"; } #usage: escape STRING ESCPREFIX(like % or 0x)
-calc(){ ruby -e "require 'mathn'; puts $1"; } #Ruby calculator
+calc(){ awk "BEGIN{print $*}"; } # calculator
+select_wifi(){ find /etc/netctl -maxdepth 1 -type f -exec sudo sed -i "s/^Interface=.*/Interface=$1/" {} \;; }
+showdot(){ dot -Tpng $1 | feh -; }
 
-if which ghc >/dev/null; then #define these if ghc is present
-  alias ghci="stack ghci --no-build"
+alias fa2seq="tail -n +2 | tr -d '\n'"
+alias revComp='tr ACGT TGCA | rev'
+alias searchSeq='grep -Paob'
+
+if which stack >/dev/null; then #define these if stack is present
+  eval "$(stack --bash-completion-script stack)"
   alias ghc="stack ghc --"
-  function hcalc { ghc -e "($*)"; }
-  function hmap { ghc -e "interact ($*)"; }
-  function hmapl { hmap "unlines.($*).lines"; }
-  function hmapw { hmapl "map (unwords.($*).words)"; }
+  ghci(){ if [ -e stack.yaml ]; then stack ghci --no-build; else stack ghci --no-build --ghci-options "-ghci-script $HOME/.ghcii"; fi; }
 fi
-
-#Set Urxvt font size on the fly
-fontsize() {
-  font=$(xrdb -query | grep URxvt.*font | sed 's/.*:[\t ][\t ]*\(.*\)/\1/')
-  newsize=$(echo $font | sed "s/\\(.*size=\\)\\([0-9]*\\)\\(.*\\)/\\1$1\\3/")
-  echo -e "\033]710;$newsize\033\\"
-}
 
 repdf() { #Recompile pdf (shrinking, removing password). Usage: repdf in out [password]
   if [ -n "$3" ]; then PASSWORDARG="-sPDFPassword=$3"; fi
@@ -253,6 +240,9 @@ alias m4a2mp3='for a in *.m4a; do faad -f 2 -w "$a"  | lame -r - "$a.mp3"; done'
 alias flac2mp3='for a in ./*.flac; do ffmpeg -i "$a" -qscale:a 0 "${a[@]/%flac/mp3}"; done'
 alias wav2mp3='for i in *.wav; do lame -h -b 320 "$i" "`basename "$i" .wav`".mp3; done'
 alias normalizevolume='find /home/admin/myfiles/music/ -type f -iname "*.mp3" -exec mp3gain -p -r -k -s i -d 6.0 "{}" \;'
+# cutflac() { shnsplit -f "$1" "$2" && wav2mp3 && cuetag.sh "$1" *.mp3 && rm -f *.wav; }
+alias cutflac='shnsplit -f *.cue -o flac *.flac && cuetag.sh *.cue split-track*.flac'
+to_monowav() { sox $1 $2 channels 1 rate 44100; }
 
 #----
 #mediacenter - using ssh/sshfs/rsync/mpd/ncmpcpp
@@ -271,6 +261,7 @@ alias center.stream="mpv http://$MEDIAHOST:8000"
 #alias to access either first mpd from .mpdpwd -> mediaserver, or fallback to localhost
 SMARTMPD='$(if ping -c 1 -w 1 $MEDIAHOST > /dev/null; then echo $(head -n 1 $MPDPWDFILE); else echo localhost; fi)'
 alias music="ncmpcpp -h $SMARTMPD"
+alias local.updatebackup="udevil mount /dev/sdb6 /media/backup; rsync --info=progress2 --delete -auv /home/admin /media/backup/; udevil umount /media/backup" #mirror local -> external
 #----
 
 #https://superuser.com/questions/611538/is-there-a-way-to-display-a-countdown-or-stopwatch-timer-in-a-terminal
@@ -321,54 +312,3 @@ _cdm() {
 }
 complete -o nospace -F _cdm cdm
 
-#Homework assignments
-#--------------------
-#Copy tex file into subdir - basically mini tex template automation
-#requires to have a whatever_base.tex file with placeholder NUM in current directory
-hwtex() {
-  if [ $# -eq 0 ]; then echo "No number given!"; return 1; fi
-  num=$(printf "%02d" $1)
-  exists=0
-  if [ -d "L$num" ]; then echo "Opening existing..."; exists=1; fi
-  match=$(find ./ -name "*_base.tex"|sort|tail -n 1)
-  if [ -z "$match" ]; then echo "No base file (ending with _base.tex) found!"; return 1; fi
-  file=$(sed "s/base/$num/" <<< $match)
-  if [ $exists -eq 0 ]; then
-    mkdir L$num; cat $match | sed "s/NUM/$num/" > L$num/$file
-  fi
-  cd L$num
-  vim $file +Latexmk +LatexView
-}
-#get free pool computer
-poolfree() {
-  for i in {1..70}; do
-    host=64pc$(printf %02d $i)
-    resp=$(ssh $host users)
-    if [[ -z "$resp" ]]; then
-      echo $host
-      return
-    fi
-  done
-}
-#Push to Pool to Print
-ppp() {
-  host=$(poolfree)
-  list() { echo "PDFs in ~:"; ssh $host 'ls *.pdf'; unset -f list; }
-  initsshkeys
-  if [[ "$1" == "" ]]; then list; return; fi
-  if [[ "$(ssh $host "md5sum $1 2>/dev/null")" == "$(md5sum $1)" ]]; then
-    echo "Already up to date!"; list; return; fi
-  scp $1 sshgate:~; sleep 1; echo -n "MD5: "
-  if [[ "$(ssh $host "md5sum $1 2>/dev/null")" == "$(md5sum $1)" ]]; then
-    echo "Success!"; else echo "Failure!"; fi
-  list
-}
-complete -f -X '!*.@(pdf)' ppp #complete only pdf files
-
-socksend() {
-  exec 3<>/dev/tcp/$1/$2
-  echo $3 >&3
-  exec 3>&-
-}
-
-eval "$(stack --bash-completion-script stack)"

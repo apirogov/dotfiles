@@ -1,8 +1,9 @@
 {-# LANGUAGE DeriveDataTypeable, TypeSynonymInstances, MultiParamTypeClasses #-}
-{-# OPTIONS_GHC -W -fwarn-unused-imports -fno-warn-missing-signatures -fno-warn-type-defaults #-}
+{-# OPTIONS_GHC -W -fwarn-unused-imports -fno-warn-missing-signatures -fno-warn-type-defaults -fno-warn-unused-do-bind #-}
 -- xmonad config of Anton Pirogov
 -- requires trayer-srg-git + dzen2 + conky + xmonad-contrib 0.12
--- also compile mpdzen.hs and xmonadctl.hs
+-- also: mpc, ncmpcpp, awk, imagemagick, feh, screens.sh
+-- also: compile mpdzen.hs and xmonadctl.hs
 ---------------------------------------------------------------
 import qualified Data.Map as M
 import Data.List (elemIndex,isPrefixOf)
@@ -57,7 +58,7 @@ import XMonad.Layout.Reflect (REFLECTX(..),REFLECTY(..))
 
 ---------------------------------------------------------------
 -- The preferred terminal program, which is used in a binding below and by certain contrib modules.
-myTerminal           = "urxvt"
+myTerminal           = "lxterminal"
 -- Whether focus follows the mouse pointer.
 myFocusFollowsMouse  = True
 -- Width of the window border in pixels.
@@ -69,20 +70,23 @@ myFocusedBorderColor = "#ff8080"
 -- 1 = left alt, 2 = Numlock, 3 = Capslock, 4 = Super key
 myModMask            = mod4Mask
 -- The default number of workspaces (virtual screens) and their names.
-myWorkspaces         = ["1","2"]
+myWorkspaces         = ["1","2","3"]
+-- font to use for Tab layout, dzen, etc.
+myFont = "Inconsolata LGC:size=10"
 
 ------------------------------------------------------------------------
 -- custom transformer
 data CUSTOM = TABBED | NBFULL deriving (Show, Read, Eq, Typeable)
 instance Transformer CUSTOM Window where
-  transform NBFULL  x k = k fullLayout    $ const x
-  transform TABBED  x k = k tabbedLayout  $ const x
+  transform NBFULL  x k = k fullLayout   $ const x
+  transform TABBED  x k = k tabbedLayout $ const x
 
 fullLayout    = renamed [Replace "Ful"] $ noBorders Full
 tabbedLayout  = renamed [Replace "Tab"] $ tabbed shrinkText myTabConfig
   where myTabConfig  = def {  activeBorderColor = "#7C7C7C" , inactiveBorderColor = "#7C7C7C"
                             , activeTextColor   = "#CEFFAC" , inactiveTextColor   = "#EEEEEE"
                             , activeColor       = "#000000" , inactiveColor       = "#000000"
+                            , fontName = "xft:"++myFont
                             }
 
 -- my main layout with the modifier and toggle stack
@@ -111,8 +115,9 @@ myManageHook = namedScratchpadManageHook scratchpads -- <+> placeHook simpleSmar
 
 -- Perform an arbitrary action each time xmonad starts or is restarted with mod-q.
 myStartupHook = setWMName "LG3D" -- for matlab
-              <+> spawn myTrayerCommand <+>updateConkyMPD <+> spawn myDzenConky
               <+> liftIO (putEnv "_JAVA_AWT_WM_NONREPARENTING=1")
+              <+> spawn myTrayerCommand <+> updateConkyMPD <+> spawn myDzenConky
+              <+> docksStartupHook
 
 myHandleEventHook = ewmhDesktopsEventHook <+> fullscreenEventHook <+> docksEventHook
                 <+> serverModeEventHookF "GOTO_WS" goToWS
@@ -123,9 +128,8 @@ myHandleEventHook = ewmhDesktopsEventHook <+> fullscreenEventHook <+> docksEvent
 myLogHook = ewmhDesktopsLogHook
         <+> updatePointer (0.5, 0.5) (0,0)
         <+> wallpaperSetter def {
-            wallpapers = defWPNames (map show [2..6])
-                       `mappend` WallpaperList [("1",WallpaperDir "1")]
-        }
+              wallpapers = defWPNames (map show [2..6])
+                        `mappend` WallpaperList [("1",WallpaperDir "1")] }
 
 ---------------------------------------------------------------
 
@@ -149,11 +153,11 @@ myConf = def {
 
 -- command line calls to my dzen2 and trayer instances
 -- use DZen2 version with Xinerama, XFT and XPM (Option 7 in config.mk)
-myDzenStyle = " -e 'onstart=lower' -fn 'Inconsolata LGC:size=9' -xs 1 -h 16"
-myDzenStatus = "dzen2 -ta l -w 500" ++ myDzenStyle
-myDzenConky  = "conky -c ~/.xmonad/conkyrc | dzen2 -ta r -x 500 -w 1000" ++ myDzenStyle
+myDzenStyle = " -dock -e 'onstart=lower' -fn '"++myFont++"' -xs 1 -h 16"
+myDzenStatus = "dzen2 -ta l -w 600" ++ myDzenStyle
+myDzenConky  = "conky -c ~/.xmonad/conkyrc | dzen2 -ta r -x 600 -w 1200" ++ myDzenStyle
 myTrayerCommand = "trayer -l --monitor primary --edge top --align right --expand true "
-                ++"--transparent true --tint 0x000000 --alpha 0 --height 16 --widthtype pixel --width 100"
+                ++"--transparent true --tint 0x000000 --alpha 0 --height 16 --widthtype pixel --width 120"
 
 -- log hook for usage with dzen2
 myDzenPP = def { ppCurrent = dzenColor "#ffffff" "#404040" . pad
@@ -179,6 +183,7 @@ myDzenPP = def { ppCurrent = dzenColor "#ffffff" "#404040" . pad
 -- dmenu-like colors
 myXPConfig = def {
     position = Top , promptBorderWidth = 0
+  , font = "xft:"++myFont
   , bgColor = "#202020",  fgColor = "#d0d0d0"
   , bgHLight = "#004080", fgHLight = "#f0f0f0"
   , promptKeymap = defaultXPKeymap `M.union` M.fromList [ --make Neo layer 4 arrows work
@@ -208,9 +213,11 @@ myPrompt = do
   where myCompl = flip getShellCompl isPrefixOf
         exec s
           | Just h <- lookup p prompthooks = h
-          | s `elem` tp = runInTerm "" s
+          | Just s' <- lookup p al = exec $ s' ++ q
+          | p `elem` tp = runInTerm "" s -- $ "'sh -c \""++s++"\"'"
           | otherwise   = spawn s
-          where (p,_) = break (==':') s
+          where (p,q) = break (==' ') s
+        al =[("f","firefox"),("r","ranger"),("e","emacsclient -c -a ''")]
         tp = ["ranger","ncmpcpp","ssh","vim"] -- programs to run in terminal
         prompthooks = [("n",netctlP)          -- commands calling sub-prompts
                       ,("m",mpdP)
@@ -220,7 +227,8 @@ myPrompt = do
 netctlP = do
   nets <- lines <$> runProcessWithInput "bash"
                    ["-c", "find /etc/netctl/ -maxdepth 1 -type f | sed 's/^.*\\///'"] ""
-  selectThenDo "netctl" ("-":nets) (spawn . ("sudo netctl stop-all && sudo netctl start "++))
+  selectThenDo "netctl" ("-":nets) (\n -> if n=="-" then spawn $ "sudo netctl stop-all"
+                                                    else spawn $ "sudo netctl switch-to "++n)
 
 calcP = do runProcessWithInput "bash" [] "rm /tmp/lastres" >> calcP'
            runProcessWithInput "bash" [] "notify-send $(cat /tmp/lastres); cat /tmp/lastres | xsel -i;"
@@ -228,8 +236,7 @@ calcP = do runProcessWithInput "bash" [] "rm /tmp/lastres" >> calcP'
   where calcP' = do
           lastRes <- words <$> runProcessWithInput "cat" ["/tmp/lastres"] ""
           inputPromptWithCompl myXPConfig "calc" (const $ return lastRes) ?+ \ret -> do
-            newRes <- words <$> runProcessWithInput "ruby"
-                                ["-e","require 'mathn'; puts ("++ret++")"] ""
+            newRes <- words <$> runProcessWithInput "awk" ["BEGIN{print ("++ret++")}"] ""
             runProcessWithInput "bash" [] $ "echo '"++unwords newRes++"' > /tmp/lastres\n"
             calcP'
 
@@ -348,14 +355,13 @@ main = do
 
     -- media keys which do not work automatically
     , ((0, xK_Print), spawn "scrot -q 95 %Y-%m-%d_%H%M%S.jpg") -- Screenshot
-    , ((0, xK_Scroll_Lock), spawn togKBLayout)              -- ScrLck on Thinkpad L530 = Fn+K
-    , ((0, 0x1008ff41), spawn togTouchpad)                  -- black launch key Thinkvantage
+    , ((0, xK_Scroll_Lock), spawn togKBLayout)                 -- ScrLck on most Thinkpads = Fn+K
     , ((0, 0x1008ff02), spawn "xbacklight -inc 10")
     , ((0, 0x1008ff03), spawn "xbacklight -dec 10")
-    , ((0, 0x1008ff2d), spawn "xscreensaver-command -lock") -- lock key on thinkpad
-    , ((0, 0xff25),     spawn "xscreensaver-command -lock") -- Fn-Esc on my TECK
-    , ((0, 0x1008ff59), spawn $ "screens && "++xmRestart) -- key with projector
-    -- , ((0, 0x1008ff2f), spawn "sudo systemctl suspend")     -- suspend media key (systemd takes care (logind.conf))
+    , ((0, 0xff25),     spawn "xscreensaver-command -lock")     -- Fn-Esc on my TECK
+    , ((0, 0x1008ff59), spawn $ "~/.screens.sh && "++xmRestart) -- key with projector (F7)
+    , ((0, 0x1008ff4a), spawn "xscreensaver-command -lock")     -- [][][] key (F11)
+    , ((0, 0x1008ff5d), spawn "sudo systemctl suspend")         -- Explorer media key (F12)
 
     -- system volume keys
     , ((0, 0x1008ff12), spawn "amixer set Master toggle")  -- speaker mute
@@ -367,8 +373,13 @@ main = do
     , ((0, 0x1008ff14), mpccmd "toggle")
     , ((0, 0x1008ff17), mpccmd "next")
     , ((0, 0x1008ff16), mpccmd "prev")
-    , ((myModMask, 0x1008ff11), mpccmd "volume -10")
-    , ((myModMask, 0x1008ff13), mpccmd "volume +10")
+    -- as T460 has no play/next/prev media keys, use different ones extra:
+    , ((0, 0x1008ff81), mpccmd "toggle")         -- key with sun (F9)
+    , ((0, 0x1008ff1b), mpccmd "next")           -- Search media key (F10)
+    , ((controlMask, 0x1008ff1b), mpccmd "prev")
+
+    , ((controlMask, 0x1008ff11), mpccmd "volume -10")        -- ctrl + vol up
+    , ((controlMask, 0x1008ff13), mpccmd "volume +10")        -- ctrl + vol down
     ]
     ++ -- dynamic workspaces for all unused numbers (will be auto-added + auto-removed when empty)
     (zip (zip (repeat myModMask) $ [xK_1..xK_9]++[xK_0])
@@ -377,9 +388,8 @@ main = do
     (zip (zip (repeat (myModMask .|. shiftMask)) $ [xK_1..xK_9]++[xK_0])
         (map (withNamedWorkspace W.shift) $ map show $ [1..9]++[0]))
     ))
-    where xmRestart = "stack exec xmonad -- --recompile && killall trayer conky dzen2; xmonad --restart"
+    where xmRestart = "xmonad --recompile && killall trayer conky dzen2; xmonad --restart"
           mpccmd str = XS.gets mpdHost >>= \h -> spawn $ "mpc -h "++h++" "++str
           runMpdClient = XS.gets mpdHost >>= \h -> runInTerm "" $ "bash -c 'ncmpcpp -h "++h++"'"
-          togTouchpad = "synclient TouchpadOff=$(synclient -l | grep -c 'TouchpadOff.*=.*0')"
           togKBLayout = "setxkbmap -v | grep 'us('; if [[ \"$?\" == '0' ]]; then setxkbmap de neo -option;"
                        ++ " else setxkbmap us cz_sk_de -option -option caps:escape; fi"

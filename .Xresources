@@ -6,12 +6,11 @@
 ! Misc
 xscreensaver.dpmsEnabled: False
 xscreensaver.dpmsQuickoffEnabled: False
-dzen2.font: -*-fixed-*-*-*-*-10-*-*-*-*-*-*-*
 
 !-------------------------------------------------------------------------------
 ! XTerm
 XTerm*faceName             : Inconsolata-g
-XTerm*faceSize             : 10
+XTerm*faceSize             : 11
 XTerm*reverseVideo         : on
 
 XTerm*borderWidth          : 0
@@ -43,7 +42,7 @@ XTerm*charClass            : 33:48,35-38:48,39:43,42-47:48,58-59:48,61:48,63-64:
 !------------------------------------------------------------------------------
 ! URxvt
 URxvt*termName        : rxvt
-URxvt*font            : xft:Inconsolata LGC:size=9:antialias=true
+URxvt*font            : xft:Inconsolata LGC:size=12:antialias=true
 !URxvt*letterSpace     : -1
 
 !Enable unicode input with ctrl-shift, disable stupid keycap-picture insert mode
@@ -54,7 +53,7 @@ URxvt.iso14755_52     : false
 URxvt.inputMethod     : fcitx
 !URxvt.preeditType     : OverTheSpot
 
-URxvt.perl-ext-common : default,matcher
+URxvt.perl-ext-common : default,matcher,osc-xterm-clipboard
 URxvt.url-launcher    : firefox
 URxvt.matcher.button  : 1
 
@@ -92,3 +91,5 @@ Xft.antialias : 1
 Xft.rgba:     : rgb
 !Xft.dpi       : 96
 
+! for fcitx
+emacs*useXIM: false

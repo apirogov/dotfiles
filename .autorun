@@ -1,24 +1,14 @@
 #!/bin/sh
-/home/admin/.lightsOn.sh 120 &  #prevent screensaver on fullscreen
-xscreensaver -nosplash &        #mainly to provide screen locking
+# /home/admin/.screens.sh -d      #configure dual screen mode
+xscreensaver -nosplash &        #mainly to provide screen locking (saver disabled)
 
 #Programs
 dropbox &
-#syncthing & #using systemctl service
-syncthing-gtk -m & #using systemctl service
-# firefox &
-# synergy &
-# pidgin &
-# gajim &
-
-# drop shadow etc. and may fix problems with vboxvideo
-# compton -cCG -e 1.0 -o 0.5 -t 0 -l 0 -r 3 -m 0.9 \
-#   --xinerama-shadow-crop --shadow-ignore-shaped \
-#   --shadow-exclude '_GTK_FRAME_EXTENTS@:c' --shadow-exclude 'class_g = "dzen"' \
-#   --backend glx -b &
+#syncthing &        #using systemctl service
+#syncthing-gtk -m & #using systemctl service
 
 #daemon to adapt color temperature
-# redshift -l 53.52:10.41 -b 1:0.7 -t 6000:4000 -g 0.8:0.7:0.8 -m randr &
+redshift-gtk -b 1:0.7 -t 6000:4000 -g 0.8:0.7:0.8 -m randr & #manual location: 53.52:10.41
 mpd &
 mpdscribble &
 

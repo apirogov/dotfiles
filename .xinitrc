@@ -13,8 +13,8 @@ fi
 #---------------
 xset +fp ~/.fonts # add local font dir
 xset s off # turn off black Screensaver
-# turn off Display Power Management Service (DPMS)
-xset -dpms
+xset b off # disable beep sound
+#xset -dpms # turn off Display Power Management Service (DPMS)
 setterm -blank 0 -powerdown 0
 
 ##Mouse:
@@ -23,14 +23,12 @@ setterm -blank 0 -powerdown 0
 xsetroot -cursor_name left_ptr #Set cursor
 
 ##Touchpad settings
-synclient PalmDetect=1 PalmMinWidth=5 PalmMinZ=100
 synclient HorizEdgeScroll=0 HorizTwoFingerScroll=0 #fix MEvent CASE! in java
-syndaemon -t -K -i 1 -d
-# synclient TouchpadOff=1
+synclient TapButton1=1 TapButton2=3 TapButton3=2   #tap-to-click as usual
 
 #Keyboard:
 setxkbmap de neo -option #set neo keyboard layout
-xmodmap -e "keycode 105 = Multi_key" #Ctrl_R -> Multi_key
+#xmodmap -e "keycode 105 = Multi_key" #Ctrl_R -> Multi_key
 #set Scroll-lock key to switch QWERTZ (default) and NEO
 #setxkbmap -layout de,de -variant nodeadkeys,neo -option -option grp:sclk_toggle -option grp_led:scroll
 #set Scroll-lock key to switch NEO (default) and QUERTZ
@@ -40,7 +38,7 @@ xmodmap -e "keycode 105 = Multi_key" #Ctrl_R -> Multi_key
 #alternative: -option ctrl:nocaps #caps lock = another ctrl
 #setxkbmap de nodeadkeys
 
-xset -r 51 && xset -r 94 #no Mod3/4 key repeat - for Neo
+#xset -r 51 && xset -r 94 #no Mod3/4 key repeat - for Neo
 #fix repetition of arrow keys (some weird Xorg regression bug, seems gone)
 # xset r 113 && xset r 116
 
@@ -55,15 +53,9 @@ export XMODIFIERS=@im=fcitx
 fcitx &
 #----
 
-screens -d  #use my custom screen toggle script to set dualscreen
-
-##some java hacks to make minecraft etc work with openjdk7 (not necessary anymore?)
-# export _JAVA_AWT_WM_NONREPARENTING=1
-# export LD_LIBRARY_PATH="/usr/lib/jvm/java-7-openjdk/jre/lib/amd64"
 ##Essential daemons
 pulseaudio --start & #autospawn is disabled for reasons
 lxpolkit &           #lightweight polkit daemon
-#eval $(gpg-agent --daemon) &
 ##Settings
 xrdb ~/.Xresources
 ##Applications

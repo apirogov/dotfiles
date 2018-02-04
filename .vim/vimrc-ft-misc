@@ -1,13 +1,17 @@
+" useful blocks for latex
+Plug 'rbonvall/vim-textobj-latex'
 " Latex -> :Latexmk/:LatexView
-Plug 'LaTeX-Box-Team/LaTeX-Box', { 'for': 'latex' }
+Plug 'LaTeX-Box-Team/LaTeX-Box', { 'for': ['latex','tex'] }
+au BufRead,BufNewFile *.tex let g:neomake_tex_enabled_makers = []
 let g:LatexBox_viewer='zathura'
-let g:LatexBox_latexmk_options='-lualatex -latexoption="-synctex=1 \%O \%S" -latexoption=--shell-escape'
+" let g:LatexBox_latexmk_options='-latexoption="-synctex=1 \%O \%S" -latexoption=--shell-escape'
 let g:LatexBox_custom_indent=0 " conflicts with neocomplete
 let g:LatexBox_quickfix=2 " don't steal focus
 let g:LatexBox_latexmk_async=0 " auto rebuild on changes
 let g:LatexBox_latexmk_preview_continuously=1 " auto rebuild on changes
 
-let g:syntastic_tex_checkers = ['chktex']
+" let g:syntastic_tex_checkers = ['chktex']
+let g:syntastic_tex_checkers = []
 au BufRead,BufNewFile *.tex     nnoremap <F9> :!zathura --synctex-forward <C-R>=line('.')<CR>:<C-R>=col('.')<CR>:<C-R>=expand("%:p%:t")<CR> <C-R>=LatexBox_GetOutputFile()<CR> > /dev/null<CR><CR>
 au BufRead,BufNewFile *.tex     map <F8>  :w<cr>:Latexmk<cr>
 au BufRead,BufNewFile *.tex     map <F7>  :w<cr>:silent !zathura -x "vim --servername <C-R>=v:servername<CR> --remote +\%{line} \%{input}" <C-R>=LatexBox_GetOutputFile()<CR> & > /dev/null<cr>
@@ -42,23 +46,10 @@ nnoremap <buffer> <silent> <leader>ff :call CscopeFind('f', expand('<cword>'))<C
 nnoremap <buffer> <silent> <leader>fi :call CscopeFind('i', expand('<cword>'))<CR>
 endfunction
 
-" Coq
-au BufRead,BufNewFile *.v set filetype=coq
-Plug 'def-lkb/vimbufsync', { 'for': 'coq' }
-Plug 'the-lambda-church/coquille', { 'for': 'coq' }
-Plug 'jvoorhis/coq.vim', { 'for': 'coq' }
-"" Maps Coquille commands to <F2> (Undo), <F3> (Next), <F4> (ToCursor)
-au FileType coq call coquille#FNMapping()
-au FileType coq map <F7> :CoqLaunch<cr>
-au FileType coq map <silent> <F8> :CoqKill<cr><cr>
-
-" Idris
-Plug 'idris-hackers/idris-vim', { 'for': 'idris' }
-
 " Haskell plugins and config
 " --------------------------
-"  Better install all necessary cabal stuff into a sandbox/with stack:
-"  ghc-mod, hasktags, hlint, hoogle
+" Better install all necessary stuff globally with stack:
+" ghc-mod, hasktags, hlint, hoogle
 
 " Hoogle interface from vim (see :help hoogle)
 Plug 'Twinside/vim-hoogle', { 'for': 'haskell' }

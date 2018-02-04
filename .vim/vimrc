@@ -25,27 +25,24 @@ source ~/.vim/vimrc-ft-misc
 Plug 'hail2u/vim-css3-syntax'
 Plug 'othree/html5-syntax.vim'
 Plug 'tpope/vim-markdown'
-Plug 'nelstrom/vim-markdown-folding'
 Plug 'vim-scripts/haskell.vim'
-Plug 'rust-lang/rust.vim'
 Plug 'Twinside/vim-syntax-haskell-cabal'
 Plug 'Twinside/vim-haskellFold'
 
 " Some good colorschemes
+Plug 'NLKNguyen/papercolor-theme'
 Plug 'AlessandroYorba/Alduin'
 let g:alduin_Shout_Windhelm=1
 let g:alduin_Shout_AuraWhisper=1
 Plug 'tomasr/molokai'
 Plug 'sjl/badwolf'
-Plug 'vim-scripts/jellybeans.vim'
-Plug 'vim-scripts/wombat256.vim'
-Plug 'altercation/vim-colors-solarized'
 Plug 'w0ng/vim-hybrid'
-Plug 'john2x/flatui.vim'
-Plug 'vim-scripts/summerfruit256.vim'
-Plug 'vim-scripts/pyte'
 Plug 'jonathanfilip/vim-lucius'
 Plug 'gosukiwi/vim-atom-dark'
+Plug 'altercation/vim-colors-solarized'
+Plug 'junegunn/seoul256.vim'
+Plug 'vim-scripts/wombat256.vim'
+Plug 'vim-scripts/summerfruit256.vim'
 if !has("gui_running") " Terminal vim can't take all colorschemes
   let g:rehash256 = 1 " For molokai
   let g:solarized_termcolors=256
@@ -60,7 +57,7 @@ endif
 
 if &t_Co>255
   " set bg=light
-  colorscheme alduin
+  colorscheme PaperColor
 else " e.g. in TTY
   colorscheme desert
 endif
