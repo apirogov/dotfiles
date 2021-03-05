@@ -1,19 +1,22 @@
-#conky config for usage with dzen2
-lua_load ~/.xmonad/conky.lua
-background no
-out_to_console yes
-out_to_x no
-update_interval 1.0
-total_run_times 0
-use_spacer none
-#Für reines ALSA: ^fg(\#ffff00)${exec amixer get Master | awk '/%/{ gsub(/\[|\]/,""); print $4 }'} \
-TEXT
+-- conky config for usage with dzen2
+conky.config = {
+  background = false,
+  out_to_console = true,
+  out_to_x = false,
+  update_interval = 1.0,
+  total_run_times = 0,
+  use_spacer = 'none',
+  no_buffers = true,
+}
+-- Für reines ALSA: ^fg(\#ffff00)${exec amixer get Master | awk '/%/{ gsub(/\[|\]/,""); print $4 }'} \
+conky.text = [[
 ${exec ~/.xmonad/mpdzen /tmp/currmpd \#0080ff 40}\
-^fg(\#ffffff)C:${lua_parse format %2.0f ${cpu cpu0}}% \
-R:${lua_parse format %2.0f $memperc}% \
+^fg(\#ffffff)C:${cpu cpu0}% \
+R:$memperc% \
 ^fg(\#40f0f0)/:${fs_used_perc /}% \
 ^fg(\#a0ffa0)↓${downspeedf  wlp4s0}KB/s ↑${upspeedf wlp4s0}KB/s \
 ^fg(\#ffff00)${exec amixer -c 0 get Master | grep 'Mono:' | cut -d ' ' -f 6} \
 ^fg(\#ff8080)${exec acpi -b | grep 'Battery 1' | sed 's/,//g' | awk '{print $5 "[" $4 "]"}'} \
-^fg(\#8080ff)${lua_parse format %7s ${exec bash -c 'netctl list; netctl-auto list' | awk '$1=="*"{print $2}'}} \
+^fg(\#8080ff)${exec bash -c 'netctl list; netctl-auto list' | awk '$1=="*"{print $2}'} \
 ^fg(\#ffffb0)${time %R}\
+]]

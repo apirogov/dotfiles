@@ -4,7 +4,7 @@
 " Basic settings
 source ~/.vim/vimrc-base
 
-" Load vim-plug
+" Load vim-plug {{{
 if empty(glob('~/.vim/autoload/plug.vim'))
   silent !mkdir -p ~/.vim/tmp
   silent !mkdir -p ~/.vim/autoload
@@ -13,40 +13,49 @@ if empty(glob('~/.vim/autoload/plug.vim'))
   autocmd VimEnter * PlugInstall
 endif
 call plug#begin('~/.vim/bundle')
+" }}}
 
 " Universally useful
 source ~/.vim/vimrc-essential
-" General omnicomplete + snippets + tags + project management
-source ~/.vim/vimrc-ide-misc
 " filetype specific (plugins, bindings)
 source ~/.vim/vimrc-ft-misc
 
-" (Better) syntax support
-Plug 'hail2u/vim-css3-syntax'
-Plug 'othree/html5-syntax.vim'
-Plug 'tpope/vim-markdown'
-Plug 'vim-scripts/haskell.vim'
-Plug 'Twinside/vim-syntax-haskell-cabal'
-Plug 'Twinside/vim-haskellFold'
+" lightweight Powerline
+Plug 'itchyny/lightline.vim'
+Plug 'maximbaz/lightline-ale'
+let g:lightline = {}
+let g:lightline.component_expand = {
+      \  'linter_checking': 'lightline#ale#checking',
+      \  'linter_warnings': 'lightline#ale#warnings',
+      \  'linter_errors': 'lightline#ale#errors',
+      \  'linter_ok': 'lightline#ale#ok',
+      \ }
+ let g:lightline.component_type = {
+      \     'linter_checking': 'left',
+      \     'linter_warnings': 'warning',
+      \     'linter_errors': 'error',
+      \     'linter_ok': 'left',
+      \ }
+let g:lightline.active = { 'right': [[ 'linter_checking', 'linter_errors', 'linter_warnings', 'linter_ok' ]] }
 
-" Some good colorschemes
+" (Better) syntax support
+Plug 'sheerun/vim-polyglot'
+let g:polyglot_disabled = ['latex']
+
+" Some good colorschemes {{{
 Plug 'NLKNguyen/papercolor-theme'
-Plug 'AlessandroYorba/Alduin'
-let g:alduin_Shout_Windhelm=1
-let g:alduin_Shout_AuraWhisper=1
 Plug 'tomasr/molokai'
 Plug 'sjl/badwolf'
 Plug 'w0ng/vim-hybrid'
 Plug 'jonathanfilip/vim-lucius'
 Plug 'gosukiwi/vim-atom-dark'
-Plug 'altercation/vim-colors-solarized'
 Plug 'junegunn/seoul256.vim'
 Plug 'vim-scripts/wombat256.vim'
 Plug 'vim-scripts/summerfruit256.vim'
 if !has("gui_running") " Terminal vim can't take all colorschemes
   let g:rehash256 = 1 " For molokai
-  let g:solarized_termcolors=256
 endif
+" }}}
 
 " Finalize vim-plug
 call plug#end()

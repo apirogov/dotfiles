@@ -7,10 +7,10 @@
 DEFAULT_OUTPUT='eDP1'  # your notebook monitor
 OUTPUTS='HDMI1 HDMI2'   # outputs to toggle if connected
 
-# EXT_OPTS="--auto --above $DEFAULT_OUTPUT" # Actual settings for external monitor
-EXT_OPTS_DEFAULT="--auto --pos 0x1050"
-EXT_OPTS_HDMI1="--auto --rotate left --pos 1920x0" #"--pos 1080x210 "
-EXT_OPTS_HDMI2="--auto --pos 240x0"
+EXT_OPTS_DEFAULT="--auto --pos 0x1080"
+EXT_OPTS_HDMI1="--auto --pos 0x0"
+EXT_OPTS_HDMI2="--auto --rotate left --pos 1920x0"
+
 
 XRANDR=`xrandr` #get info
 EXECUTE="" #xrandr execution string (to be built)

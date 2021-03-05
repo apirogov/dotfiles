@@ -54,7 +54,7 @@ fcitx &
 #----
 
 ##Essential daemons
-pulseaudio --start & #autospawn is disabled for reasons
+# pulseaudio --start & #autospawn is disabled for reasons
 lxpolkit &           #lightweight polkit daemon
 ##Settings
 xrdb ~/.Xresources
@@ -64,7 +64,7 @@ xrdb ~/.Xresources
 #Start WM (last thing to be done)
 case "$1" in
   openbox)
-	  exec openbox-session ;;
+	  exec dbus-launch openbox-session ;;
   xmonad)
     exec dbus-launch xmonad ;;
   *)  #default

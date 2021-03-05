@@ -24,7 +24,7 @@ main = do
     let (hostfile:color:maxw':_) = args
     ex <- liftIO $ doesFileExist $ T.unpack hostfile
     let maxw = read $ T.unpack maxw'
-    ret <- timeout 1500000 $ shelly $ silently $ do
+    ret <- timeout 500000 $ shelly $ silently $ do
       unless ex $ exit 0
       host <- head . T.lines <$> run "cat" [hostfile]
       ls <- T.lines <$> run "mpc" ["-h",host]

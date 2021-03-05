@@ -11,7 +11,8 @@
 :set -fno-warn-unused-binds
 
 -- default extensions
-:set -XOverloadedStrings
+-- :set -XNoImplicitPrelude
+-- :set -XOverloadedStrings
 :set -XTypeApplications
 
 :set -XScopedTypeVariables
@@ -40,7 +41,7 @@
 
 
 :set prompt "λ> "
-:set prompt2 "| "
+-- :set prompt2 "| "
 
 -- default multiline support (annoying)
 -- :set +m

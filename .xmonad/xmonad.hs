@@ -92,12 +92,13 @@ tabbedLayout  = renamed [Replace "Tab"] $ tabbed shrinkText myTabConfig
 -- my main layout with the modifier and toggle stack
 myLayout = trackFloating $ smartBorders $ avoidStruts $ mkToggle1 NBFULL $ mkToggle1 TABBED
          $ renamed [Replace "Def"] -- $ layoutHints
-         $ mkToggle1 MIRROR $ mkToggle1 REFLECTX $ mkToggle1 REFLECTY $ imLayout mainL
-  where imLayout = (renamed [CutWordsLeft 1]) . (withIM (1/8)
-                   (ClassName "Pidgin" `And` Role "buddy_list"
-                   `Or` ClassName "Gajim" `And` Role "roster"
-                   `Or` ClassName "Skype" `And`
-                     (Not $ (Role "ConversationsWindow" `Or` Role "CallWindow"))))
+         $ mkToggle1 MIRROR $ mkToggle1 REFLECTX $ mkToggle1 REFLECTY $ mainL
+  where 
+             -- imLayout = (renamed [CutWordsLeft 1]) . (withIM (1/8)
+                   -- (ClassName "Pidgin" `And` Role "buddy_list"
+                   -- `Or` ClassName "Gajim" `And` Role "roster"
+                   -- `Or` ClassName "Skype" `And`
+                  -- (Not $ (Role "ConversationsWindow" `Or` Role "CallWindow"))))
         mainL     = mouseResizableTile { masterFrac = 0.5,
                                         fracIncrement = 0.05,
                                         draggerType = BordersDragger }
@@ -388,7 +389,7 @@ main = do
     (zip (zip (repeat (myModMask .|. shiftMask)) $ [xK_1..xK_9]++[xK_0])
         (map (withNamedWorkspace W.shift) $ map show $ [1..9]++[0]))
     ))
-    where xmRestart = "xmonad --recompile && killall trayer conky dzen2; xmonad --restart"
+    where xmRestart = "xmonad --recompile; killall trayer conky dzen2; xmonad --restart"
           mpccmd str = XS.gets mpdHost >>= \h -> spawn $ "mpc -h "++h++" "++str
           runMpdClient = XS.gets mpdHost >>= \h -> runInTerm "" $ "bash -c 'ncmpcpp -h "++h++"'"
           togKBLayout = "setxkbmap -v | grep 'us('; if [[ \"$?\" == '0' ]]; then setxkbmap de neo -option;"

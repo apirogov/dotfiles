@@ -1,3 +1,4 @@
+" vim: set foldmethod=marker foldlevel=0:
 " Universally useful vim plugins
 
 " Improved %
@@ -29,7 +30,7 @@ Plug 'tpope/vim-repeat'
 Plug 'kana/vim-textobj-user'
 Plug 'kana/vim-textobj-indent'
 Plug 'kana/vim-textobj-function'
-Plug 'kana/vim-textobj-entire'
+" Plug 'kana/vim-textobj-entire'
 Plug 'kana/vim-textobj-line'
 Plug 'lucapette/vim-textobj-underscore'
 Plug 'vim-scripts/camelcasemotion'
@@ -37,6 +38,9 @@ Plug 'vim-scripts/camelcasemotion'
 Plug 'PeterRincker/vim-argumentative'
 " Exchange places with cx<movement> cxx=line, X=in visual mode, cxc=clear
 Plug 'tommcdo/vim-exchange'
+" Move lines without pasting
+" Plug 'matze/vim-move'
+" let g:move_key_modifier = 'C' " todo: find better bindings
 " Override default text obj to work on next found left/right
 " Plug 'wellle/targets.vim'
 
@@ -46,12 +50,12 @@ Plug 'tpope/vim-surround'
 let g:surround_{char2nr('#')}= "#{\r}"
 " ysiwc cmd -> \cmd{bla} for latex
 let g:surround_{char2nr('c')} = "\\\1command\1{\r}"
-" Easier change inside surroundings with ,ci/,cas
+" Easier change inside surroundings with <leader>ci/<leader>cas
 Plug 'briandoll/change-inside-surroundings.vim'
 
 " Tabularize verb (gl/L textobj align char or /regex)
 Plug 'tommcdo/vim-lion'
-" Regex preview
+" Regex preview (OverCommandLine)
 Plug 'osyo-manga/vim-over'
 
 " Undo tree visualization
@@ -77,8 +81,22 @@ au FileType * call lexima#set_default_rules()
 au FileType mail,text,todotxt call lexima#clear_rules()
 
 " Color parentheses and other surroundings
-Plug 'kien/rainbow_parentheses.vim'
-au VimEnter * RainbowParenthesesToggle    " RainbowParentheses: everywhere
+" Plug 'kien/rainbow_parentheses.vim'
+" au VimEnter * RainbowParenthesesToggle    " RainbowParentheses: everywhere
+Plug 'luochen1990/rainbow'
+let g:rainbow_active = 1 " enable
+" Show indentation in space indented code
+Plug 'Yggdroot/indentLine'
+" Better indentation-aware pasting
+Plug 'sickill/vim-pasta'
+
+" Allow project-local vim config (.lvimrc) (better load it early)
+Plug 'embear/vim-localvimrc'
+let g:localvimrc_persistent = 1 " Remember decisions in file
+let g:localvimrc_sandbox = 0 " don't nag with sandbox
+" Automatically switch to project root with <leader>cd
+Plug 'airblade/vim-rooter'
+" let g:rooter_manual_only = 1
 
 " Git integration
 Plug 'tpope/vim-fugitive'
@@ -87,11 +105,23 @@ Plug 'airblade/vim-gitgutter'
 let g:gitgutter_sign_removed_first_line = "^_"
 let g:gitgutter_realtime = 0      "possibly fix keystroke glitches
 
-Plug 'scrooloose/syntastic'
-let g:syntastic_enable_signs=1    "mark syntax errors with :signs
-let g:syntastic_auto_jump=0       "automatically jump to the error when saving the file
-let g:syntastic_auto_loc_list=1   "show the error list automatically
-" let g:syntastic_quiet_messages = {'level': 'warnings'} " No warnings
+" Code snippets (complete with C-k) / snipmate replacement
+Plug 'honza/vim-snippets'
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
+Plug 'neoclide/coc-snippets'
+" snippet settings {{{
+" TODO
+" }}}
+
+Plug 'w0rp/ale'
+let g:ale_sign_column_always = 1
+" let g:ale_sign_error = '>>'
+" let g:ale_sign_warning = '--'
+let g:ale_linters = {
+\   'tex': [],
+\}
+let g:ale_lint_on_text_changed = 'never'
+let g:ale_lint_on_enter = 0
 
 " slime-like repl interaction for tmux
 Plug 'epeli/slimux'
@@ -106,8 +136,17 @@ nnoremap <silent> <M-Down> :TmuxNavigateDown<cr>
 nnoremap <silent> <M-Up> :TmuxNavigateUp<cr>
 nnoremap <silent> <M-Right> :TmuxNavigateRight<cr>
 
-" Copy/paste preview
+" Copy/paste preview when using "
 Plug 'junegunn/vim-peekaboo'
+
 " Russian typing
 Plug 'einars/translit.vim'
 nnoremap <leader>tr :exec Translit('translit.ru')<cr>
+" Spell checking
+Plug 'reedes/vim-lexical'
+let g:lexical#spelllang = ['en_gb','de_de']
+augroup lexical
+  autocmd!
+  autocmd FileType markdown,mkd,textile,text call lexical#init()
+  autocmd FileType tex call lexical#init({'spell':0}) " better enable by hand
+augroup END

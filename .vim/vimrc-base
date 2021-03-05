@@ -21,6 +21,9 @@ if !has('nvim')
   set esckeys                    " cursor keys in insert mode
 endif
 
+if empty(glob('~/.vim/tmp'))
+  silent !mkdir -p ~/.vim/tmp
+endif
 set directory=~/.vim/tmp       " Dir for vim temp files
 set backupdir=~/.vim/tmp       " Dir for backups
 set nobackup                   " make no backups of files
@@ -59,7 +62,7 @@ set shiftround                 " Round indent to multiple of shiftwidth
 set nowrap                     " disable wrapping (cause its bad for coding)
 set showbreak=+                " show a + if a line is longer than the screen
 set linebreak                  " wrap on word boundaries (not in word middle)
-set textwidth=90               " after how many chars a break is made
+set textwidth=80               " after how many chars a break is made
 "set colorcolumn=+1             " Highlight that column (more annoying than useful)
 
 " Folding
@@ -72,8 +75,10 @@ set foldcolumn=1               " columns for fold markers
 "set foldopen-=undo            " don't unfold when undo sth.
 
 " Improvement & tweaks
-set ttimeout
-set ttimeoutlen=50
+if !has('nvim') && &ttimeoutlen == -1
+  set ttimeout
+  set ttimeoutlen=50
+endif
 set display+=lastline          " Keep last line while scrolling
 set ttyfast                    " we have a fast terminal connection -> smoothness
 set lazyredraw                 " no window redraw while running macros (faster)
@@ -105,7 +110,7 @@ set laststatus=2               " Always show statusline
 set ruler                      " Show current position
 set showcmd                    " Show partial command in statusline
 set cmdheight=1                " command bar is 1 high
-set showmode                   " show current mode
+set noshowmode                 " not show current mode
 set number                     " show line number
 
 if has("gui_running")          " GVim
@@ -136,11 +141,8 @@ au FileType haskell setlocal expandtab
 au FileType python setlocal expandtab shiftwidth=4 softtabstop=4
 au FileType rust setlocal expandtab shiftwidth=4 softtabstop=4
 au FileType c,cpp setlocal commentstring=//%s
+au FileType purescript let &l:commentstring='-- %s'
 " au FileType c,cpp,java setlocal noexpandtab shiftwidth=4 softtabstop=4
-
-" Language specific settings and keybindings
-" ------------------------------------------
-" (managed in lang-specific plugins)
 
 " General keybindings
 " -------------------
@@ -211,13 +213,13 @@ endif
 au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g`\"" | endif
 
 " Remove trailing whitespace from code files on save
-fun! <SID>StripTrailingWhitespaces()
-    let l = line(".")
-    let c = col(".")
-    %s/\s\+$//e
-    call cursor(l, c)
-endfun
-au FileType * au BufWritePre <buffer> :call <SID>StripTrailingWhitespaces()
+" fun! <SID>StripTrailingWhitespaces()
+"     let l = line(".")
+"     let c = col(".")
+"     %s/\s\+$//e
+"     call cursor(l, c)
+" endfun
+" au FileType * au BufWritePre <buffer> :call <SID>StripTrailingWhitespaces()
 
 " Include completion for filetypes with custom lists
 au FileType * exec("setlocal dictionary+=".$HOME."/.vim/dict/".expand('<amatch>'))

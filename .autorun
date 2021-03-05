@@ -8,7 +8,8 @@ dropbox &
 #syncthing-gtk -m & #using systemctl service
 
 #daemon to adapt color temperature
+/usr/lib/geoclue-2.0/demos/agent &
 redshift-gtk -b 1:0.7 -t 6000:4000 -g 0.8:0.7:0.8 -m randr & #manual location: 53.52:10.41
 mpd &
 mpdscribble &
-
+picom -CGb -o 0 -l 0 -t 0 -r 0 #required for zoom overlay stuff
