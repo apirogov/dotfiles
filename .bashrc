@@ -195,6 +195,35 @@ getBankingCSV(){ aqbanking-cli request --transactions -a "$1" | aqbanking-cli li
 select_wifi(){ find /etc/netctl -maxdepth 1 -type f -exec sudo sed -i "s/^Interface=.*/Interface=$1/" {} \;; }
 showdot(){ dot -Tpng $1 | display; } # | feh -
 joinl(){ paste $(for i in $(seq 1 $2); do echo -n " - "; done) -d"$1"; }
+permutate(){ echo $@ | sed 's/ /\n/g' | shuf; }
+
+function docker-show() { docker container ls -a | grep $1; }
+function docker-grep() { docker-show $1 | awk '{print $1}'; }
+
+function docker-nuke() {
+  echo "Nuking containers and volumes..."
+  docker rm -vf $(docker ps -aq)
+  echo "Nuking images..."
+  docker rmi -f $(docker images -aq)
+  echo "Pruning unused entities..."
+  docker system prune -a --volumes
+  echo "Result:"
+  docker images
+  docker volume list
+  docker container list
+}
+function pycache-nuke() {
+    echo "Cleaning poetry cache..."
+    poetry cache clear --all
+    echo "Cleaning pip cache..."
+    pip cache purge
+    echo "Cleaning pipx cache..."
+    pipx cache remove-all
+    echo "Cleaning pipenv cache..."
+    pipenv --clear
+    echo "Cleaning conda cache..."
+    conda clean --all --yes
+}
 
 if which stack >/dev/null; then #define these if stack is present
   eval "$(stack --bash-completion-script stack)"
