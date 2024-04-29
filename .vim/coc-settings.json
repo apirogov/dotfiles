@@ -1,6 +1,7 @@
 {
-  "languageserver": {
+  "snippets.ultisnips.directories": ["~/.vim/snippets"],
 
+  "languageserver": {
     "purescript": {
       "command": "purescript-language-server",
       "args": ["--stdio"],

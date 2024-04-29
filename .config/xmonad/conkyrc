@@ -10,13 +10,13 @@ conky.config = {
 }
 -- Für reines ALSA: ^fg(\#ffff00)${exec amixer get Master | awk '/%/{ gsub(/\[|\]/,""); print $4 }'} \
 conky.text = [[
-${exec ~/.xmonad/mpdzen /tmp/currmpd \#0080ff 40}\
+${exec ~/.config/xmonad/mpdzen /tmp/currmpd \#0080ff 40}\
 ^fg(\#ffffff)C:${cpu cpu0}% \
 R:$memperc% \
 ^fg(\#40f0f0)/:${fs_used_perc /}% \
 ^fg(\#a0ffa0)↓${downspeedf  wlp4s0}KB/s ↑${upspeedf wlp4s0}KB/s \
 ^fg(\#ffff00)${exec amixer -c 0 get Master | grep 'Mono:' | cut -d ' ' -f 6} \
-^fg(\#ff8080)${exec acpi -b | grep 'Battery 1' | sed 's/,//g' | awk '{print $5 "[" $4 "]"}'} \
+^fg(\#ff8080)${exec acpi -b | grep 'Battery 0' | sed 's/,//g' | awk '{print $5 "[" $4 "]"}'} \
 ^fg(\#8080ff)${exec bash -c 'netctl list; netctl-auto list' | awk '$1=="*"{print $2}'} \
 ^fg(\#ffffb0)${time %R}\
 ]]

@@ -32,9 +32,9 @@ main = do
 
       title <- liftIO $ scroll maxw $ head ls
       let mpccmd   = "cat " <> hostfile <> " | xargs -Ihost mpc -h host "
-          volume   = (filter (/="") $ concat $ T.splitOn ":" <$> (T.splitOn " " $ ls!!2))!!1
+          volume   = filter (/="") (concat $ T.splitOn ":" <$> T.splitOn " " (ls!!2))!!1
           status   = T.take 3 (ls!!1) <> "]"
-          progress = (filter (not . T.null) $ T.splitOn " " (ls!!1))!!2
+          progress = filter (not . T.null) (T.splitOn " " (ls!!1))!!2
 
           fgclr = "^fg(" <> color <> ")♪"
           vol   = click "1" (mpccmd<>"volume +10")

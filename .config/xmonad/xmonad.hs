@@ -1,41 +1,43 @@
 {-# LANGUAGE DeriveDataTypeable, TypeSynonymInstances, MultiParamTypeClasses #-}
 {-# OPTIONS_GHC -W -fwarn-unused-imports -fno-warn-missing-signatures -fno-warn-type-defaults -fno-warn-unused-do-bind #-}
 -- xmonad config of Anton Pirogov
--- requires trayer-srg-git + dzen2 + conky + xmonad-contrib 0.12
--- also: mpc, ncmpcpp, awk, imagemagick, feh, screens.sh
+-- requires trayer-srg-git + dzen2 + conky + xmonad-contrib 0.18
+-- also: alacritty, zellij, mpc, ncmpcpp, awk, screens.sh
 -- also: compile mpdzen.hs and xmonadctl.hs
 ---------------------------------------------------------------
 import qualified Data.Map as M
-import Data.List (elemIndex,isPrefixOf)
+import Data.List (elemIndex, isPrefixOf)
 import Data.Maybe (fromMaybe)
+import Data.Monoid
 import Control.Monad (when)
 import System.Directory (setCurrentDirectory)
 import System.Posix.Env (getEnvDefault,putEnv)
 import System.Exit (exitSuccess)
 
-import XMonad hiding (Tall)
+-- import XMonad.Core (X)
+import XMonad
 import qualified XMonad.StackSet as W
 
-import XMonad.Actions.CycleWS (nextScreen,prevScreen,shiftNextScreen,shiftPrevScreen)
+import XMonad.Actions.CycleWS (nextScreen, prevScreen, shiftNextScreen, shiftPrevScreen)
 import XMonad.Actions.DynamicWorkspaces
 import XMonad.Actions.Navigation2D
-import XMonad.Actions.RotSlaves (rotAllUp,rotAllDown)
+import XMonad.Actions.RotSlaves (rotAllUp, rotAllDown)
 import XMonad.Actions.UpdatePointer (updatePointer)
 
-import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.EwmhDesktops
+import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.ManageDocks
 import XMonad.Hooks.ServerMode
 import XMonad.Hooks.SetWMName
 import XMonad.Hooks.UrgencyHook
-import XMonad.Hooks.WallpaperSetter
 
 import XMonad.Util.EZConfig (additionalKeys)
 import XMonad.Util.NamedScratchpad hiding (name,cmd)
 import XMonad.Util.Replace
 import XMonad.Util.Run (runProcessWithInput, runInTerm)
-import XMonad.Util.WorkspaceCompare (getSortByXineramaRule,getSortByIndex)
+import XMonad.Util.WorkspaceCompare (getSortByXineramaRule,getSortByIndex, filterOutWs)
 import qualified XMonad.Util.ExtensibleState as XS
+-- import XMonad.ManageHook (doF)
 
 import XMonad.Prompt
 import XMonad.Prompt.Input
@@ -47,11 +49,10 @@ import XMonad.Layout.MouseResizableTile
 import XMonad.Layout.Tabbed
 -- layout modifiers
 -- import XMonad.Layout.LayoutHints
-import XMonad.Layout.NoBorders (smartBorders,noBorders)
+import XMonad.Layout.NoBorders (smartBorders, noBorders)
 import XMonad.Layout.Renamed
-import XMonad.Layout.TrackFloating
+import XMonad.Layout.FocusTracking (focusTracking)
 -- layout combinators
-import XMonad.Layout.IM
 import XMonad.Layout.MultiToggle
 import XMonad.Layout.MultiToggle.Instances (StdTransformers(MIRROR))
 import XMonad.Layout.Reflect (REFLECTX(..),REFLECTY(..))
@@ -90,15 +91,10 @@ tabbedLayout  = renamed [Replace "Tab"] $ tabbed shrinkText myTabConfig
                             }
 
 -- my main layout with the modifier and toggle stack
-myLayout = trackFloating $ smartBorders $ avoidStruts $ mkToggle1 NBFULL $ mkToggle1 TABBED
+myLayout = focusTracking $ smartBorders $ avoidStruts $ mkToggle1 NBFULL $ mkToggle1 TABBED
          $ renamed [Replace "Def"] -- $ layoutHints
          $ mkToggle1 MIRROR $ mkToggle1 REFLECTX $ mkToggle1 REFLECTY $ mainL
   where 
-             -- imLayout = (renamed [CutWordsLeft 1]) . (withIM (1/8)
-                   -- (ClassName "Pidgin" `And` Role "buddy_list"
-                   -- `Or` ClassName "Gajim" `And` Role "roster"
-                   -- `Or` ClassName "Skype" `And`
-                  -- (Not $ (Role "ConversationsWindow" `Or` Role "CallWindow"))))
         mainL     = mouseResizableTile { masterFrac = 0.5,
                                         fracIncrement = 0.05,
                                         draggerType = BordersDragger }
@@ -109,28 +105,40 @@ myLayout = trackFloating $ smartBorders $ avoidStruts $ mkToggle1 NBFULL $ mkTog
 -- resource/appName: first elem. of WM_CLASS
 -- className: second elem. title: WM_NAME
 -- others: e.g. stringProperty "WM_WINDOW_ROLE" to access it.
+-- doUnfloat = ask >>= \w -> doF (W.sink w)
+
+-- (~?) :: (Eq a, Functor m) => m [a] -> [a] -> m Bool
+-- q ~? x = fmap (x `isInfixOf`) q
+
+ewmhFix :: XConfig a -> XConfig a
+ewmhFix c = c {handleEventHook = eventFix (handleEventHook c)}
+
+eventFix :: (Event -> X All) -> Event -> X All
+eventFix eh e@ClientMessageEvent{ev_window = w} 
+          = withWindowSet $ \ws -> case W.findTag w ws of
+                                     Nothing -> return (All False)
+                                     Just _ -> eh e
+eventFix eh e = eh e
+
 myManageHook = namedScratchpadManageHook scratchpads -- <+> placeHook simpleSmart
              <+> composeAll [className =? "sun-awt-X11-XFramePeer" --> doFloat
-                            ,className =? "Vlc" --> doFloat
-                            ] <+> manageDocks
+                            , className =? "Vlc" --> doFloat
+                            -- , className =? "REAPER" --> doUnfloat
+                            -- , className =? "REAPER" <&&> (title ~? "CLAPi:" <||> title ~? "VSTi:" <||> title ~? "FX:") --> doUnfloat
+                            -- , className =? "REAPER" --> hasBorder False
+                            ]
 
 -- Perform an arbitrary action each time xmonad starts or is restarted with mod-q.
 myStartupHook = setWMName "LG3D" -- for matlab
               <+> liftIO (putEnv "_JAVA_AWT_WM_NONREPARENTING=1")
               <+> spawn myTrayerCommand <+> updateConkyMPD <+> spawn myDzenConky
-              <+> docksStartupHook
 
-myHandleEventHook = ewmhDesktopsEventHook <+> fullscreenEventHook <+> docksEventHook
-                <+> serverModeEventHookF "GOTO_WS" goToWS
+myHandleEventHook = serverModeEventHookF "GOTO_WS" goToWS
                 <+> serverModeEventHookF "TOG_FUL" (const $ sendMessage $ Toggle NBFULL)
                 <+> serverModeEventHookF "TOG_TAB" (const $ sendMessage $ Toggle TABBED)
                 <+> serverModeEventHookF "TOG_ROT" (const $ sendMessage $ Toggle MIRROR)
 
-myLogHook = ewmhDesktopsLogHook
-        <+> updatePointer (0.5, 0.5) (0,0)
-        <+> wallpaperSetter def {
-              wallpapers = defWPNames (map show [2..6])
-                        `mappend` WallpaperList [("1",WallpaperDir "1")] }
+myLogHook = updatePointer (0.5, 0.5) (0,0)
 
 ---------------------------------------------------------------
 
@@ -156,7 +164,7 @@ myConf = def {
 -- use DZen2 version with Xinerama, XFT and XPM (Option 7 in config.mk)
 myDzenStyle = " -dock -e 'onstart=lower' -fn '"++myFont++"' -xs 1 -h 16"
 myDzenStatus = "dzen2 -ta l -w 600" ++ myDzenStyle
-myDzenConky  = "conky -c ~/.xmonad/conkyrc | dzen2 -ta r -x 600 -w 1200" ++ myDzenStyle
+myDzenConky  = "conky -c ~/.config/xmonad/conkyrc | dzen2 -ta r -x 600 -w 1200" ++ myDzenStyle
 myTrayerCommand = "trayer -l --monitor primary --edge top --align right --expand true "
                 ++"--transparent true --tint 0x000000 --alpha 0 --height 16 --widthtype pixel --width 120"
 
@@ -169,15 +177,15 @@ myDzenPP = def { ppCurrent = dzenColor "#ffffff" "#404040" . pad
                , ppWsSep   = ""
                , ppSep     = " "
                , ppTitle   = dzenColor "#ffffff" ""
-               , ppLayout  = (\x -> click 3 (xctl "TOG_TAB" "") $ click 2 (xctl "TOG_ROT" "")
-                                  $ click 1 (xctl "TOG_FUL" "") $ dzenColor (getWSColor x) "" x)
-               , ppSort    = (.namedScratchpadFilterOutWorkspace) <$> getSortByXineramaRule
+               , ppLayout  = \x -> click 3 (xctl "TOG_TAB" "") $ click 2 (xctl "TOG_ROT" "")
+                                  $ click 1 (xctl "TOG_FUL" "") $ dzenColor (getWSColor x) "" x
+               , ppSort    = (. filterOutWs ["NSP", "scratchpad", "neoview"]) <$> getSortByXineramaRule
                }
-  where click btn cmd str = "^ca("++(show btn)++","++cmd++")"++str++"^ca()"
+  where click btn cmd str = "^ca("++show btn++","++cmd++")"++str++"^ca()"
         clickWS name = click 1 (xctl "GOTO_WS" name) name
         rainbow = ["#b0b0b0","#b000b0","#4040ff","#00d0d0","#00f000","#f0f000","#ffa000","#ff0000"]
         getWSColor x = (rainbow !!) $ (1+) $ fromMaybe (-1) (x `elemIndex` ["Def","Ful","Tab"])
-        xctl ev param = "~/.xmonad/xmonadctl -a "++ev++" \""++param++"\""
+        xctl ev param = "~/.config/xmonad/xmonadctl -a "++ev++" \""++param++"\""
 
 ----
 
@@ -196,9 +204,7 @@ myXPConfig = def {
   }
 
 -- selection prompt that shows all options from the start
-select msg sel = inputPromptWithCompl myXPConfig msg compl
-  where compl "" = return sel
-        compl s  = mkComplFunFromList sel s
+select msg sel = inputPromptWithCompl myXPConfig msg (mkComplFunFromList' myXPConfig sel)
 -- perform an action after selecting an item
 selectThenDo msg sel f = select msg sel >>= flip whenJust f
 
@@ -210,7 +216,7 @@ confirm msg f = selectThenDo msg ["n","y"] (\s -> when (s=="y") f)
 myPrompt = do
   cmds <- io getCommands
   ret <- inputPromptWithCompl myXPConfig "" $ myCompl (cmds++map fst prompthooks)
-  whenJust ret $ exec
+  whenJust ret exec
   where myCompl = flip getShellCompl isPrefixOf
         exec s
           | Just h <- lookup p prompthooks = h
@@ -222,7 +228,8 @@ myPrompt = do
         tp = ["ranger","ncmpcpp","ssh","vim"] -- programs to run in terminal
         prompthooks = [("n",netctlP)          -- commands calling sub-prompts
                       ,("m",mpdP)
-                      ,("c",calcP)]
+                      -- ,("c",calcP)
+                      ]
 
 -- prompt to select netctl config to connect to (first disconnects all)
 netctlP = do
@@ -231,15 +238,15 @@ netctlP = do
   selectThenDo "netctl" ("-":nets) (\n -> if n=="-" then spawn $ "sudo netctl stop-all"
                                                     else spawn $ "sudo netctl switch-to "++n)
 
-calcP = do runProcessWithInput "bash" [] "rm /tmp/lastres" >> calcP'
-           runProcessWithInput "bash" [] "notify-send $(cat /tmp/lastres); cat /tmp/lastres | xsel -i;"
-           return ()
-  where calcP' = do
-          lastRes <- words <$> runProcessWithInput "cat" ["/tmp/lastres"] ""
-          inputPromptWithCompl myXPConfig "calc" (const $ return lastRes) ?+ \ret -> do
-            newRes <- words <$> runProcessWithInput "awk" ["BEGIN{print ("++ret++")}"] ""
-            runProcessWithInput "bash" [] $ "echo '"++unwords newRes++"' > /tmp/lastres\n"
-            calcP'
+-- calcP = do runProcessWithInput "bash" [] "rm /tmp/lastres" >> calcP'
+--            runProcessWithInput "bash" [] "notify-send $(cat /tmp/lastres); cat /tmp/lastres | xsel -i;"
+--            return ()
+--   where calcP' = do
+--           lastRes <- words <$> runProcessWithInput "cat" ["/tmp/lastres"] ""
+--           inputPromptWithCompl myXPConfig "calc" (const $ return lastRes) ?+ \ret -> do
+--             newRes <- words <$> runProcessWithInput "awk" ["BEGIN{print ("++ret++")}"] ""
+--             runProcessWithInput "bash" [] $ "echo '"++unwords newRes++"' > /tmp/lastres\n"
+--             calcP'
 
 -- type to store chosen MPD server in X State
 newtype MPDHost = MPDHost { mpdHost :: String } deriving (Read,Show,Typeable)
@@ -267,13 +274,13 @@ onLayout s f g = do
 onTabbed = onLayout "Tab"
 
 -- make focused window floating (reverse of unfloat)
-floatWindow = (W.stack . W.workspace . W.current) <$> gets windowset >>= flip whenJust (float . W.focus)
+floatWindow = gets windowset >>= flip whenJust (float . W.focus) . W.stack . W.workspace . W.current
 
 -- for dynamic workspaces: do action to workspace by name. if not existing, create, then do
 withNamedWorkspace job str = do
   ws <- gets windowset
   sort <- getSortByIndex
-  case str `elemIndex` (map W.tag $ sort $ W.workspaces ws) of
+  case str `elemIndex` map W.tag (sort $ W.workspaces ws) of
     Just i -> withNthWorkspace job i
     Nothing -> addHiddenWorkspace str >> withNamedWorkspace job str
 
@@ -282,7 +289,7 @@ goToWS ws = removeEmptyWorkspaceAfterExcept myWorkspaces $ addWorkspace ws
 
 newtype WSDir = WSDir { wsDir :: M.Map String String } deriving Typeable
 instance ExtensionClass WSDir where
-    initialValue = WSDir $ M.fromList []
+    initialValue = WSDir M.empty
 
 -- directory per workspace
 goWSdir ws = do
@@ -299,20 +306,22 @@ setWSdir xp = do
 ----
 
 scratchpads = [
-  NS "scratchpad" "urxvt -name scratchpad +sb -e bash -c 'tmux -2 new -A -s scratch'"
-     (resource =? "scratchpad") (customFloating $ W.RationalRect 0 0 1.0 0.5),
-  NS "neoview" "feh --title neoview ~/.xmonad/neo-druckvorlage.png"
+  -- NOTE: enable simplified-ui with zellij for better font support
+  NS "scratchpad" "alacritty -T scratch -e bash -c 'zellij attach scratch'"
+     (title =? "scratch") (customFloating $ W.RationalRect 0 0 1.0 0.5),
+  NS "neoview" "feh --title neoview ~/.config/xmonad/neo-druckvorlage.png"
      (title =? "neoview") (customFloating $ W.RationalRect 0 0 1.0 0.33)
   ]
 scratch = namedScratchpadAction scratchpads
 
 ------------------------------------------------------------------------
-main = do
-  replace
-  xmonad =<< (statusBar myDzenStatus myDzenPP (const (myModMask, xK_y))
-    $ withNavigation2DConfig def { defaultTiledNavigation = centerNavigation }
-    $ withUrgencyHook NoUrgencyHook $ ewmh $ myConf
-    `additionalKeys` ([  -- Key bindings --
+xmRestart = "xmonad --recompile && killall trayer conky dzen2 && xmonad --restart"
+mpccmd str = XS.gets mpdHost >>= \h -> spawn $ "mpc -h "++h++" "++str
+runMpdClient = XS.gets mpdHost >>= \h -> runInTerm "" $ "bash -c 'ncmpcpp -h "++h++"'"
+togKBLayout = "setxkbmap -v | grep 'us('; if [[ \"$?\" == '0' ]]; then setxkbmap de neo -option;"
+              ++ " else setxkbmap us cz_sk_de -option -option caps:escape; fi"
+
+myKeys = [  -- Key bindings --
       ((myModMask, xK_q), spawn xmRestart)
     , ((myModMask .|. shiftMask,  xK_q), confirm "Exit?" $ io exitSuccess)
     , ((myModMask, xK_p), myPrompt)
@@ -381,16 +390,21 @@ main = do
 
     , ((controlMask, 0x1008ff11), mpccmd "volume -10")        -- ctrl + vol up
     , ((controlMask, 0x1008ff13), mpccmd "volume +10")        -- ctrl + vol down
+    -- switch to openbox
+    , ((myModMask .|. shiftMask, xK_o), restart "/home/admin/.config/xmonad/obtoxmd.sh" True)
     ]
     ++ -- dynamic workspaces for all unused numbers (will be auto-added + auto-removed when empty)
-    (zip (zip (repeat myModMask) $ [xK_1..xK_9]++[xK_0])
-        (map (\ws -> goWSdir ws >> goToWS ws) $ map show $ [1..9]++[0]))
+    zip (zip (repeat myModMask) $ [xK_1..xK_9]++[xK_0])
+        (map ((\ws -> goWSdir ws >> goToWS ws) . show) $ [1..9]++[0])
     ++
-    (zip (zip (repeat (myModMask .|. shiftMask)) $ [xK_1..xK_9]++[xK_0])
-        (map (withNamedWorkspace W.shift) $ map show $ [1..9]++[0]))
-    ))
-    where xmRestart = "xmonad --recompile; killall trayer conky dzen2; xmonad --restart"
-          mpccmd str = XS.gets mpdHost >>= \h -> spawn $ "mpc -h "++h++" "++str
-          runMpdClient = XS.gets mpdHost >>= \h -> runInTerm "" $ "bash -c 'ncmpcpp -h "++h++"'"
-          togKBLayout = "setxkbmap -v | grep 'us('; if [[ \"$?\" == '0' ]]; then setxkbmap de neo -option;"
-                       ++ " else setxkbmap us cz_sk_de -option -option caps:escape; fi"
+    zip (zip (repeat (myModMask .|. shiftMask)) $ [xK_1..xK_9]++[xK_0])
+        (map (withNamedWorkspace W.shift . show) $ [1..9]++[0])
+
+
+main = do
+  replace
+  xmonad =<< (statusBar myDzenStatus myDzenPP (const (myModMask, xK_y))
+    $ withNavigation2DConfig def { defaultTiledNavigation = centerNavigation }
+    $ withUrgencyHook NoUrgencyHook
+    $ ewmhFullscreen $ ewmhFix $ ewmh $ docks
+    $ myConf `additionalKeys` myKeys)

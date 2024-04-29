@@ -28,6 +28,7 @@ synclient TapButton1=1 TapButton2=3 TapButton3=2   #tap-to-click as usual
 
 #Keyboard:
 setxkbmap de neo -option #set neo keyboard layout
+
 #xmodmap -e "keycode 105 = Multi_key" #Ctrl_R -> Multi_key
 #set Scroll-lock key to switch QWERTZ (default) and NEO
 #setxkbmap -layout de,de -variant nodeadkeys,neo -option -option grp:sclk_toggle -option grp_led:scroll
@@ -47,14 +48,13 @@ setxkbmap de neo -option #set neo keyboard layout
 #export XMODIFIERS="@im=none"
 
 #Use fcitx for unicode input
-export GTK_IM_MODULE=fcitx
-export QT_IM_MODULE=fcitx
-export XMODIFIERS=@im=fcitx
-fcitx &
+# export GTK_IM_MODULE=fcitx
+# export QT_IM_MODULE=fcitx
+# export XMODIFIERS=@im=fcitx
+# fcitx &
 #----
 
 ##Essential daemons
-# pulseaudio --start & #autospawn is disabled for reasons
 lxpolkit &           #lightweight polkit daemon
 ##Settings
 xrdb ~/.Xresources
@@ -62,13 +62,17 @@ xrdb ~/.Xresources
 ~/.autorun
 
 #Start WM (last thing to be done)
+# DEFAULT_WM=openbox-session
+DEFAULT_WM=xmonad
 case "$1" in
   openbox)
 	  exec dbus-launch openbox-session ;;
   xmonad)
     exec dbus-launch xmonad ;;
+  qtile)
+    exec dbus-launch qtile start ;;
   *)  #default
-    exec xmonad ;;
+    exec dbus-launch "$DEFAULT_WM" ;;
 esac
 
 #Run parallel xservers with: startx [parameter] -- :[N]

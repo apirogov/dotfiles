@@ -1,11 +1,20 @@
+Plug 'joom/latex-unicoder.vim'
+
+" Python (use coc-pyright for ide stuff)
+" text objects c=class f=func d=docstr (with a=around i=inside) (not incl. by coc)
+Plug 'jeetsukumaran/vim-pythonsense'
+" NOTE: this does not work with scripts just in homedir!
+let g:coc_global_extensions += ['coc-pyright']
+
 " Tidal
 Plug 'tidalcycles/vim-tidal'
 
-" Latex -> :VimtexCompile
+" Latex
 Plug 'lervag/vimtex', { 'for': ['latex','tex'] }
-let g:vimtex_view_method = 'zathura'
+" let g:vimtex_view_method = 'zathura'
 let g:vimtex_quickfix_ignore_filters = [ 'Overfull', 'Underfull', 'tocstyle', 'backwards compatibility', 'only floats' ]
 let g:tex_conceal = ''
+let g:vimtex_syntax_conceal_default = 0
 let g:vimtex_compiler_latexmk = {
     \ 'options' : [
     \   '-pdf',
@@ -16,32 +25,3 @@ let g:vimtex_compiler_latexmk = {
     \   '-interaction=nonstopmode',
     \ ],
     \}
-
-" C/C++
-inoremap <leader><Tab> <C-x><C-o>
-Plug 'vim-scripts/a.vim', { 'for': ['c','cpp'] }
-" Plug 'justmao945/vim-clang', { 'for': ['c','cpp'] }
-let g:clang_c_options = '-std=gnu11 -Wall -Wextra'
-Plug 'brookhong/cscope.vim', { 'for': ['c','cpp'] }
-let g:cscope_silent=1
-au FileType c,cpp call s:cscopeMappings()
-function s:cscopeMappings()
-nnoremap <buffer> <silent> <leader>fa :call CscopeFindInteractive(expand('<cword>'))<CR>
-nnoremap <buffer> <silent> <leader>l :call ToggleLocationList()<CR>
-" s: Find this C symbol
-nnoremap <buffer> <silent> <leader>fs :call CscopeFind('s', expand('<cword>'))<CR>
-" g: Find this definition
-nnoremap <buffer> <silent> <leader>fg :call CscopeFind('g', expand('<cword>'))<CR>
-" d: Find functions called by this function
-nnoremap <buffer> <silent> <leader>fd :call CscopeFind('d', expand('<cword>'))<CR>
-" c: Find functions calling this function
-nnoremap <buffer> <silent> <leader>fc :call CscopeFind('c', expand('<cword>'))<CR>
-" t: Find this text string
-nnoremap <buffer> <silent> <leader>ft :call CscopeFind('t', expand('<cword>'))<CR>
-" e: Find this egrep pattern
-nnoremap <buffer> <silent> <leader>fe :call CscopeFind('e', expand('<cword>'))<CR>
-" f: Find this file
-nnoremap <buffer> <silent> <leader>ff :call CscopeFind('f', expand('<cword>'))<CR>
-" i: Find files #including this file
-nnoremap <buffer> <silent> <leader>fi :call CscopeFind('i', expand('<cword>'))<CR>
-endfunction
