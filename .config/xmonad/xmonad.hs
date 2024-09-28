@@ -307,7 +307,7 @@ setWSdir xp = do
 
 scratchpads = [
   -- NOTE: enable simplified-ui with zellij for better font support
-  NS "scratchpad" "alacritty -T scratch -e bash -c 'zellij attach scratch'"
+  NS "scratchpad" "alacritty -T scratch -e bash -c 'zellij attach -c scratch'"
      (title =? "scratch") (customFloating $ W.RationalRect 0 0 1.0 0.5),
   NS "neoview" "feh --title neoview ~/.config/xmonad/neo-druckvorlage.png"
      (title =? "neoview") (customFloating $ W.RationalRect 0 0 1.0 0.33)

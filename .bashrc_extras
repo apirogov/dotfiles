@@ -1,0 +1,84 @@
+# Some extra aliases and functions for bash shell
+
+calc(){ awk "BEGIN{print $*}"; } # calculator
+joinl(){ paste $(for i in $(seq 1 $2); do echo -n " - "; done) -d"$1"; }
+permutate(){ echo $@ | sed 's/ /\n/g' | shuf; }
+
+#Filesystem
+function rsync-dirs() {
+  # Make sure that both directories exist!
+  rsync --info=progress2 -auv $1/ $2/
+}
+
+function unzipdir() {
+  file="$1"
+  stem=$(echo "${file%%.*}")
+  unzip "$file" -d "$stem"
+}
+
+function cdpr() { cd $(git rev-parse --show-toplevel); }  # go to project root (of git repo)
+
+#Music
+alias setmp3chmod='find -name "*.mp3" -print0 | xargs -0 chmod 644'
+alias fixmusicdir='chmod -R u+rwX,go+rX,go-w ./'  #set files to 644, dirs to 755
+alias m4a2mp3='for a in *.m4a; do faad -f 2 -w "$a"  | lame -r - "$a.mp3"; done'
+alias flac2mp3='for a in ./*.flac; do ffmpeg -i "$a" -qscale:a 0 "${a[@]/%flac/mp3}"; done'
+alias wav2mp3='for i in *.wav; do lame -h -b 320 "$i" "`basename "$i" .wav`".mp3; done'
+alias normalizevolume='find /home/admin/myfiles/music/ -type f -iname "*.mp3" -exec mp3gain -p -r -k -s i -d 6.0 "{}" \;'
+# cutflac() { shnsplit -f "$1" "$2" && wav2mp3 && cuetag.sh "$1" *.mp3 && rm -f *.wav; }
+alias cutflac='shnsplit -f *.cue -o flac *.flac && cuetag.sh *.cue split-track*.flac'
+to_monowav() { sox $1 $2 channels 1 rate 44100; }
+
+
+#Poor man's presentation generation, usage: genpres ~/*pics.jpg > out.pdf
+genpres() { convert -crop +1+1 -crop -1-1 -gravity center -extent 1200x900 $@ pdf:-; }
+#Shots to movie
+genmovie() { ffmpeg -framerate 4 -r 4 -pattern_type glob -i "$1"  -c:v libx264 -vf "fps=25,format=yuv420p" $2; }
+
+shrinkvid(){ ffmpeg -i $1 -vf "scale=iw/2:ih/2" $2; }
+rotrvid(){ ffmpeg -i $1 -vf "transpose=1" -codec:a copy $2; }
+rotlvid(){ ffmpeg -i $1 -vf "transpose=2" -codec:a copy $2; }
+batchconv(){ mkdir modified; find . -iname "*.jpg" -o -iname "*.png" | xargs -l -i convert "$@" {} ./modified/{}; } #example: batchconv -resize 33%
+shrinkimg(){ convert -resize 33% "$1" "$1.jpg"; }
+
+# Tex and PDF
+repdf() { #Recompile pdf (shrinking, removing password). Usage: repdf in out [password]
+  if [ -n "$3" ]; then PASSWORDARG="-sPDFPassword=$3"; fi
+  #add -dPDFSETTINGS=/screen for lower quality, ebook=middle, printer=good, prepress=best
+  gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dAutoRotatePages=/None -dNOPAUSE -dQUIET -dBATCH $PASSWORDARG -sOutputFile=$2 $1
+}
+# to convert to pdf 1.3: pdf2ps, then: gs -dPDFA -dBATCH -dNOPAUSE -sProcessColorModel=DeviceCMYK -sDEVICE=pdfwrite -sPDFACompatibilityPolicy=1 -sOutputFile=main_text.pdf main.ps
+alias joinpdf='gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=join.pdf ' #requires ghostscript, convert also works!
+alias cleantex='find . -regex ".*\(aux\|bbl\|blg\|brf|\idx\|ilg\|ind\|lof\|log\|lol\|lot\|out\|nav\|out\|snm\|tdo\|toc\|fls\|fdb_latexmk\)$" -exec rm -i {} \;'
+
+#Misc. Programs
+alias fixsteam='find ~/.steam/root/ \( -name "libgcc_s.so*" -o -name "libstdc++.so*" -o -name "libxcb.so*" -o -name "libgpg-error.so*" \) -print -delete'
+
+select_wifi(){ find /etc/netctl -maxdepth 1 -type f -exec sudo sed -i "s/^Interface=.*/Interface=$1/" {} \;; }
+
+function docker-show() { docker container ls -a | grep $1; }
+function docker-grep() { docker-show $1 | awk '{print $1}'; }
+function docker-nuke() {
+  echo "Nuking containers and volumes..."
+  docker rm -vf $(docker ps -aq)
+  echo "Nuking images..."
+  docker rmi -f $(docker images -aq)
+  echo "Pruning unused entities..."
+  docker system prune -a --volumes
+  echo "Result:"
+  docker images
+  docker volume list
+  docker container list
+}
+function pycache-nuke() {
+    echo "Cleaning poetry cache..."
+    poetry cache clear --all
+    echo "Cleaning pip cache..."
+    pip cache purge
+    echo "Cleaning pipx cache..."
+    pipx cache remove-all
+    echo "Cleaning pipenv cache..."
+    pipenv --clear
+    echo "Cleaning conda cache..."
+    conda clean --all --yes
+}

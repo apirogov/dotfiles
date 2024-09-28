@@ -1,13 +1,5 @@
-Plug 'joom/latex-unicoder.vim'
-
-" Python (use coc-pyright for ide stuff)
-" text objects c=class f=func d=docstr (with a=around i=inside) (not incl. by coc)
+" Python text objects c=class f=func d=docstr (with a=around i=inside) (not incl. by coc)
 Plug 'jeetsukumaran/vim-pythonsense'
-" NOTE: this does not work with scripts just in homedir!
-let g:coc_global_extensions += ['coc-pyright']
-
-" Tidal
-Plug 'tidalcycles/vim-tidal'
 
 " Latex
 Plug 'lervag/vimtex', { 'for': ['latex','tex'] }

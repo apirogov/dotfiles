@@ -1,2 +1,11 @@
+# mkdir -p ~/.config/alacritty/themes
+# git clone https://github.com/alacritty/alacritty-theme ~/.config/alacritty/themes
+import = ["~/.config/alacritty/themes/themes/xterm.toml"]
+
 [font]
-size = 8
+size = 10
+
+[keyboard]
+bindings = [
+   { key = "Return", mods = "Control|Shift", action = "SpawnNewInstance" }
+]

@@ -134,7 +134,27 @@ set vb t_vb=                   " prevent annoying beeps, flash screen instead
 set novisualbell               " don't blink
 set noerrorbells               " no beeps
 set shortmess=aoOstI           " shortens messages to avoid "press a key" prompt
-set clipboard^=unnamedplus,unnamed      " c&p to X clipboard (+ register, *=selection reg)
+
+" Clipboard
+if empty($WAYLAND_DISPLAY)
+  " c&p to X clipboard (+ register, *=selection reg)
+  set clipboard^=unnamedplus,unnamed
+else
+  " Yank into all these at once:
+  "     vim y/p register
+  "     wayland primary
+  "     wayland clipboard
+  " xnoremap <silent> <leader>y y:call system("wl-copy --trim-newline", @*)<cr>:call system("wl-copy -p --trim-newline", @*)<cr>
+  "
+  " sync Wayland clipboard with wl-clipboard
+  xnoremap "+y y:call system("wl-copy", @")<cr>
+  nnoremap "+p :let @"=substitute(system("wl-paste --no-newline"), '<C-v><C-m>', '', 'g')<cr>p
+  nnoremap "*p :let @"=substitute(system("wl-paste --no-newline --primary"), '<C-v><C-m>', '', 'g')<cr>p
+
+  autocmd TextYankPost * if (v:event.operator == 'y' || v:event.operator == 'd') | silent! execute 'call system("wl-copy", @")' | endif
+  nnoremap p :let @"=substitute(system("wl-paste --no-newline"), '<C-v><C-m>', '', 'g')<cr>p
+  nnoremap <leader>p :let @"=substitute(system("wl-paste --no-newline --primary"), '<C-v><C-m>', '', 'g')<cr>p
+endif
 
 " Filetype-specific general settings
 " ----------------------------------
@@ -202,15 +222,6 @@ cmap w!! %!sudo tee > /dev/null %
 " Switch current directory to that of the file
 cmap cwd lcd %:p:h
 
-" Fix Modifier+Arrow combinations within tmux
-if &term =~ '^screen'
-    " tmux will send xterm-style keys when its xterm-keys option is on
-    execute "set <xUp>=\e[1;*A"
-    execute "set <xDown>=\e[1;*B"
-    execute "set <xRight>=\e[1;*C"
-    execute "set <xLeft>=\e[1;*D"
-endif
-
 " when we reload, tell vim to restore the cursor to the saved position
 au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g`\"" | endif
 
@@ -234,9 +245,9 @@ au BufNewFile,BufRead bookmarks syntax match Comment /^#.\+/
 " Open url under cursor
 map <leader>mo "1yiW:!firefox -new-tab "<c-r>1"<cr><cr>
 
-" Use ag instead of grep, if installed
-if executable('ag')
-    set grepprg=ag\ --nogroup\ --nocolor
+" Use rg instead of grep, if installed
+if executable('rg')
+    set grepprg=rg
 endif
 
 " ---------- Memos ------------

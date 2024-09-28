@@ -21,18 +21,17 @@ case "$TERM" in
 esac
 
 ## SHOPT OPTIONS
-shopt -s cdspell    # This will correct minor spelling errors in a cd command.
-shopt -s histappend # Append to history rather than overwrite
+shopt -s cdspell        # This will correct minor spelling errors in a cd command.
+shopt -s histappend     # Append to history rather than overwrite
 shopt -s checkwinsize   # Check window after each command
-shopt -s dotglob    # files beginning with . to be returned in the results of path-name expansion.
-shopt -s extglob    # allows e.g. negative pattern matching !(*foo)
-shopt -s globstar   # allows ** for recursive globbing
-shopt -s autocd     # auto-cd if entering a path
+shopt -s dotglob        # files beginning with . to be returned in the results of path-name expansion.
+shopt -s extglob        # allows e.g. negative pattern matching !(*foo)
+shopt -s globstar       # allows ** for recursive globbing
+shopt -s autocd         # auto-cd if entering a path
 
 ## SET OPTIONS
 set -o ignoreeof    # stops ctrl+d from logging me out
 set -o noclobber    # prevent overwriting files with cat
-# set -o vi           # vi input mode
 
 ## BIND OPTIONS
 bind 'set completion-ignore-case on'
@@ -83,9 +82,6 @@ export PROMPT_COMMAND+="history -a; history -n" #share history between terminals
 
 export BROWSER="firefox"
 export TERM=xterm-256color
-# export EDITOR="emacsclient -t"
-# export ALTERNATE_EDITOR=""
-# export VISUAL="emacsclient -c -n"
 export EDITOR="vim"
 export VISUAL="gvim"
 export PAGER="less"
@@ -107,26 +103,20 @@ alias df='df -hT'       #-h : Human readable
 alias du='du -sh'
 alias duf='du -sk * | sort -n | perl -ne '\''($s,$f)=split(m{\t});for (qw(K M G)) {if($s<1024) {printf("%.1f",$s);print "$_\t$f"; last};$s=$s/1024}'\' #readable + sorted
 alias top10size='find . -printf "%s %p\n"|sort -nr|head'
-alias findtext="grep --color=always -ri" #better use ag when installed
-alias findfile='find . -name'
-alias ping='ping -c 5'	#Limit ping number
 alias pingl='ping6 ff02::1%eth0'  #ping local devices
+alias listd="systemctl list-unit-files --type=service" #show all daemons run on startup
 
 #Package Management - ArchLinux Pacman
 if which pacman >/dev/null; then
   pss(){ aura -Ss $@; aura -As $@; } #Search for packages
-  pin(){ sudo -- sh -c "pacman -S --needed $@ || aura -A $@"; } #Install package
+  pin(){ sudo -- sh -c "pacman -S --needed $@" || aura -A $@; } #Install package
   pgl(){ pacman -Qqnei | grep -E "(Name)|(Beschreibung)" | tr -d '\n' | sed 's/Name\s*: /\n/g' | sed 's/Beschreibung\s*: /\t/'; }    #List of installed packages
-  alias pup='sudo -- sh -c "aura -Syu; aura -Au"'   #Dist upgrade
+  alias pup='sh -c "aura -Syu; aura -Au"'   #Dist upgrade
   alias prp='sudo pacman -Ruscn' #Recursive remove
   alias pil='sudo pacman -U'     #Install local Package
-  alias pro='sudo aura -Oj'      #List and remove orphans
+  alias pro='aura -Oj'           #List and remove orphans
   alias pgf='pacman -Qqme'       #List foreign/AUR packages
   alias pql='pacman -Ql'         #List files installed by that package
-fi
-
-if which systemctl >/dev/null; then
-  alias listd="systemctl list-unit-files --type=service" #show all daemons run on startup
 fi
 
 #SSH / Remote stuff
@@ -140,42 +130,18 @@ if which keychain >/dev/null; then #SSH key management
     $(which git) "$@"
   }
 fi
-
-calc(){ awk "BEGIN{print $*}"; } # calculator
-joinl(){ paste $(for i in $(seq 1 $2); do echo -n " - "; done) -d"$1"; }
-permutate(){ echo $@ | sed 's/ /\n/g' | shuf; }
-
-# if which stack >/dev/null; then #define these if stack is present
-#   eval "$(stack --bash-completion-script stack)"
-#   # alias ghc="stack ghc --"
-#   # ghci(){ if [ -e stack.yaml ]; then stack ghci --no-build; else stack ghci --no-build --ghci-options "-ghci-script $HOME/.ghcii"; fi; }
-# fi
-
-#Music
-alias setmp3chmod='find -name "*.mp3" -print0 | xargs -0 chmod 644'
-alias fixmusicdir='chmod -R u+rwX,go+rX,go-w ./'  #set files to 644, dirs to 755
-alias m4a2mp3='for a in *.m4a; do faad -f 2 -w "$a"  | lame -r - "$a.mp3"; done'
-alias flac2mp3='for a in ./*.flac; do ffmpeg -i "$a" -qscale:a 0 "${a[@]/%flac/mp3}"; done'
-alias wav2mp3='for i in *.wav; do lame -h -b 320 "$i" "`basename "$i" .wav`".mp3; done'
-alias normalizevolume='find /home/admin/myfiles/music/ -type f -iname "*.mp3" -exec mp3gain -p -r -k -s i -d 6.0 "{}" \;'
-# cutflac() { shnsplit -f "$1" "$2" && wav2mp3 && cuetag.sh "$1" *.mp3 && rm -f *.wav; }
-alias cutflac='shnsplit -f *.cue -o flac *.flac && cuetag.sh *.cue split-track*.flac'
-to_monowav() { sox $1 $2 channels 1 rate 44100; }
+alias ssh='initsshkeys && ssh'
+alias sshfs='initsshkeys && sshfs -o idmap=user'
 
 #----
 #mediacenter - using ssh/sshfs/rsync/mpd/ncmpcpp
 #use to: backup folders, mount remote data, control music
-#requires to have MPD default port, MEDIASSHP for ssh and port 8000 for mpd streaming open on media server
-MEDIAUSER=admin       #user for ssh connection
-MPDPWDFILE=~/.mpdpwd  #.mpdpwd, which should contain PWD@HOST per line
-MEDIASSHP=2200        #SSH port
-MEDIAHOST=$(head -n 1 $MPDPWDFILE | sed 's/.*@//') #takes first host from list for following aliases
-MEDIALOGIN=$MEDIAUSER@$MEDIAHOST
+#requires to have MPD default port and MEDIASSHP for ssh
+MEDIASSHP=2200
+MEDIALOGIN=admin@mediacenter
 REMOTE_DATA_DIR=$MEDIALOGIN:/media/DATA
 alias center.mount="mkdir ~/media; sshfs -p $MEDIASSHP $REMOTE_DATA_DIR ~/media"
 alias center.umount="fusermount -u ~/media; rmdir ~/media"
-alias center.mpc="ncmpcpp -h $MEDIAHOST"
-alias center.stream="mpv http://$MEDIAHOST:8000"
 #mirror local -> remote external
 function center.updatebackup() {
   LOCAL_DATA_DIR=~/myfiles
@@ -185,11 +151,6 @@ function center.updatebackup() {
   rsync-prepare -v -e "$RSH_CMD" -f "$RSYNC_FILT_ARGS" $LOCAL_DATA_DIR $REMOTE_DATA_DIR
   rsync --timeout 180 -v -e "$RSH_CMD" $RSYNC_ARGS $RSYNC_FILT_ARGS  $LOCAL_DATA_DIR $REMOTE_DATA_DIR
 }
-
-#alias to access either first mpd from .mpdpwd -> mediaserver, or fallback to localhost
-SMARTMPD='$(if ping -c 1 -w 1 $MEDIAHOST > /dev/null; then echo $(head -n 1 $MPDPWDFILE); else echo localhost; fi)'
-alias music="ncmpcpp -h $SMARTMPD"
-alias local.updatebackup="udevil mount /dev/disk/by-label/HDDDATA /media/backup; rsync --info=progress2 --delete -auv /home/admin /media/backup/; udevil umount /media/backup" #mirror local -> external
 
 #----
 
@@ -211,12 +172,8 @@ _cdm() {
 }
 complete -o nospace -F _cdm cdm
 
-source ~/.bashrc_extras
+export CPM_SOURCE_CACHE=$HOME/.cache/CPM  # CMake CPM cache dir
+
 # ----
-
-export PYENV_ROOT="$HOME/.pyenv"
-command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
-eval "$(pyenv init -)"
-
-[ -f "/home/admin/.ghcup/env" ] && source "/home/admin/.ghcup/env" # ghcup-env
-source /usr/share/nvm/init-nvm.sh
+if [ -n ~/.bashrc_extras ]; then source ~/.bashrc_extras; fi
+if [ -n ~/.bashrc_mw ]; then source ~/.bashrc_mw; fi
