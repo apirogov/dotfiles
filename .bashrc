@@ -131,7 +131,13 @@ if which keychain >/dev/null; then #SSH key management
   }
 fi
 alias ssh='initsshkeys && ssh'
-alias sshfs='initsshkeys && sshfs -o idmap=user'
+alias sshfs='initsshkeys && sshfs -o allow_other,default_permissions'
+
+function broken_symlinks() {
+  for lnk in $(find . -type l ! -exec test -e {} \; -print); do
+    echo "$lnk" "->" $(readlink -f $lnk)
+  done
+}
 
 #----
 #mediacenter - using ssh/sshfs/rsync/mpd/ncmpcpp
@@ -152,28 +158,56 @@ function center.updatebackup() {
   rsync --timeout 180 -v -e "$RSH_CMD" $RSYNC_ARGS $RSYNC_FILT_ARGS  $LOCAL_DATA_DIR $REMOTE_DATA_DIR
 }
 
+if [ -f ~/.bashrc_extras ]; then source ~/.bashrc_extras; fi
+
 #----
 
-#Go to ranger bookmark
-cdm() { if [[ "$1" != "" ]]; then cd $(grep "^$1" ~/.config/ranger/bookmarks | sed "s/^$1://"); fi; }
-#Same as bash completion - cdm <letter><TAB>
-_cdm() {
-  local cur=${COMP_WORDS[COMP_CWORD]}
-  if [[ "$cur" = "" ]]; then
-    COMPREPLY=($(cat ~/.config/ranger/bookmarks | sed "s/:\/.\+//"))
+function work() {
+  luks_partition_name=SECURE
+  work_dir=~/work
+  work_bashrc=$work_dir/utils/bashrc_work
+  wg_iface=work-vpn
+  wg_config=$work_dir/wireguard/$wg_iface.conf
+
+  if [ "$1" = "start" ]; then
+    work mount
+    work connect
+    work source-bashrc
+  elif [ "$1" = "stop" ]; then
+    work disconnect
+    work umount
+
+  elif [ "$1" = "mount" ]; then
+    sudo cryptsetup open /dev/disk/by-partlabel/$luks_partition_name work_data
+    sudo mount -m /dev/mapper/work_data $work_dir
+  elif [ "$1" = "umount" ]; then
+    sudo umount $work_dir
+    rmdir $work_dir
+    sudo cryptsetup close /dev/mapper/work_data
+
+  elif [ "$1" = "source-bashrc" ]; then
+    [ -f "$work_bashrc" ] && source $work_bashrc
+
+  elif [ "$1" = "connected" ]; then
+    ip a | grep $wg_iface > /dev/null
+  elif [ "$1" = "connect" ]; then
+    sudo wg-quick up $wg_config
+  elif [ "$1" = "disconnect" ]; then
+    sudo wg-quick down $wg_config
+
+  elif [ "$1" = "zellij" ]; then
+    # NOTE: WORKSTATION_HOST is set in the work bashrc
+    ! work connected && work connect
+    ssh -t $WORKSTATION_HOST "zellij attach -c work"
   else
-    local p=$(grep "^$cur" ~/.config/ranger/bookmarks | sed "s/^$cur://")
-    if [[ "$p" = "" ]]; then
-      COMPREPLY=()
-    else
-      COMPREPLY=("; cd $p/")
-    fi
+    echo "unknown command!"
+    return 1
   fi
 }
-complete -o nospace -F _cdm cdm
 
-export CPM_SOURCE_CACHE=$HOME/.cache/CPM  # CMake CPM cache dir
+work source-bashrc
 
 # ----
-if [ -n ~/.bashrc_extras ]; then source ~/.bashrc_extras; fi
-if [ -n ~/.bashrc_mw ]; then source ~/.bashrc_mw; fi
+export PYENV_ROOT="$HOME/.pyenv"
+command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init -)"

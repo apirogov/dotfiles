@@ -1,0 +1,25 @@
+[user]
+	email = apirogov@users.noreply.github.com
+	name = Anton Pirogov
+[push]
+	default = simple
+[core]
+  editor = vim
+[alias]
+	fpush = push
+	staash = stash --all
+	smartblame = blame -w -C -C -C
+[rerere]
+	enabled = true
+	autoUpdate = true
+[column]
+	ui = auto
+[branch]
+	sort = -committerdate
+[rebase]
+	autosquash = true
+[log]
+	follow = true
+
+[includeIf "gitdir:~/work/"]
+  path = ~/work/utils/gitconfig

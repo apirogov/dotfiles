@@ -82,3 +82,21 @@ function pycache-nuke() {
     echo "Cleaning conda cache..."
     conda clean --all --yes
 }
+
+#Go to ranger bookmark
+cdm() { if [[ "$1" != "" ]]; then cd $(grep "^$1" ~/.config/ranger/bookmarks | sed "s/^$1://"); fi; }
+#Same as bash completion - cdm <letter><TAB>
+_cdm() {
+  local cur=${COMP_WORDS[COMP_CWORD]}
+  if [[ "$cur" = "" ]]; then
+    COMPREPLY=($(cat ~/.config/ranger/bookmarks | sed "s/:\/.\+//"))
+  else
+    local p=$(grep "^$cur" ~/.config/ranger/bookmarks | sed "s/^$cur://")
+    if [[ "$p" = "" ]]; then
+      COMPREPLY=()
+    else
+      COMPREPLY=("; cd $p/")
+    fi
+  fi
+}
+complete -o nospace -F _cdm cdm

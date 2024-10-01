@@ -1,4 +1,14 @@
 *.hi
 *.o
+log
+*.log
+pid
+state
+sticker.sql
+database
+tmp
+bundle
 xmonad-i386-linux
 xmonad.errors
+.config/alacritty/themes
+.netrwhist
