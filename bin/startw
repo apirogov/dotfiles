@@ -1,6 +1,15 @@
 #!/bin/sh
 
 export QT_QPA_PLATFORM=wayland
+
+export ELECTRON_OZONE_PLATFORM_HINT=auto
+
+for app in code teams-for-linux; do
+  if which $app 2>&1 > /dev/null; then
+    alias $app="$app --enable-features=UseOzonePlatform --ozone-platform=wayland"
+  fi
+done
+
 # start sway
 export XDG_CURRENT_DESKTOP=sway
 export XDG_SESSION_DESKTOP=sway

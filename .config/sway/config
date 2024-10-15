@@ -287,7 +287,7 @@ for_window [shell="xwayland"] title_format "[XWayland] %title"
 
 # assign windows to specific workspace by using the app_id/class/etc
 # use swaymsg -t get_tree to inspect current windows
-assign [class="teams-for-linux"] workspace 10
+assign [app_id="teams-for-linux"] workspace 10
 assign [app_id="org.telegram.desktop"] workspace 10
 
 # Autostart (use exec_always to also restart on config restart)

@@ -152,10 +152,25 @@ alias center.umount="fusermount -u ~/media; rmdir ~/media"
 function center.updatebackup() {
   LOCAL_DATA_DIR=~/myfiles
   RSH_CMD="ssh -p $MEDIASSHP"
-  RSYNC_FILT_ARGS="-aup -FF"
+  RSYNC_FILT_ARGS="-auvlp -FF"
   RSYNC_ARGS="--info=progress2 --delete"
   rsync-prepare -v -e "$RSH_CMD" -f "$RSYNC_FILT_ARGS" $LOCAL_DATA_DIR $REMOTE_DATA_DIR
   rsync --timeout 180 -v -e "$RSH_CMD" $RSYNC_ARGS $RSYNC_FILT_ARGS  $LOCAL_DATA_DIR $REMOTE_DATA_DIR
+}
+
+if [ -f ~/private/.restic-env ]; then
+  source ~/private/.restic-env
+  for repo in myfiles irfiles media; do
+    alias restic-$repo="restic -r $RESTIC_REPOSITORY_BASE/$repo"
+  done
+fi
+
+function t460.update() {
+  if [ -z "$1" ]; then
+    echo "Missing directory"
+    return 1
+  fi
+  rsync --info=progress2 -auvlp -FF --delete -e "ssh -p 2200" /home/anton/$1/ admin@192.168.1.30:/home/admin/$1/
 }
 
 if [ -f ~/.bashrc_extras ]; then source ~/.bashrc_extras; fi
@@ -178,6 +193,7 @@ function work() {
     work umount
 
   elif [ "$1" = "mount" ]; then
+    # NOTE: to change password, use cryptsetup luksChangeKey /dev/ENCRYPTED_DEVICE
     sudo cryptsetup open /dev/disk/by-partlabel/$luks_partition_name work_data
     sudo mount -m /dev/mapper/work_data $work_dir
   elif [ "$1" = "umount" ]; then
