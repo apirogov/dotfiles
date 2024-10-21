@@ -158,10 +158,14 @@ function center.updatebackup() {
   rsync --timeout 180 -v -e "$RSH_CMD" $RSYNC_ARGS $RSYNC_FILT_ARGS  $LOCAL_DATA_DIR $REMOTE_DATA_DIR
 }
 
+# NOTE:
+# https://restic.readthedocs.io/en/latest/045_working_with_repos.html#copying-snapshots-between-repositories
+# https://restic.readthedocs.io/en/stable/045_working_with_repos.html#ensuring-deduplication-for-copied-snapshots
 if [ -f ~/private/.restic-env ]; then
   source ~/private/.restic-env
-  for repo in myfiles irfiles media; do
-    alias restic-$repo="restic -r $RESTIC_REPOSITORY_BASE/$repo"
+  for repo in myfiles irfiles mediafiles; do
+    alias restic-b2-$repo="restic -r $RESTIC_REPOSITORY_BASE/$repo"
+    alias restic-rpi-$repo="restic -r sftp:mediacenter:/media/DATA/restic/$repo"
   done
 fi
 
