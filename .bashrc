@@ -2,7 +2,7 @@
 [ -r /etc/profile ] && . /etc/profile
 
 #Add own binaries
-paths=(~/bin ~/.local/bin ~/bin/node_modules/.bin ~/.cargo/bin)
+paths=(~/bin ~/.local/bin ~/bin/node_modules/.bin ~/.cargo/bin ~/work/bin)
 for bindir in ${paths[@]}; do [ -d $bindir ] && PATH=${bindir}:$PATH; done
 
 #add non-system .so libs
@@ -75,9 +75,9 @@ export LANGUAGE="de_DE:en_US:en"
 export TZ="Europe/Berlin"
 
 export HISTCONTROL="ignorespace:ignoredups:erasedups" #No duplicates in history, no cmds preceded by space
-export HISTIGNORE="&:ls:ll:la:q:e:pwd:exit:clear"	#Never log these
-export HISTSIZE="9999"	#Lines saved in one session
-export HISTFILESIZE="999999"	#Lines total
+export HISTIGNORE="&:ls:ll:la:q:e:pwd:exit:clear:*PASSWORD*" #Never log these
+export HISTSIZE="9999" #Lines saved in one session
+export HISTFILESIZE="999999" #Lines total
 export PROMPT_COMMAND+="history -a; history -n" #share history between terminals
 
 export BROWSER="firefox"
@@ -140,42 +140,55 @@ function broken_symlinks() {
 }
 
 #----
-#mediacenter - using ssh/sshfs/rsync/mpd/ncmpcpp
-#use to: backup folders, mount remote data, control music
-#requires to have MPD default port and MEDIASSHP for ssh
-MEDIASSHP=2200
-MEDIALOGIN=admin@mediacenter
-REMOTE_DATA_DIR=$MEDIALOGIN:/media/DATA
-alias center.mount="mkdir ~/media; sshfs -p $MEDIASSHP $REMOTE_DATA_DIR ~/media"
-alias center.umount="fusermount -u ~/media; rmdir ~/media"
-#mirror local -> remote external
-function center.updatebackup() {
-  LOCAL_DATA_DIR=~/myfiles
-  RSH_CMD="ssh -p $MEDIASSHP"
-  RSYNC_FILT_ARGS="-auvlp -FF"
-  RSYNC_ARGS="--info=progress2 --delete"
-  rsync-prepare -v -e "$RSH_CMD" -f "$RSYNC_FILT_ARGS" $LOCAL_DATA_DIR $REMOTE_DATA_DIR
-  rsync --timeout 180 -v -e "$RSH_CMD" $RSYNC_ARGS $RSYNC_FILT_ARGS  $LOCAL_DATA_DIR $REMOTE_DATA_DIR
-}
 
-# NOTE:
-# https://restic.readthedocs.io/en/latest/045_working_with_repos.html#copying-snapshots-between-repositories
-# https://restic.readthedocs.io/en/stable/045_working_with_repos.html#ensuring-deduplication-for-copied-snapshots
 if [ -f ~/private/.restic-env ]; then
   source ~/private/.restic-env
+  # ---- restic ----
   for repo in myfiles irfiles mediafiles; do
-    alias restic-b2-$repo="restic -r $RESTIC_REPOSITORY_BASE/$repo"
-    alias restic-rpi-$repo="restic -r sftp:mediacenter:/media/DATA/restic/$repo"
+    alias restic-b2-$repo="restic -r $RESTIC_B2_REPOSITORY_BASE/$repo"
+    alias restic-rpi-$repo="restic -r $RESTIC_RPI_SSH_REPOSITORY_BASE/$repo"
   done
+
+  function rpi.to-b2() {
+    # NOTE: assumes AWS API env is set on rpi
+    # FIXME: does not work, asks for second password and still session ends
+    repo=$1
+    repo_dir=$RESTIC_RPI_REPOSITORY_BASE/$repo
+    b2_dir=$RESTIC_B2_REPOSITORY_BASE/$repo
+    read -s -p "Password: " repo_pass
+    echo
+    ssh $RPI_HOSTNAME tmux new -d -s restic-copy-$repo env RESTIC_PASSWORD=$repo_pass restic -r $b2_dir copy --from-repo $repo_dir
+  }
+  function rpi.restic-mount() {
+    repo=$1
+    repo_dir=$RESTIC_RPI_REPOSITORY_BASE/$repo
+    mnt_dir=$RESTIC_RPI_MNT_DIR/$repo
+    read -s -p "Password: " repo_pass
+    echo
+    ssh $RPI_HOSTNAME tmux new -d -s restic-mount-$repo env RESTIC_PASSWORD=$repo_pass restic -r $repo_dir mount $mnt_dir
+    ssh $RPI_HOSTNAME tmux list-sessions 2>&1 | grep restic-mount-$repo
+    while ! ssh mediacenter test -d $mnt_dir/snapshots; do
+      echo "Please wait..."
+      sleep 1
+    done
+    ssh $RPI_HOSTNAME ls $RESTIC_RPI_REPOSITORY_BASE/../$repo  # force loading file index
+  }
+  function rpi.restic-umount() {
+    repo=$1
+    repo_dir=$RESTIC_RPI_REPOSITORY_BASE/$repo
+    mnt_dir=$RESTIC_RPI_MNT_DIR/$repo
+    ssh $RPI_HOSTNAME fusermount -u $mnt_dir
+    sleep 0.5
+    ssh $RPI_HOSTNAME tmux list-sessions 2>&1 | grep restic-mount-$repo
+  }
+  # ---- MPD ----
+  alias rpi.killmpd="ssh $RPI_HOSTNAME killall mpd"
+  function rpi.startmpd() {
+    ssh $RPI_HOSTNAME mpd /media/RASPBERRY/mpd.conf
+    ssh $RPI_HOSTNAME mpd /media/RASPBERRY/mpd_isi.conf
+  }
 fi
 
-function t460.update() {
-  if [ -z "$1" ]; then
-    echo "Missing directory"
-    return 1
-  fi
-  rsync --info=progress2 -auvlp -FF --delete -e "ssh -p 2200" /home/anton/$1/ admin@192.168.1.30:/home/admin/$1/
-}
 
 if [ -f ~/.bashrc_extras ]; then source ~/.bashrc_extras; fi
 
@@ -184,7 +197,7 @@ if [ -f ~/.bashrc_extras ]; then source ~/.bashrc_extras; fi
 function work() {
   luks_partition_name=SECURE
   work_dir=~/work
-  work_bashrc=$work_dir/utils/bashrc_work
+  work_bashrc=$work_dir/utils/work_dotfiles/bashrc_work.sh
   wg_iface=work-vpn
   wg_config=$work_dir/wireguard/$wg_iface.conf
 
@@ -192,9 +205,11 @@ function work() {
     work mount
     work connect
     work source-bashrc
+    teams-for-linux 1>&2 2>/dev/null &
   elif [ "$1" = "stop" ]; then
     work disconnect
     work umount
+    killall teams-for-linux
 
   elif [ "$1" = "mount" ]; then
     # NOTE: to change password, use cryptsetup luksChangeKey /dev/ENCRYPTED_DEVICE

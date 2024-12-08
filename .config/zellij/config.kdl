@@ -1,3 +1,4 @@
 simplified_ui true
 copy_command "xclip -selection clipboard"
 session_serialization false
+pane_frames false

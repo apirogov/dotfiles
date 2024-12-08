@@ -1,0 +1,25 @@
+[Default Applications]
+x-scheme-handler/tonsite=org.telegram.desktop.desktop
+x-scheme-handler/http=userapp-Firefox-1F06W2.desktop
+x-scheme-handler/https=userapp-Firefox-1F06W2.desktop
+x-scheme-handler/chrome=userapp-Firefox-1F06W2.desktop
+text/html=userapp-Firefox-1F06W2.desktop
+application/x-extension-htm=userapp-Firefox-1F06W2.desktop
+application/x-extension-html=userapp-Firefox-1F06W2.desktop
+application/x-extension-shtml=userapp-Firefox-1F06W2.desktop
+application/xhtml+xml=userapp-Firefox-1F06W2.desktop
+application/x-extension-xhtml=userapp-Firefox-1F06W2.desktop
+application/x-extension-xht=userapp-Firefox-1F06W2.desktop
+
+[Added Associations]
+x-scheme-handler/tonsite=org.telegram.desktop.desktop;
+x-scheme-handler/http=userapp-Firefox-1F06W2.desktop;
+x-scheme-handler/https=userapp-Firefox-1F06W2.desktop;
+x-scheme-handler/chrome=userapp-Firefox-1F06W2.desktop;
+text/html=userapp-Firefox-1F06W2.desktop;
+application/x-extension-htm=userapp-Firefox-1F06W2.desktop;
+application/x-extension-html=userapp-Firefox-1F06W2.desktop;
+application/x-extension-shtml=userapp-Firefox-1F06W2.desktop;
+application/xhtml+xml=userapp-Firefox-1F06W2.desktop;
+application/x-extension-xhtml=userapp-Firefox-1F06W2.desktop;
+application/x-extension-xht=userapp-Firefox-1F06W2.desktop;

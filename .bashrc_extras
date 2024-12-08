@@ -7,6 +7,7 @@ permutate(){ echo $@ | sed 's/ /\n/g' | shuf; }
 #Filesystem
 function rsync-dirs() {
   # Make sure that both directories exist!
+  #rsync --info=progress2 --delete -auvlp -FF $1/ $2/
   rsync --info=progress2 -auv $1/ $2/
 }
 
